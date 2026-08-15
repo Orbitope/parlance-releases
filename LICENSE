@@ -1,0 +1,15 @@
+Copyright (c) 2026 Matthew Burke. All rights reserved.
+
+The documentation in this repository is published so that users of Parlance can
+read it. That is the entire grant: you may read it, link to it, and quote short
+excerpts with attribution.
+
+It is NOT licensed for redistribution, republication, translation, or inclusion
+in another work or product, in whole or in substantial part.
+
+This repository is deliberately NOT covered by the MIT grant that applies to the
+Parlance specification surface (schema, conformance vectors, reference
+validator, and the contract documents). Those are published at
+github.com/Orbitope/parlance-spec under LICENSE-SPEC and may be copied freely —
+copying them is the intent. This is the product's manual, which is a different
+thing.
