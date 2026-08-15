@@ -1,11 +1,13 @@
-# Parlance documentation site
+# Parlance — site and documentation
 
 **Generated. Do not edit here.**
 
-This repository holds the built documentation site for
-[Parlance](https://parlance.dev) and serves it via GitHub Pages. Every page is
-produced by a workflow in the Parlance repository and pushed here; the prose
-lives there, next to the software it describes.
+This repository is Parlance's public web presence: what it is, and how to use
+it. It serves via GitHub Pages at
+`https://orbitope.github.io/parlance-docs/`.
+
+Every page is produced by a workflow in the Parlance repository and pushed here.
+The prose lives there, next to the software it describes.
 
 If you edit a page in this repository, the next build overwrites it — and worse,
 for the interval before that, the docs disagree with themselves. Fix the source
