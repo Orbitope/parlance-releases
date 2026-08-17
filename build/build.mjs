@@ -36,9 +36,15 @@ hljs.registerLanguage("yaml", hljsYaml);
 
 // Links inside synced manuals that point at private-repo files which have a
 // home on this site. Applied to href values on synced pages only.
+//
+// SETUP_AND_MANAGEMENT is contributor documentation and is deliberately not
+// published (see synced/README.md), so its links are redirected to the authored
+// page covering the same ground for someone using the shipped app. A reader of
+// the manual inside the private repo follows the real file; a reader on this
+// site lands somewhere that exists.
 const SYNCED_LINK_MAP = {
   "EDITOR_GUIDE.md": "/docs/editor-guide/",
-  "SETUP_AND_MANAGEMENT.md": "/docs/setup/",
+  "SETUP_AND_MANAGEMENT.md": "/docs/install/",
 };
 
 // Output paths the checker tolerates missing, with a warning. The demo share
