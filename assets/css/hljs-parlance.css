@@ -1,0 +1,12 @@
+/* highlight.js theme mapped onto the Parlance syntax tokens (tokens.css). */
+
+.hljs { color: var(--text-main); }
+.hljs-attr, .hljs-property, .hljs-variable, .hljs-title { color: var(--syntax-key); }
+.hljs-string, .hljs-regexp { color: var(--syntax-string); }
+.hljs-number { color: var(--syntax-number); }
+.hljs-literal, .hljs-keyword, .hljs-built_in { color: var(--syntax-boolean); }
+.hljs-comment, .hljs-meta { color: var(--text-faint); font-style: italic; }
+.hljs-punctuation { color: var(--text-muted); }
+.hljs-addition { color: var(--success); }
+.hljs-deletion { color: var(--danger); }
+.hljs-section { color: var(--accent-primary); }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Parlance">
+  <!-- Favicon variant of brand/parlance-mark-bubble.svg: the macOS icon-grid
+       margin is dropped so the tile fills the viewBox (browser tabs supply
+       their own spacing), everything else is the mark unchanged. -->
+  <rect fill="#8FE3B0" x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+  <g transform="translate(192 91) translate(24 18) scale(1.203) translate(-300 -214)">
+    <path fill="#37474F" d="M300 214 H565 a266 266 0 0 1 0 532 H452 L300 914 Z"/>
+    <circle fill="#8FE3B0" cx="452" cy="480" r="38"/>
+    <circle fill="#8FE3B0" cx="566" cy="480" r="38"/>
+    <circle fill="#8FE3B0" cx="680" cy="480" r="38"/>
+  </g>
+</svg>

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Parlance">
+  <title>Parlance — speech bubble reading as a P</title>
+  <!--
+    Option B: the bubble whose silhouette also reads as a P.
+    Stronger at small sizes than Option A — one solid shape, nothing to fill
+    in — but far less ownable: bubble-plus-three-dots is the most common mark
+    in software. Best used where the P reading matters least: favicon, or a
+    monochrome menu-bar glyph.
+
+    The flat left edge and the straight tail are what carry the P reading;
+    rounding either of them turns it into a generic chat bubble.
+  -->
+  <defs>
+    <style>
+      .bg   { fill: #8FE3B0; }
+      .dark { fill: #37474F; }
+      .mint { fill: #8FE3B0; }
+    </style>
+  </defs>
+
+  <!--
+    Apple's macOS icon grid: the rounded rect is 824x824 inside a 1024 canvas,
+    i.e. 100px of TRANSPARENT margin on every side. macOS applies no mask to
+    app icons — unlike iOS, the artwork supplies its own rounded rect and its
+    own padding — so a squircle drawn to the full 1024 renders visibly larger
+    than every system icon sitting next to it in the Dock. (Measured: Notes.app
+    fills 82% of its canvas; this filled 100%.)
+
+    Applied as one scale about the centre so the tile and the glyph shrink
+    together and every coordinate below stays as documented. 824/1024 =
+    0.8046875, which also takes the corner radius to ~184, matching the ~185.4
+    the grid specifies.
+  -->
+  <g transform="translate(512 512) scale(0.8046875) translate(-512 -512)">
+
+  <rect class="bg" x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+
+  <!--
+    The glyph is drawn in its own coordinate space (bbox 300,214 -> 831,914)
+    and scaled up here to fill more of the tile — it was originally sitting in
+    a lot of dead space, with a 300px left margin against a 193px right one.
+    Now ~192px left/right and ~91px top/bottom: balanced, and ~20% larger in
+    each dimension, which is what buys legibility at 32px and below.
+
+    Read the transform right to left: move the bbox origin to 0,0 — scale —
+    place it at 192,91 — then apply an optical nudge. Keeping it as a
+    transform rather than baking new numbers into the path means the geometry
+    contract above still describes the coordinates you actually see in the
+    path data.
+
+    The nudge is deliberately a separate translate so it stays tweakable
+    without touching the placement maths. It is optical, not geometric:
+    measured margins are balanced, but the mark carries its weight in the
+    bowed upper-right while the bottom-left thins to a point, so dead-centre
+    reads as sitting slightly high and left. Shifting right and down settles
+    it. The tail tip ends up closer to the bottom edge than the body is to
+    the top — intended, since a point needs less breathing room than a mass.
+  -->
+  <g transform="translate(192 91) translate(24 18) scale(1.203) translate(-300 -214)">
+
+  <!--
+    Bubble body: flat on the left (the P's stem), bowed on the right.
+    Drawn as one path so the tail is continuous with the body rather than a
+    separate triangle butted against it — no seam at any zoom.
+
+    Tail orientation: the point sits at the BOTTOM-LEFT and the diagonal runs
+    up-and-right to meet the body. That makes the left edge a single unbroken
+    line from the top of the bubble down to the tip (214 -> 914), which is
+    what makes the stroke read as a P's stem. Mirroring it — point at
+    bottom-right, diagonal up-left — breaks the stem into two segments and
+    the P reading goes with it.
+  -->
+  <path class="dark" d="
+    M300 214
+    H565
+    a266 266 0 0 1 0 532
+    H452
+    L300 914
+    Z
+  "/>
+
+  <!-- Three dots, centred on the bubble body (not the whole shape). -->
+  <circle class="mint" cx="452" cy="480" r="38"/>
+  <circle class="mint" cx="566" cy="480" r="38"/>
+  <circle class="mint" cx="680" cy="480" r="38"/>
+
+  </g>
+  </g>
+</svg>

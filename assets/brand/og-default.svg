@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Default Open Graph card: dark editor ground, mark + wordmark + tagline.
+       Rasterized to og-default.png (committed); regenerate with qlmanage
+       after editing. -->
+  <rect width="1200" height="630" fill="#080f11"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0" r="0.9">
+      <stop offset="0" stop-color="#8fe3b0" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#8fe3b0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g transform="translate(540 128) scale(0.1171875)">
+    <rect fill="#8FE3B0" x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+    <g transform="translate(192 91) translate(24 18) scale(1.203) translate(-300 -214)">
+      <path fill="#37474F" d="M300 214 H565 a266 266 0 0 1 0 532 H452 L300 914 Z"/>
+      <circle fill="#8FE3B0" cx="452" cy="480" r="38"/>
+      <circle fill="#8FE3B0" cx="566" cy="480" r="38"/>
+      <circle fill="#8FE3B0" cx="680" cy="480" r="38"/>
+    </g>
+  </g>
+  <text x="600" y="345" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5" fill="#e0ebeb">Parlance</text>
+  <text x="600" y="418" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="30" fill="#b4c6c8">Git-native narrative design for story-driven games</text>
+  <text x="600" y="468" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="22" fill="#8fa4a8">Schema-first · Engine-agnostic · Your story is plain JSON in your repo</text>
+</svg>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="canonical" href="{{canonical}}">
+<meta name="theme-color" content="#080f11">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="{{canonical}}">
+<meta property="og:image" content="{{ogimage}}">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="{{root}}assets/brand/favicon.svg">
+<link rel="apple-touch-icon" href="{{root}}assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="{{root}}assets/css/fonts.css">
+<link rel="stylesheet" href="{{root}}assets/css/tokens.css">
+<link rel="stylesheet" href="{{root}}assets/css/site.css">
+<link rel="stylesheet" href="{{root}}assets/css/hljs-parlance.css">
+{{ga}}
+</head>
+<body class="{{bodyclass}}">
+
+<header class="site-header">
+  <a class="lockup" href="{{root}}">
+    <svg class="mark" viewBox="0 0 1024 1024" width="26" height="26" aria-hidden="true">
+      <g transform="translate(512 512) scale(0.8046875) translate(-512 -512)">
+        <rect fill="#8fe3b0" x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+        <g transform="translate(192 91) translate(24 18) scale(1.203) translate(-300 -214)">
+          <path fill="#37474F" d="M300 214 H565 a266 266 0 0 1 0 532 H452 L300 914 Z"/>
+          <circle fill="#8fe3b0" cx="452" cy="480" r="38"/>
+          <circle fill="#8fe3b0" cx="566" cy="480" r="38"/>
+          <circle fill="#8fe3b0" cx="680" cy="480" r="38"/>
+        </g>
+      </g>
+    </svg>
+    <span class="lockup-name">Parlance</span>
+  </a>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+  <nav class="site-nav" id="site-nav" aria-label="Site">
+    {{headernav}}
+    <a class="nav-github" href="{{github}}" rel="noopener">GitHub</a>
+    <span class="pill-soon" title="The desktop app is not yet publicly available">Download soon</span>
+  </nav>
+</header>
+
+<div class="layout">
+  {{sidebar}}
+  <main class="main">
+    {{content}}
+    {{syncedfooter}}
+  </main>
+  {{toc}}
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="lockup-name">Parlance</span>
+      <p>A git-native narrative design tool for story-driven games.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{root}}docs/">Documentation</a>
+      <a href="{{root}}license/">Licensing</a>
+      <a href="{{root}}docs/spec/">The open spec</a>
+      <a href="https://github.com/Orbitope/parlance-spec" rel="noopener">parlance-spec (MIT)</a>
+      <a href="https://github.com/Orbitope/parlance-gdscript" rel="noopener">Godot runtime</a>
+      <a href="https://orbitope.github.io/" rel="noopener">Orbitope</a>
+    </div>
+    <div class="footer-license">
+      <p>The editor is free, including for commercial games —
+      <a href="{{root}}license/">licensing in six bullets</a>.
+      Site content © Matthew Burke. The format spec, schemas, and conformance vectors are
+      MIT-licensed — see <a href="{{root}}docs/spec/">the open spec</a>.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="{{root}}assets/js/site.js"></script>
+</body>
+</html>

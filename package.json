@@ -1,0 +1,23 @@
+{
+  "name": "parlance-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Build pipeline for the Parlance public site (orbitope.github.io/parlance-docs)",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "serve": "node build/serve.mjs",
+    "dev": "npm run build && npm run serve"
+  },
+  "dependencies": {
+    "github-slugger": "^2.0.0",
+    "highlight.js": "^11.10.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.1.0",
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@fontsource/lora": "^5.1.0"
+  }
+}

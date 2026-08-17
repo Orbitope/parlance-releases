@@ -1,0 +1,88 @@
+/*
+ * Parlance design tokens — VERBATIM COPY of the app's token file.
+ *
+ * Source of truth: editor/client/src/styles/tokens.css in the private
+ * Orbitope/parlance repo. When the app's tokens change, re-copy the :root
+ * block below by hand; do not fork values here. Site-specific styling
+ * belongs in site.css, never in this file.
+ */
+
+:root {
+  /* Declare the document dark. Covers native scrollbars, form controls,
+     focus rings, and the pre-paint canvas — no white flash on load. */
+  color-scheme: dark;
+
+  /* ---- Brand ----
+     The logo's mint. Deliberately NOT the UI accent: --success is already
+     green and load-bearing, and a mint selection colour collides with it.
+     Mint is for the mark, the wordmark and splash chrome; --accent-primary
+     carries selection. The logo's charcoal is the basis of the elevation
+     ramp below. */
+  --brand-mint: #8fe3b0;
+
+  /* ---- Elevation (background layers, darkest to lightest) ---- */
+  --bg-canvas: #0d1418;
+  --bg-sunken: #080f11;
+  --bg-surface: #131d21;
+  --bg-card: #1c272d;
+  --bg-card-hover: #25333a;
+
+  /* ---- Borders ---- */
+  --border-subtle: #2a3941;
+  --border-default: #33454e;
+  --border-strong: #425761;
+
+  /* ---- Text ---- */
+  --text-main: #e0ebeb;
+  --text-secondary: #b4c6c8;
+  --text-muted: #8fa4a8;
+  --text-faint: #5e7278;
+
+  /* ---- Accent: primary (selection, links, active state) ---- */
+  --accent-primary: #2dd4bf;
+  --accent-primary-hover: #5eead4;
+  --accent-primary-bg: #0f3d3a;
+  --accent-primary-bg-hover: #13514c;
+  --accent-primary-text: #99f6e4;
+  --accent-primary-tint-bg: #102a2b;
+  --accent-primary-tint-border: #1d4d4d;
+
+  /* ---- Semantic: success (pass / entry / positive) ---- */
+  --success: #4ade80;
+  --success-strong: #86efac;
+  --success-bg: #123626;
+  --success-border: #1d4d33;
+
+  /* ---- Semantic: danger (fail / error / destructive) ---- */
+  --danger: #f87171;
+  --danger-bg: #2c1a1a;
+  --danger-border: #5c2e2e;
+
+  /* ---- Semantic: warning ---- */
+  --warning: #fbbf24;
+  --warning-strong: #fcd34d;
+  --warning-bg: #2b2205;
+
+  /* ---- Semantic: AI-generated / effects / injected content ---- */
+  --accent-ai: #a78bfa;
+  --accent-ai-strong: #c084fc;
+  --accent-ai-bg: #241a33;
+  --accent-ai-border: #3a3357;
+
+  /* ---- Generic tag chips ---- */
+  --tag-bg: #243036;
+  --tag-border: #33454e;
+  --tag-text: #7fb8b0;
+
+  /* ---- JSON / syntax highlighting ---- */
+  --syntax-key: #9cdcfe;
+  --syntax-string: #ce9178;
+  --syntax-number: #b5cea8;
+  --syntax-boolean: #569cd6;
+  --syntax-null: #808080;
+
+  /* ---- Typography ---- */
+  --font-chrome: "Inter", "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  --font-prose: "Lora", "Merriweather", Georgia, serif;
+}

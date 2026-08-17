@@ -1,0 +1,173 @@
+---
+title: Parlance
+description: Parlance is a git-native narrative design tool for story-driven games. Schema-first, engine-agnostic — your story is plain JSON in your repo, validated on every save and read verbatim by your engine.
+---
+<section class="hero">
+  <svg class="mark-lg" viewBox="0 0 1024 1024" aria-hidden="true">
+    <rect fill="#8fe3b0" x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+    <g transform="translate(192 91) translate(24 18) scale(1.203) translate(-300 -214)">
+      <path fill="#37474F" d="M300 214 H565 a266 266 0 0 1 0 532 H452 L300 914 Z"/>
+      <circle fill="#8fe3b0" cx="452" cy="480" r="38"/>
+      <circle fill="#8fe3b0" cx="566" cy="480" r="38"/>
+      <circle fill="#8fe3b0" cx="680" cy="480" r="38"/>
+    </g>
+  </svg>
+  <h1>Git-native narrative design<br>for <em>story-driven games</em></h1>
+  <p class="sub">Schema-first. Engine-agnostic. Your story is plain JSON in your repo —
+  no database, no export step, no proprietary format between your writers and your game.</p>
+  <div class="cta-row">
+    <a class="btn btn-mint" href="{{root}}docs/">Read the docs</a>
+    <a class="btn btn-ghost" href="{{root}}demo/">Play the demo</a>
+    <span class="cta-note">Desktop app coming soon · <a href="{{root}}license/">free, including for commercial games</a> · the format spec is MIT</span>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>Your story is files</h2>
+  <p class="section-sub">Every character, dialogue, and quest is a human-readable JSON file
+  the visual editor reads and writes directly. Git is the single source of truth — which means
+  narrative gets branches, diffs, reviews, and CI, just like code.</p>
+  <div class="split">
+    <div class="code-panel"><pre style="margin:0">{
+  <span class="k">"id"</span>: <span class="s">"npc_wren"</span>,
+  <span class="k">"name"</span>: <span class="s">"Aldous Wren"</span>,
+  <span class="k">"archetype"</span>: <span class="s">"apothecary"</span>,
+  <span class="k">"dialogues"</span>: [
+    { <span class="k">"dialogue"</span>: <span class="s">"dlg_wren_cornered"</span>,
+      <span class="k">"showIf"</span>: { <span class="k">"type"</span>: <span class="s">"flag"</span>, <span class="k">"flag"</span>: <span class="s">"knows_wren_dismissed"</span> } },
+    { <span class="k">"dialogue"</span>: <span class="s">"dlg_wren_first"</span> }
+  ]
+}</pre></div>
+    <div class="code-panel"><pre style="margin:0"><span class="comment">$ git diff data/dialogues/dlg_wren_first.json</span>
+
+  <span class="k">"text"</span>:
+<span class="del">-  "I sell tinctures. Nothing stronger."</span>
+<span class="add">+  "I sell tinctures, magistrate. Nothing stronger —</span>
+<span class="add">+   nothing that would do *that* to a man."</span>
+
+<span class="comment">One line of dialogue changed. One line in the diff.
+Review it in a pull request like everything else.</span></pre></div>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>Built around the way stories actually branch</h2>
+  <p class="section-sub">A visual editor for the whole narrative layer — not just dialogue trees.
+  This is it, editing the demo mystery:</p>
+  <div class="shot-wide">
+    <img class="shot" src="{{root}}assets/images/editor-dialogue-canvas.png"
+         alt="The Parlance editor: a dialogue node graph with skill-check badges, START and END markers, and a pacing panel showing words, nodes, choices, and dead ends"
+         loading="lazy">
+    <p class="shot-caption">The dialogue canvas — a suspect's confrontation scene, with skill-check
+    routes (green success / red failure) and live pacing analysis.</p>
+  </div>
+
+  <div class="split feature-row">
+    <div class="copy">
+      <h3>Dialogue ladders: state-aware conversations, first-match-wins</h3>
+      <p>Each character carries an ordered ladder of dialogues, each rung optionally gated
+      on game state. Talk to a suspect before you find the evidence and you get one scene;
+      talk to them after, and the ladder re-points — no scripting required.</p>
+      <p>A live preview shows which rung currently wins, and the validator catches the
+      classic mistakes: dead rungs, stuck rungs, missing fallthroughs.</p>
+      <p><a href="{{root}}docs/concepts/dialogue-laddering/">How dialogue laddering works →</a></p>
+    </div>
+    <div>
+      <img class="shot" src="{{root}}assets/images/editor-ladder.png"
+           alt="A character form in Parlance showing the Dialogue Ladder editor: rung 1 gated on a flag, rung 2 marked always (fallthrough)"
+           loading="lazy">
+      <p class="shot-caption">Wren's ladder: the confrontation on top, gated on evidence;
+      the first meeting below as the fallthrough.</p>
+    </div>
+  </div>
+
+  <div class="split feature-row">
+    <div>
+      <img class="shot" src="{{root}}assets/images/editor-playtest.png"
+           alt="Playtest mode in Parlance: the active node glows on the canvas while the play panel shows a passed Observation check, applied effects, a discovery pool, and a live state table"
+           loading="lazy">
+      <p class="shot-caption">A live session: the d20 roll, the effects it fired, where the
+      story can go next, and every flag it touched.</p>
+    </div>
+    <div class="copy">
+      <h3>Playtest in place — then hand anyone a playable file</h3>
+      <p>Walk any scene with a live simulated game state: seeded, deterministic dice,
+      a rewindable transcript, forced check outcomes, and edit-while-playing. When a scene
+      is ready for feedback, export a <strong>share build</strong> — one self-contained HTML
+      file that plays in any browser, no install.</p>
+      <p><a href="{{root}}docs/concepts/playtest-determinism/">Playtesting &amp; determinism →</a></p>
+    </div>
+  </div>
+
+  <div class="split feature-row">
+    <div class="copy">
+      <h3>Validation everywhere — on save, in CI, in your pipeline</h3>
+      <p>Eighteen families of checks run on every save and stream to every open editor
+      window: dangling references, unreachable nodes, flags nothing reads, quests that
+      can't complete, ladder mistakes. The same validator runs headless as
+      <code>parlance ci-check</code>, so a broken story fails the build before it ships.</p>
+      <p><a href="{{root}}docs/concepts/validation/">The validation model →</a></p>
+    </div>
+    <div class="code-panel"><pre style="margin:0"><span class="comment">$ parlance ci-check . --strict</span>
+
+<span class="del">✗ [REF]</span>    dlg_accuse: choice targets missing
+           node <span class="s">"node_confession"</span>
+<span class="del">✗ [LADDER]</span> npc_bragg: rung 1 is unconditional —
+           rungs below it can never win
+<span class="k">⚠ [FLAG]</span>   flag <span class="s">"heard_bell"</span> is set but never read
+
+exit 1  <span class="comment">— the build fails, the story stays whole</span></pre></div>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>A contract, not an exporter</h2>
+  <p class="section-sub">Your engine reads the exact files the editor writes. The runtime
+  semantics are a published contract with conformance vectors — ports prove themselves
+  against the vectors, not against vibes.</p>
+  <div class="split">
+    <div class="copy">
+      <p>The <a href="https://github.com/Orbitope/parlance-gdscript" rel="noopener">Godot runtime</a>
+      executes Parlance JSON natively in GDScript and is verified against the published
+      conformance suite. The same vectors are how any engine — Unity, custom, whatever —
+      gets a provably-correct port.</p>
+      <p>The contract, schemas, and vectors are published as
+      <a href="https://github.com/Orbitope/parlance-spec" rel="noopener">parlance-spec</a> under MIT —
+      your data's meaning never depends on our goodwill.</p>
+      <p>There's also an <a href="{{root}}docs/reference/mcp/">MCP server</a>, so LLM agents
+      can read and write project data through the same validated path the editor uses.</p>
+      <p><a href="{{root}}docs/concepts/engine-contract/">The engine contract →</a></p>
+    </div>
+    <div class="code-panel scoreboard"><pre style="margin:0">  <span class="pass">PASS</span>  mulberry32                  6 vectors
+  <span class="pass">PASS</span>  evaluate                   53 vectors
+  <span class="pass">PASS</span>  applyEffect                27 vectors
+  <span class="pass">PASS</span>  resolveCheck               18 vectors
+  <span class="pass">PASS</span>  stepDialogue                8 vectors
+  <span class="pass">PASS</span>  chooseChoice                9 vectors
+  <span class="pass">PASS</span>  advanceNode                 9 vectors
+  <span class="pass">PASS</span>  resolveCharacterDialogue    6 vectors
+  <span class="skip">SKIP</span>  resolveQuests / progression — not yet ported
+
+  <span class="pass">136 passed</span>, 0 failed, 19 skipped</pre></div>
+  </div>
+</section>
+
+<section class="home-section">
+  <h2>Try it on a real mystery</h2>
+  <p class="section-sub">The demo project is a complete, tiny whodunit: one night, one body,
+  three suspects, three endings. Skill checks with real failure branches, evidence-gated
+  dialogue ladders, counters, quests — every feature demonstrated in a story you can
+  actually play. Released CC0.</p>
+  <div class="cta-row" style="display:flex;gap:0.8rem;flex-wrap:wrap">
+    <a class="btn btn-primary" href="{{root}}demo/">Play The Mistfall Inn</a>
+    <a class="btn btn-ghost" href="{{root}}docs/get-started/first-project/">Open it in the editor</a>
+  </div>
+</section>
+
+<section class="closing-cta">
+  <h2>First dialogue in ten minutes</h2>
+  <div class="cta-row" style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap">
+    <a class="btn btn-mint" href="{{root}}docs/get-started/first-project/">Start the tutorial</a>
+    <a class="btn btn-ghost" href="{{root}}docs/concepts/workflow/">See how it fits together</a>
+  </div>
+</section>
