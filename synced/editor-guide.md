@@ -29,28 +29,53 @@ human-readable JSON so your narrative data stays in git.
 
 ## 1. Starting the editor
 
-From the `editor/` directory, run the dev server:
+Launch Parlance and point it at a **project folder**. A project is just a
+directory of narrative files — most often the `data/` directory inside your
+game's own repository, so the story is versioned alongside the game that reads
+it. Nothing is imported and nothing is copied into a library: the editor reads
+and writes those files in place.
 
-```bash
-npm run dev
+A folder counts as a project if it contains a `parlance.config.json`, a `data/`
+directory, or a `schema/` directory. Open an empty folder and the editor
+scaffolds the standard layout on first save; `parlance init <dir>` does the same
+from the command line.
+
+### Start with the demo
+
+**The Mistfall Inn** ships with the editor: a complete, tiny murder mystery —
+one night, one body, three suspects, three endings — with no art and no engine
+required. It exists so your first session is spent on something real instead of
+an empty directory.
+
+Open it and start with **The Common Room** under Locations, or go straight to
+`dlg_examine_body` and press **▶ Play**. Each of its parts is demonstrating
+something specific; `examples/mistfall-inn/README.md` maps features to the
+scenes that show them off.
+
+### Where your files live
+
+```
+<your game repo>/
+  data/    the narrative — what your game reads at runtime
+  tests/   route fixtures; a shipping game never loads these
+  lore/    Markdown canon docs, read-only in the editor
+  review/  review threads; invisible to the runtime and the validator
 ```
 
-This starts two processes concurrently:
+Full detail, including how to relocate any of those directories, is in §14 and
+in the setup guide's per-project configuration section.
 
-| Process | URL | Role |
-|---------|-----|------|
-| `host` (Fastify) | `http://localhost:8000` | Reads/writes your `data/` files, serves the API |
-| `client` (Vite) | `http://localhost:5173` | Hot-reloading UI (proxies `/api` to the host) |
+### Running from source
 
-The host needs to know where your project lives. Pass it as an argument if it
-doesn't auto-detect from the working directory:
+Contributors and self-hosters can run the editor as a local host plus web client
+instead of the packaged app. That path — prerequisites, the two dev-server
+processes and their ports, pointing the host at a project, production builds,
+and packaging — is documented in
+[`SETUP_AND_MANAGEMENT.md`](SETUP_AND_MANAGEMENT.md) §§2–3, which is where the
+build-level detail lives so this guide can stay about *using* the editor.
 
-```bash
-PARLANCE_ROOT=/path/to/project npm run dev
-```
-
-In production (Electron app), the bundled host serves the built client from
-the same process on port 8000.
+Everything in this guide applies identically either way: the same editor, the
+same validator, the same files on disk.
 
 ---
 
