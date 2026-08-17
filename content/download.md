@@ -22,9 +22,9 @@ In the meantime: **[play the demo](/demo/)**, read the
 | **Windows** | x64 installer, code-signed | Windows 10 or later |
 | **Linux** | AppImage | Any recent 64-bit distribution |
 
-Every release is published with **SHA-256 checksums** and release notes at
-[the latest release](https://github.com/Orbitope/parlance-releases/releases/latest),
-so you can verify what you downloaded and see exactly what changed.
+Every release is published with **SHA-256 checksums** and release notes — see
+[all releases](/releases/) for the full list, or jump straight to
+[the latest](https://github.com/Orbitope/parlance-releases/releases/latest).
 Package-manager installs — Homebrew on macOS, winget on Windows — will be
 available for people who'd rather not touch a browser, and the app will also be
 on **itch.io** alongside the games it's made for.

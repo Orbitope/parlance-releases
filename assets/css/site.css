@@ -345,6 +345,38 @@ img { max-width: 100%; border-radius: 8px; }
 .main pre:hover .copy-btn { opacity: 1; }
 .copy-btn:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
 
+/* Releases list */
+.releases-status { color: var(--text-muted); }
+.release {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  background: var(--bg-surface);
+}
+.release-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.release-head h3 { margin: 0; font-size: 1.05rem; }
+.release-date { font-size: 0.8rem; color: var(--text-faint); font-family: var(--font-mono); }
+.release-links { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.8rem 0 0.4rem; }
+.release-dl {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid var(--border-default);
+  border-radius: 7px;
+  padding: 0.3rem 0.8rem;
+  color: var(--accent-primary);
+}
+.release-dl:hover { border-color: var(--accent-primary); background: var(--accent-primary-tint-bg); text-decoration: none; }
+.release-dl.is-missing { color: var(--text-faint); border-style: dashed; }
+.release-notes-link { margin: 0.4rem 0 0; font-size: 0.85rem; }
+
 /* Synced-page footer stamp */
 .synced-footer {
   margin-top: 3rem;

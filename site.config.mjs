@@ -110,6 +110,7 @@ export default {
     { src: "content/compare.md", out: "compare/index.html" },
     { src: "content/demo.md", out: "demo/index.html" },
     { src: "content/download.md", out: "download/index.html" },
+    { src: "content/releases.md", out: "releases/index.html" },
     { src: "content/license.md", out: "license/index.html" },
     { src: "content/faq.md", out: "faq/index.html" },
     { src: "content/404.md", out: "404.html" },
