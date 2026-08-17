@@ -962,8 +962,20 @@ rather than stashing them behind your back.
 Pick a **Base** and **Head** and press **Show changes** for a narrative diff —
 not a file diff. It reports what happened to the *story*: "2 nodes added, 1 line
 edited, ladder reordered", each entity's before/after lines, flags introduced or
-retired, and the validation delta. As the author you can press **Open** on any
-dialogue to see the same changes marked on the canvas.
+retired, and the validation delta.
+
+Both branch pickers are searchable: type any part of a name — several words, in
+any order — rather than scrolling a list that grows with every branch the team
+has ever pushed. Local branches are listed before remote ones, and the branch
+you have checked out is marked, since `main` and `origin/main` are otherwise
+the same word and picking the wrong one silently swaps AUTHORING for REVIEWING.
+
+Each changed entity carries a button to open it. As the **author** that is
+**Open**, which draws the dialogue on the canvas with this branch's changes
+marked. As a **reviewer** the canvas can't help — it draws your checked-out
+working tree, which is a different branch — so the button is **Play**, and it
+takes you to the scene read-only in the tab below. Entity types with no
+read-only viewer yet (characters, quests, …) show the button disabled.
 
 ### Playing the branch
 
@@ -971,6 +983,22 @@ dialogue to see the same changes marked on the canvas.
 not your files. This is the point of reviewer mode: you hear the scene as it
 actually plays before saying anything about it. Everything from Playtest mode
 (§12) works here, including the seed, rewind, and forced check outcomes.
+
+The **Scene** picker offers every dialogue on the branch, searchable by title
+or id. Once you have pressed **Show changes**, the ones this branch touched are
+grouped first and annotated with what happened to them ("1 line edited") — the
+annotation is searchable too, so typing *line edited* narrows the list to just
+those scenes.
+
+The rest of the project stays in the list on purpose. A branch that edits a
+quest, a flag, or a character ladder changes how a scene *behaves* without
+touching that scene's own file, so the dialogues worth playing are often ones
+that show up as unchanged — and reading an edit in context usually means
+playing the scenes on either side of it.
+
+When the scene you are playing is one the branch changed, its before/after
+lines sit above the transcript, so you can watch it play and see what moved
+without switching back to **Changes**.
 
 Expand **Log** under the transcript and each line grows a 💬. Clicking it opens
 a comment already anchored to the node or choice you just heard, so the thread
