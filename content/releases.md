@@ -7,7 +7,8 @@ description: Every Parlance release — downloads for macOS, Windows, and Linux,
 
 Every tagged version, with builds for macOS, Windows, and Linux. Each release
 carries a **SHA-256 checksum** beside every file so you can verify what you
-downloaded, and notes describing what changed.
+downloaded, and notes describing what changed. Just want the current build?
+[Download](/download/).
 
 <!-- id must not collide with a heading slug: `# Releases` is auto-assigned
      id="releases" by the anchor plugin, and querySelector would match it. -->
@@ -23,8 +24,8 @@ downloaded, and notes describing what changed.
 
 | Platform | File | Notes |
 |---|---|---|
-| **macOS** | `.dmg` | Universal — Apple Silicon and Intel |
-| **Windows** | `.exe` | Installer |
+| **macOS** | `.dmg` | Apple Silicon (M-series). No Intel build yet |
+| **Windows** | `.exe` | Installer, x64 |
 | **Linux** | `.AppImage` or `.deb` | AppImage runs anywhere; `.deb` for Debian and Ubuntu |
 | Any | `.sha256` | Checksum for the file of the same name |
 
@@ -51,5 +52,5 @@ Terms attach to the version you have and never change retroactively
 First launch, where your project lives, and the handful of things that commonly
 go wrong: [Install & run](/docs/install/).
 
-Prefer a package manager or the itch.io app? Those arrive alongside the first
-public build — see [Download](/download/) for status.
+Package-manager installs (Homebrew, winget) and an itch.io listing are on the
+way. Until then, [Download](/download/) has the current build.

@@ -29,21 +29,25 @@
   var releasesEl = document.getElementById("release-list");
   if (releasesEl && window.fetch) {
     var repo = releasesEl.getAttribute("data-releases-repo");
+    var limit = parseInt(releasesEl.getAttribute("data-releases-limit") || "10", 10);
     var status = releasesEl.querySelector(".releases-status");
+    // Labels describe what the build actually targets: the macOS dmg is
+    // arm64-only and the Windows installer is x64 (electron-builder config).
     var PLATFORMS = [
-      { label: "macOS", test: /\.dmg$/i },
-      { label: "Windows", test: /\.exe$/i },
-      { label: "Linux", test: /\.(AppImage|deb)$/i },
+      { label: "macOS (Apple Silicon)", test: /\.dmg$/i },
+      { label: "Windows (x64)", test: /\.exe$/i },
+      { label: "Linux (AppImage)", test: /\.AppImage$/i },
+      { label: "Linux (.deb)", test: /\.deb$/i },
     ];
 
-    fetch("https://api.github.com/repos/" + repo + "/releases?per_page=10")
+    fetch("https://api.github.com/repos/" + repo + "/releases?per_page=" + limit)
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (releases) {
-        releases = releases.filter(function (r) { return !r.draft; });
+        releases = releases.filter(function (r) { return !r.draft; }).slice(0, limit);
         if (!releases.length) {
           status.innerHTML =
-            "No public releases yet — the first build ships once the app is ready. " +
-            '<a href="download/">Download status</a>.';
+            "Couldn't find any releases. " +
+            '<a href="https://github.com/' + repo + '/releases">Check GitHub →</a>';
           return;
         }
         releasesEl.innerHTML = releases.map(function (rel) {

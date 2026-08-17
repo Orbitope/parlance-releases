@@ -64,16 +64,17 @@ body {
 }
 .site-nav a:hover { color: var(--accent-primary-hover); }
 .site-nav a.active { color: var(--accent-primary); }
-.pill-soon {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: var(--tag-bg);
-  border: 1px solid var(--tag-border);
+.pill-download {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #06211e;
+  background: var(--accent-primary);
   border-radius: 999px;
-  padding: 0.15rem 0.6rem;
+  padding: 0.28rem 0.85rem;
   white-space: nowrap;
+  text-decoration: none;
 }
+.site-nav a.pill-download:hover { background: var(--accent-primary-hover); color: #06211e; }
 .nav-toggle {
   display: none;
   margin-left: auto;

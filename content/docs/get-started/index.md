@@ -9,9 +9,9 @@ Six short tutorials, one feature each. They build on each other but stand
 alone; every step is reproducible against a fresh `parlance init` project or
 the demo mystery, *The Mistfall Inn*, which ships with the app.
 
-> Parlance isn't publicly downloadable quite yet — see
-> [Download](/download/). These tutorials describe the shipping application;
-> the [playable demo](/demo/) is open to anyone right now.
+> New here? [Download Parlance](/download/) first — it's free, and the demo
+> project these tutorials use ships with it. Prefer to try before installing?
+> The [playable demo](/demo/) runs in your browser.
 
 | Tutorial | You'll learn | Time |
 |---|---|---|

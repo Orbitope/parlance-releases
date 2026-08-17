@@ -11,16 +11,18 @@ internet connection.
 
 ## Get the app
 
-The public download isn't available yet — see [Download](/download/) for
-status. When it lands it's a normal macOS application (Apple Silicon first);
-install it by dragging it to Applications.
+Grab a build from [Download](/download/) — macOS (Apple Silicon), Windows (x64),
+or Linux (AppImage or `.deb`). On macOS, drag Parlance to Applications.
 
-> **First launch on macOS.** Early builds are unsigned, so macOS may say
-> *"Parlance is damaged and can't be opened."* It isn't damaged — that's the
-> standard unsigned-app warning. Clear the quarantine flag once per download:
+> **First launch.** Current builds are unsigned, so each desktop platform warns
+> once. On macOS you may see *"Parlance is damaged and can't be opened."* It
+> isn't damaged — that's the standard unsigned-app warning. Clear the quarantine
+> flag once per download:
 > ```bash
 > xattr -cr /Applications/Parlance.app
 > ```
+> On Windows, SmartScreen may say *"Windows protected your PC"* — click
+> **More info → Run anyway**.
 
 ## Open a project
 
