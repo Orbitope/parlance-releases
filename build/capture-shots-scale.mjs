@@ -17,7 +17,11 @@ import { chromium } from "playwright";
 
 const CLIENT = process.env.PARLANCE_CLIENT_URL || "http://localhost:5173/";
 const OUT = new URL("../assets/images/", import.meta.url).pathname;
-const W = 1600, H = 1000;
+// A SMALLER viewport, not a larger one. These images are displayed a few
+// hundred pixels wide in the docs; capturing 1600px of UI and scaling it down
+// makes every label unreadable. 1200x750 at 2x gives the same sharpness with
+// each element occupying proportionally more of the frame.
+const W = 1200, H = 750;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
@@ -31,6 +35,14 @@ const shot = async (name) => {
 const fit = async () => {
   const f = page.locator(".react-flow__controls-fitview").first();
   if (await f.count()) { await f.click(); await page.waitForTimeout(900); }
+};
+// Fitting 112 nodes makes each one a smudge. Zoom back in afterwards so the
+// cards are legible — a readable portion of a big graph communicates more
+// than an unreadable whole, and the sidebar count carries the scale.
+const zoomIn = async (n) => {
+  const z = page.locator(".react-flow__controls-zoomin").first();
+  for (let i = 0; i < n && await z.count(); i++) { await z.click(); await page.waitForTimeout(400); }
+  await page.waitForTimeout(600);
 };
 // The entity list eats a third of the width. Graph shots are about the graph,
 // so collapse it, fit again, and give the canvas the whole frame.
@@ -50,6 +62,7 @@ const auto = page.locator("button:has-text('Auto layout')").first();
 if (await auto.count()) { await auto.click(); await page.waitForTimeout(2500); }
 await collapse();
 await fit();
+await zoomIn(4);
 await shot("scale-flow-map");
 await expand();
 
@@ -73,6 +86,7 @@ const dauto = page.locator("button:has-text('Auto layout')").first();
 if (await dauto.count()) { await dauto.click(); await page.waitForTimeout(1800); }
 await collapse();
 await fit();
+await zoomIn(1);
 await shot("scale-node-graph");
 await expand();
 await searchDetail.fill("");
@@ -85,6 +99,7 @@ const qauto = page.locator("button:has-text('Auto layout')").first();
 if (await qauto.count()) { await qauto.click(); await page.waitForTimeout(2200); }
 await collapse();
 await fit();
+await zoomIn(1);   // 2 clips the fan-out, which is the whole point here
 await shot("scale-quest-graph");
 await expand();
 
@@ -95,6 +110,7 @@ const lauto = page.locator("button:has-text('Auto layout')").first();
 if (await lauto.count()) { await lauto.click(); await page.waitForTimeout(2200); }
 await collapse();
 await fit();
+await zoomIn(2);
 await shot("scale-location-map");
 await expand();
 
