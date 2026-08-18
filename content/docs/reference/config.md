@@ -90,13 +90,14 @@ The four-way split is load-bearing:
 Every file the editor writes: **sorted keys, 2-space indent, LF line endings,
 literal UTF-8**. This is what keeps a one-line edit a one-line diff.
 
-```bash
-npm run normalize              # rewrite all project files to canonical form
-npm run normalize -- --check   # report drift without writing (CI runs this)
-```
+You get this for free: the editor rewrites every file it saves in canonical
+form, so anything you touch in Parlance is normalized on the way out.
 
-Hand-authored and script-generated files are the usual drift source —
-Python's `json.dumps` escapes non-ASCII by default, for example.
+Drift comes from files written by something else — a hand edit, or a script.
+Python's `json.dumps` escapes non-ASCII by default, for instance, so an em-dash
+becomes `\u2014`: it parses identically, and then the first save through the
+editor rewrites the whole file as a spurious diff. Opening and re-saving such
+files through the editor puts them back into canonical form.
 
 ## Environment variables
 

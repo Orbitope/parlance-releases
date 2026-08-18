@@ -50,9 +50,8 @@ Every file the editor writes is in canonical form, which is what keeps diffs
 honest — a one-line story edit is a one-line diff, never a whole-file reflow.
 
 Hand-authored or script-generated files can drift (Python's `json.dumps`
-escapes non-ASCII by default, for instance), so the tooling includes a
-normalizer: `npm run normalize` rewrites, `npm run normalize -- --check`
-verifies without writing, and CI runs the check.
+escapes non-ASCII by default, for instance). The editor normalizes on every
+save, so re-saving a drifted file through Parlance restores canonical form.
 
 ## Where the semantics live
 
