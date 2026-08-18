@@ -95,13 +95,19 @@ That last one is worth calling out, because it is invisible in every other
 tool: the dialogue is reachable, its references resolve, and it validates
 cleanly. Only a player arriving with the wrong flags ever finds it.
 
-## Try it
+## Try it yourself
 
-```bash
-git clone https://github.com/Orbitope/parlance-monte-cristo.git
-cd <parlance>/editor
-PARLANCE_ROOT=<path>/parlance-monte-cristo npm run dev
-```
+Everything on this page is a public project you can open in about a minute.
 
-The project is generated from a single hand-authored build script and rebuilds
-byte-identically, so you can edit it freely and always get back.
+1. **[Download Parlance](/download/)** if you have not already, and launch it.
+2. Get the project — either [download it as a zip](https://github.com/Orbitope/parlance-monte-cristo/archive/refs/heads/main.zip)
+   and unpack it, or clone it if you use git.
+3. **Point Parlance at that folder.** It has a `data/` directory and a
+   `parlance.config.json`, so the app recognises it immediately.
+
+The sidebar should read 112 dialogues, 31 characters, 14 quests. Reports
+should be clean.
+
+It is a demonstration project rather than a game, so edit it freely — change a
+gate, break a reference, and watch which panel notices first. That is the
+fastest way to learn what each view is actually for.
