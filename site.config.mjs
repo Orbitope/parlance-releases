@@ -137,6 +137,7 @@ export default {
     { src: "content/docs/concepts/dialogue-laddering.md", out: "docs/concepts/dialogue-laddering/index.html" },
     { src: "content/docs/concepts/schema-first.md", out: "docs/concepts/schema-first/index.html" },
     { src: "content/docs/concepts/git-native.md", out: "docs/concepts/git-native/index.html" },
+    { src: "content/docs/concepts/at-scale.md", out: "docs/concepts/at-scale/index.html" },
     { src: "content/docs/concepts/validation.md", out: "docs/concepts/validation/index.html" },
     { src: "content/docs/concepts/playtest-determinism.md", out: "docs/concepts/playtest-determinism/index.html" },
     { src: "content/docs/concepts/engine-contract.md", out: "docs/concepts/engine-contract/index.html" },
