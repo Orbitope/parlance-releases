@@ -627,7 +627,7 @@ Common codes:
 | `CUT` | Cutscene issue — unknown `entersDialogue`, never-triggered cutscene, or ambiguous ordering (two `play_cutscene` effects on one node) |
 | `LADDER` | Character dialogue-ladder shape issue — a **dead rung** (an unconditional rung before the end shadows the rungs below it), a **stuck rung** (an unconditional, top-priority, effectful rung re-fires forever on every re-entry), or **no fallthrough** (the last rung is gated, so the character may resolve to no dialogue). A dangling `dialogues[].dialogue` is a `REF` error. All warning-level; none blocks a save. |
 | `PROG` | Progression config (`progression.json`) issue — malformed thresholds (not strictly increasing), `pointsPerLevel`/`maxSkill` < 1 (error), a starting skill already at the ceiling, or the **soft-cap sanity** warning (authored XP grants enough points to max every skill). |
-| `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only). |
+| `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only — silent in a project with no quests). |
 | `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some character ladder reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
 
 The **Reports** row (sidebar footer) also shows the total issue count,
