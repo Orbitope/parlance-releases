@@ -795,6 +795,47 @@ leads to the same rolls and the same outcomes. Rewind + replay gives identical
 results. The seed only changes when you click **⟳ Reroll** (seed+1) or
 **🎲 Randomize** before a new session.
 
+### Snapshots, recorded routes, and imported saves
+
+A play session is throwaway by default. Three buttons make one permanent:
+
+| Button | What it writes |
+|--------|----------------|
+| **💾 Snapshot** | `tests/snapshots/snap_*.json` — the current game state as a named, reusable starting point |
+| **⦿ Save route** | `tests/routes/rt_*.json` — the steps you just walked, plus the assertions you tick, as a regression test |
+| **⤓ Import save file…** | `tests/snapshots/snap_*.json` — a save file written by the *game*, turned into a snapshot |
+
+**Load saved state (snapshot)** at the top of the Starting State editor picks a
+snapshot to start from; the state inputs below hydrate from it, so you can load a
+baseline and then tweak one flag.
+
+A snapshot also remembers **which dialogues had already been seen** when it was
+taken. That matters more than it sounds: a dialogue that is not `replayable`
+stops being offered once it has been played, so a baseline that forgot its own
+history would offer you — and any route starting from it — content the player at
+that point could never see again. Saving a snapshot mid-session records the
+session's seen set; loading one restores it.
+
+**Importing a save** is the way a bug found in the actual game becomes something
+the editor can open. Point it at a save file the game wrote and you get a
+snapshot you can start playing from immediately, carrying the state and the seen
+set.
+
+The import is refused if the save names content this project does not have — an
+unregistered flag, an unknown item, a dialogue from another build. That is not
+fussiness: a snapshot referring to something undeclared is a validation *error*,
+so importing it would hand you a red project and a fixture that fails CI. If the
+save came from a newer build, import it from the branch that has the content it
+refers to.
+
+The same import is available from the command line, which is what a build box or
+a bug-report triage script wants:
+
+```bash
+parlance save import path/to/slot1.json --id snap_bug_41 --name "Bug 41 repro"
+parlance route rt_bug_41
+```
+
 ### What playtest does NOT change
 
 Playtest is **read-only**. It never writes to any dialogue file or layout
