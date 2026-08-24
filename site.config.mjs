@@ -39,6 +39,9 @@ export default {
   // Empty string disables the snippet entirely — no gtag, no cookies.
   gaId: "G-QBW6GG8D1J",
   ogImage: "assets/brand/og-default.png",
+  // Alt text for the card. Describes the image, not the page — per-page
+  // context already rides along in og:title and og:description.
+  ogImageAlt: "Parlance — git-native narrative design for story-driven games",
 
   // Header navigation. hrefs are site-root-relative; the build prefixes {{root}}.
   header: [
@@ -103,11 +106,18 @@ export default {
 
   // Every page on the site. `src` is repo-relative; `out` is _site-relative.
   // `template`: "shell" (default) or "home". `synced: true` marks pages whose
-  // markdown is pushed from the private Orbitope/parlance repo.
+  // markdown is pushed from the private Orbitope/parlance repo. `ogImage` and
+  // `ogImageAlt` override the site-wide social card for one page — worth it for
+  // a page people link to directly, not for every page.
   pages: [
     { src: "templates/home.html", out: "index.html", template: "home" },
     { src: "content/features.md", out: "features/index.html" },
-    { src: "content/compare.md", out: "compare/index.html" },
+    {
+      src: "content/compare.md",
+      out: "compare/index.html",
+      ogImage: "assets/brand/og-compare.png",
+      ogImageAlt: "Parlance and the alternatives — articy:draft, Twine, ink, Yarn Spinner",
+    },
     { src: "content/demo.md", out: "demo/index.html" },
     { src: "content/download.md", out: "download/index.html" },
     { src: "content/releases.md", out: "releases/index.html" },

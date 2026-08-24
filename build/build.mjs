@@ -68,6 +68,20 @@ function copyDir(fromRel, toRel) {
   fs.cpSync(from, path.join(OUT, toRel), { recursive: true });
 }
 
+// Intrinsic size of a PNG, straight from the IHDR chunk. og:image:width and
+// og:image:height let Slack/Discord reserve the card's space before the image
+// loads, but only if they are true — so they are measured, never assumed. This
+// also gives the only existence check the og:image gets: checkLinks() skips
+// absolute https URLs, so a typo in an ogImage path would otherwise ship a card
+// that silently 404s.
+function pngSize(rel) {
+  const buf = fs.readFileSync(path.join(ROOT, rel));
+  if (buf.length < 24 || buf.toString("ascii", 12, 16) !== "IHDR") {
+    throw new Error(`${rel}: not a PNG (og:image must be a PNG)`);
+  }
+  return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+}
+
 function highlight(code, lang) {
   if (lang && hljs.getLanguage(lang)) {
     return `<pre class="hljs"><code>${hljs.highlight(code, { language: lang }).value}</code></pre>`;
@@ -211,6 +225,10 @@ function build() {
       toc = extractToc(contentHtml);
     }
 
+    // Pages may override the site-wide card; most don't.
+    const ogImage = page.ogImage || config.ogImage;
+    const ogSize = pngSize(ogImage);
+
     const title = meta.title || page.title || config.siteName;
     const fullTitle =
       page.out === "index.html" ? `${config.siteName} — git-native narrative design` : `${title} · ${config.siteName}`;
@@ -219,7 +237,11 @@ function build() {
       title: fullTitle,
       description: meta.description || page.description || config.defaultDescription,
       canonical: `${config.siteUrl}/${href}`,
-      ogimage: `${config.siteUrl}/${config.ogImage}`,
+      ogimage: `${config.siteUrl}/${ogImage}`,
+      ogimagew: String(ogSize.w),
+      ogimageh: String(ogSize.h),
+      ogimagealt: page.ogImageAlt || config.ogImageAlt,
+      sitename: config.siteName,
       content: contentHtml,
       headernav: headerNavHtml(href, root),
       github: config.githubUrl,
