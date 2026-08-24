@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <!-- Default Open Graph card: dark editor ground, mark + wordmark + tagline.
-       Rasterized to og-default.png (committed);
+  <!-- Open Graph card for /compare/. Same ground, mark and type scale as
+       og-default.svg; only the three text lines differ. Rasterized to og-compare.png (committed);
        regenerate with `npm run og` after editing. -->
   <rect width="1200" height="630" fill="#080f11"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
@@ -19,7 +19,7 @@
       <circle fill="#8FE3B0" cx="680" cy="480" r="38"/>
     </g>
   </g>
-  <text x="600" y="345" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5" fill="#e0ebeb">Parlance</text>
-  <text x="600" y="418" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="30" fill="#b4c6c8">Git-native narrative design for story-driven games</text>
-  <text x="600" y="468" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="22" fill="#8fa4a8">Schema-first · Engine-agnostic · Your story is plain JSON in your repo</text>
+  <text x="600" y="345" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5" fill="#e0ebeb">Parlance and the alternatives</text>
+  <text x="600" y="418" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="30" fill="#b4c6c8">articy:draft &#183; Twine &#183; ink &#183; Yarn Spinner</text>
+  <text x="600" y="468" text-anchor="middle" font-family="Inter, -apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="22" fill="#8fa4a8">An honest comparison, including where they are the better choice</text>
 </svg>
