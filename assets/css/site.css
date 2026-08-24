@@ -327,6 +327,15 @@ img { max-width: 100%; border-radius: 8px; }
 .partial { color: var(--warning); }
 .no { color: var(--text-faint); }
 
+/* Page-bottom footnote (the comparison table's maintenance caveat) */
+.main .page-note {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
 /* Copy-code button (added by site.js) */
 .copy-btn {
   position: absolute;
