@@ -64,7 +64,13 @@ body {
 }
 .site-nav a:hover { color: var(--accent-primary-hover); }
 .site-nav a.active { color: var(--accent-primary); }
-.pill-download {
+/* `.site-nav a` (0-1-1) outranks a bare `.pill-download` (0-1-0), so every
+   declaration this pill shares with the nav-link rule has to be qualified the
+   same way or it silently loses. Unqualified, the pill inherited the nav's
+   --text-secondary and rendered light grey on mint at 1.05:1 — the text was
+   effectively invisible, and only DARKENED on hover, because the hover rule
+   below was the one selector here specific enough to win. */
+.site-nav a.pill-download {
   font-size: 0.8rem;
   font-weight: 600;
   color: #06211e;
@@ -580,6 +586,9 @@ a.btn-ghost:hover { border-color: var(--accent-primary); color: var(--accent-pri
   }
   .site-nav.open { display: flex; }
   .site-nav a { padding: 0.35rem 0; font-size: 1rem; }
+  /* Same specificity trap: without this the drawer's `padding: 0.35rem 0`
+     strips the pill's sides and it stops reading as a button. */
+  .site-nav a.pill-download { padding: 0.4rem 0.95rem; font-size: 0.95rem; align-self: flex-start; }
 
   .page-docs .layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .sidebar {
