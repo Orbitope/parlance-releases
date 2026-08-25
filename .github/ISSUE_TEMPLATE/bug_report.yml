@@ -1,0 +1,99 @@
+name: Bug report
+description: Something in the editor, the CLI, or the docs is wrong or broken.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Parlance collects no telemetry, so nothing here reports itself — if you
+        don't tell us, we don't know.
+
+        **Don't paste unreleased story content.** If a bug only shows up in your
+        own project and you can't share it, email
+        [orbitopegames@gmail.com](mailto:orbitopegames@gmail.com) instead.
+
+  - type: input
+    id: version
+    attributes:
+      label: Parlance version
+      description: "macOS: Parlance ▸ About Parlance. Windows/Linux: the installer filename. From source: the commit."
+      placeholder: "0.9.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS (Apple Silicon)
+        - Windows (x64)
+        - Linux (AppImage)
+        - Linux (.deb)
+        - Run from source (npm run dev)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where it happens
+      options:
+        - Editor — dialogue canvas
+        - Editor — quests, characters, or other entities
+        - Editor — validation or reports
+        - Editor — playtest or share builds
+        - Editor — review, comments, or diffs
+        - Editor — localization or VO
+        - Editor — something else
+        - CLI validator (validate.py)
+        - MCP server
+        - Install, launch, or update
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened, and what you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Click …
+        3. …
+    validations:
+      required: true
+
+  - type: dropdown
+    id: demo-repro
+    attributes:
+      label: Does it reproduce on the demo project?
+      description: The Mistfall Inn demo is CC0, so a repro there is one anyone can share and anyone can run — those get fixed fastest.
+      options:
+        - Yes — it reproduces on mistfall-inn
+        - "No — only in my own project"
+        - Haven't tried
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Validator output, console errors, or a screenshot
+      description: Anything the editor or CLI printed. Screenshots can be dragged into this box.
+      render: shell
+
+  - type: input
+    id: project-size
+    attributes:
+      label: Roughly how big is the project?
+      description: Word count or dialogue count. Some bugs only appear at scale, and this is the fastest way to tell.
+      placeholder: "~40k words, 180 dialogues"

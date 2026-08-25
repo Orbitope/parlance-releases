@@ -80,6 +80,15 @@ Yes — that's the design. Review (comments, suggestions, verdicts, narrative
 diffs) works with **nothing but git**: two people with plain clones have a full
 review workflow. See [git-native workflow](/docs/concepts/git-native/).
 
+## Something's broken. Where do I report it?
+
+[GitHub issues](https://github.com/Orbitope/parlance-releases/issues/new/choose),
+with the version and steps — the form asks for what's needed. Parlance has no
+telemetry and no crash reporter, so a bug nobody files is a bug nobody knows
+about. Anything you can't say in public (licensing, security, a repro that would
+spoil your own game) goes to **orbitopegames@gmail.com** instead.
+[The whole process, in one page](/feedback/).
+
 ## Where do I start?
 
 [Play the demo](/demo/) (two minutes), then

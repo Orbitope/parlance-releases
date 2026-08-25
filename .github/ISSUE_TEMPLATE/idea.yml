@@ -1,0 +1,50 @@
+name: Idea or request
+description: Something Parlance should do, or should do differently.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The most useful thing you can describe is the **workflow that's
+        awkward** — not the feature you've designed to fix it. A concrete
+        account of what you were doing when it bit you is worth more than a
+        spec, and it often has a cheaper answer than the one you'd propose.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What were you trying to do?
+      description: The task, in your own terms. What made it awkward, slow, or impossible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What do you do today instead?
+      description: The workaround, even if it's "give up" or "edit the JSON by hand".
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Parlance to do?
+      description: Optional. Skip it if you'd rather leave the solution open.
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often does this come up?
+      options:
+        - Every session
+        - Weekly
+        - Now and then
+        - Once, but it cost me real time
+    validations:
+      required: true
+
+  - type: input
+    id: context
+    attributes:
+      label: What are you building?
+      description: Optional, and only as much as you can share. Team size, engine, and project scale change which answers are right.
+      placeholder: "Solo, Godot, ~30k words so far"
