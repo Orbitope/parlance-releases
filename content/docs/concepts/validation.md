@@ -1,6 +1,6 @@
 ---
 title: Validation
-description: One validator, three surfaces — live on every save, headless in CI, and an independent Python reimplementation kept in enforced parity.
+description: One validator, three surfaces — live as you save, headless in CI, and an independent Python reimplementation kept in enforced parity.
 ---
 
 # Validation
@@ -15,11 +15,18 @@ before a playtester ever trips over them.
 
 The same rule set runs in three places, and they are kept in agreement:
 
-1. **On every save.** Each write re-runs the full project validation and pushes
-   results over a WebSocket to every open editor window. The
+1. **On every save.** Each write triggers a full project validation, and the
+   results are pushed over a WebSocket to every open editor window. The
    [validation bar](/docs/editor-guide/#10-validation-panel) shows live
    error/warning counts with per-code filters; each issue row navigates to the
    offending entity. You never refresh, and you never validate "later."
+
+   The pass is *scheduled* rather than run inside the save itself: a save
+   returns as soon as the bytes are on disk, and rapid saves coalesce into one
+   validation instead of one each. On a small project the difference is
+   invisible; on a large one it is the difference between a save that answers
+   instantly and one that waits on a whole-project pass. See
+   [Performance](/docs/concepts/performance/).
 2. **In CI.** [`parlance ci-check`](/docs/reference/cli/) runs the identical
    code path headless: exit `1` on errors, `--strict` to fail on warnings too.
    See the [CI tutorial](/docs/get-started/validate-in-ci/).

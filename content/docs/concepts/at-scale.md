@@ -95,6 +95,21 @@ That last one is worth calling out, because it is invisible in every other
 tool: the dialogue is reachable, its references resolve, and it validates
 cleanly. Only a player arriving with the wrong flags ever finds it.
 
+## Two kinds of large
+
+This page is about *structural* scale — the point where a project has more
+moving parts than you can hold in your head, which for most stories arrives
+somewhere around a hundred dialogues. Monte Cristo is firmly there: 112
+dialogues, 31 reactive ladders, 14 quests.
+
+It is not large by *word count*. At 5,500 words it is a demonstration piece, not
+a novel-length game, and the two axes are worth keeping separate — a project can
+be structurally demanding long before it is big, and the views on this page are
+the answer to the first problem.
+
+For the second — how the editor behaves as raw content volume grows, measured
+out to two million words — see [Performance](/docs/concepts/performance/).
+
 ## Try it yourself
 
 Everything on this page is a public project you can open in about a minute.
