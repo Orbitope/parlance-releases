@@ -44,6 +44,9 @@ anyway**.
 Then see [Install & run](/docs/install/) for opening your first project, and
 [your first project](/docs/get-started/first-project/) for the ten-minute tour.
 
+If something goes wrong that this page doesn't cover, [tell us](/feedback/) —
+there's no telemetry, so a launch failure is invisible unless you report it.
+
 ## What it costs
 
 Nothing. No seat count, no revenue threshold, no license key. Your story files

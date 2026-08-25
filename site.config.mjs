@@ -125,6 +125,7 @@ export default {
     { src: "content/releases.md", out: "releases/index.html" },
     { src: "content/license.md", out: "license/index.html" },
     { src: "content/faq.md", out: "faq/index.html" },
+    { src: "content/feedback.md", out: "feedback/index.html" },
     { src: "content/404.md", out: "404.html" },
 
     { src: "content/docs/index.md", out: "docs/index.html" },

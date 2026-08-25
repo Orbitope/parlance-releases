@@ -1,0 +1,14 @@
+# Blank issues are off on purpose: a bug with no version and no repro costs a
+# round-trip to become actionable, and the forms below ask for exactly the
+# fields that round-trip would have asked for.
+blank_issues_enabled: false
+contact_links:
+  - name: A question, or something you can't post publicly
+    url: https://orbitope.com/parlance-releases/feedback/
+    about: Licensing, security, or a bug you can only show with unreleased story content — the feedback page has the private lane.
+  - name: The format spec, schemas, or runtime contract
+    url: https://github.com/Orbitope/parlance-spec/issues
+    about: Anything about the data format itself (MIT, separate repo) rather than the editor.
+  - name: Documentation and guides
+    url: https://orbitope.com/parlance-releases/docs/
+    about: Check the docs first — install, first project, validation checks, and the full editor guide.
