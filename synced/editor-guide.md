@@ -24,6 +24,7 @@ human-readable JSON so your narrative data stays in git.
 14. [Data format & git workflow](#14-data-format--git-workflow)
 15. [Localization & VO](#15-localization--vo)
 16. [Review — reading someone else's branch](#16-review--reading-someone-elses-branch)
+17. [Getting help & sending feedback](#17-getting-help--sending-feedback)
 
 ---
 
@@ -1086,3 +1087,22 @@ are never deleted.
 Parlance is not a git client. It has no branch creation, no conflict resolution,
 no history editing, and no GitHub pull-request sync. Branches, conflicts, and
 history stay in the tools built for them.
+
+---
+
+## 17. Getting help & sending feedback
+
+**Help ▸ Send Feedback** opens the feedback page in your browser. That page is
+the whole process: bug reports and feature requests go to public GitHub issues,
+and anything you can't say in public — security, licensing, or a bug you could
+only demonstrate with unreleased story content — goes to
+`orbitopegames@gmail.com` instead.
+
+Parlance has no telemetry and no crash reporter. Nothing about your session,
+your project, or your machine is ever sent anywhere. The trade is that a bug you
+don't report is a bug nobody knows about, so please report them.
+
+The two things that make a report actionable are the **version** (*Parlance ▸
+About Parlance*) and whether the problem **reproduces on the bundled demo
+project** — a demo repro is one anyone can run, and one you can paste in full
+without revealing anything about your own game.
