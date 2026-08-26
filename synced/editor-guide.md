@@ -18,7 +18,7 @@ human-readable JSON so your narrative data stays in git.
 8. [Quest dependency graph](#8-quest-dependency-graph)
 9. [Location map](#9-location-map)
 10. [Validation panel](#10-validation-panel)
-11. [Reports — coverage, references & prose](#11-reports--coverage-references--prose)
+11. [Reports — coverage & reference index](#11-reports--coverage--reference-index)
 12. [Playtest mode](#12-playtest-mode)
 13. [Undo / redo and navigation history](#13-undo--redo-and-navigation-history)
 14. [Data format & git workflow](#14-data-format--git-workflow)
@@ -657,7 +657,7 @@ coloured red for errors or yellow for warnings.
 
 ---
 
-## 11. Reports — coverage, references & prose
+## 11. Reports — coverage & reference index
 
 Click **Reports** (pinned to the sidebar footer) to open the Reports panel.
 
