@@ -56,6 +56,40 @@ The path every port follows:
 Contract, vectors, and schemas are all [MIT-licensed](/docs/spec/), so a port
 of any license — including closed-source commercial — is fine.
 
+## Coming from ink or Yarn Spinner
+
+Importers for both ship as MIT skill bundles, separate from the editor. They read your
+script, emit Parlance JSON, and then **check every string in the output against the
+source, byte for byte**. Conversion is not authorship: if a line came out different from
+how you wrote it, that's a bug, not tidying.
+
+What they will not do is guess. A construct Parlance can't carry is reported by name, with
+its source line and the reason — never approximated, never quietly dropped. A migration
+that reports three declared losses is a good outcome honestly stated; one that came out
+clean because the awkward lines were reworded is a failure wearing a success.
+
+**Conditional text is the case worth knowing about.** `{ knows_poison: … }` in ink and
+`<<if $knows_poison>>` in Yarn are first-class idioms, and until v0.11.0 Parlance had no
+faithful target for them at all — every guarded line had to become an invented choice or a
+deletion. [Conditional narration](/docs/concepts/conditional-narration/) closed that gap in
+the format.
+
+The importers don't map guards onto it automatically **yet**, and they say so rather than
+approximating: each guarded line comes back as a declared loss for you to place by hand.
+The blocker is the `else` branch — an `else` written without restating its condition,
+mapped to the same guard as its `if`, would show *both* lines whenever the guard holds.
+Nothing is lost and nothing is invented, so no automated check could catch it. Silently
+wrong output is the one result worth refusing to risk.
+
+## Editorial audits
+
+Five review-only skills that read a project and report on it — ladder ordering against a
+character's arc, whether a character sounds like themselves, whether a line can be reached
+in a state where it isn't true yet, journal coherence, state reachability.
+
+They never draft. Every command is a read; none writes to `data/`. An audit that can't
+judge without inventing the intent stops and asks you for it.
+
 ## MCP server — for LLM agents
 
 The [MCP server](/docs/reference/mcp/) exposes a project to AI agents through
