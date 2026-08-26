@@ -95,9 +95,9 @@ endings, and the validation over them are yours to build and maintain.
 ## If you've already written it
 
 Two of the tools on this page are ones Parlance can **import from**: ink and Yarn Spinner.
-The importers check every emitted string against your source byte for byte and name
-anything they can't carry, so the question "do I have to retype my script" has a concrete
-answer. [How migration works](/docs/integrations/).
+The importers are **AI agent skills** (for Claude Code or Antigravity) that you can [download from the open spec repository](https://github.com/Orbitope/parlance-spec/tree/main/importers).
+
+Once installed, you instruct the agent to run the import. It will check every emitted string against your source byte for byte and name anything it can't carry, so the question "do I have to retype my script" has a concrete answer. [How migration works](/docs/integrations/).
 
 Worth knowing before you weigh it: conditional text — `{ cond: line }` in ink,
 `<<if>>` in Yarn — had no equivalent in Parlance until v0.11.0. It does now

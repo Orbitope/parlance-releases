@@ -58,9 +58,14 @@ of any license — including closed-source commercial — is fine.
 
 ## Coming from ink or Yarn Spinner
 
-Importers for both ship as MIT skill bundles, separate from the editor. They read your
-script, emit Parlance JSON, and then **check every string in the output against the
-source, byte for byte**. Conversion is not authorship: if a line came out different from
+Importers for both ship as MIT [AI skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers) (for Claude Code or Antigravity), separate from the editor. 
+
+To run a migration:
+1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory.
+2. Instruct your agent to run the import against your source files.
+3. The agent reads your script, emits Parlance JSON, and then **checks every string in the output against the source, byte for byte**.
+
+Conversion is not authorship: if a line came out different from
 how you wrote it, that's a bug, not tidying.
 
 What they will not do is guess. A construct Parlance can't carry is reported by name, with

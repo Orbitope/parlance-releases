@@ -108,8 +108,7 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 
 ## Migrating in, and reviewing what's there
 
-Two optional bundles ship separately from the editor, both MIT and both meant to be
-forked. See [integrations](/docs/integrations/).
+Two optional [AI agent skill bundles](https://github.com/Orbitope/parlance-spec) (for Claude Code or Antigravity) ship separately from the editor. They are both MIT-licensed and meant to be forked. See [integrations](/docs/integrations/).
 
 - **Importers for [ink and Yarn Spinner](/docs/integrations/)** — move a manuscript you
   already wrote. Every emitted string is checked against the source byte for byte, and
