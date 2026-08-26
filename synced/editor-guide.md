@@ -18,7 +18,7 @@ human-readable JSON so your narrative data stays in git.
 8. [Quest dependency graph](#8-quest-dependency-graph)
 9. [Location map](#9-location-map)
 10. [Validation panel](#10-validation-panel)
-11. [Reports — coverage & reference index](#11-reports--coverage--reference-index)
+11. [Reports — coverage, references & prose](#11-reports--coverage-references--prose)
 12. [Playtest mode](#12-playtest-mode)
 13. [Undo / redo and navigation history](#13-undo--redo-and-navigation-history)
 14. [Data format & git workflow](#14-data-format--git-workflow)
@@ -645,16 +645,26 @@ Common codes:
 | `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only — silent in a project with no quests). |
 | `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some character ladder reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
 
+Spelling is deliberately **not** in this table. Prose findings carry the code
+`SPELL`, they are never produced by validation, and they never appear in this
+panel or block a save — they live in **Reports → Prose** (§11). The reason is
+that spelling is editorial rather than structural: it says nothing about whether
+a project conforms to the format, so it is not part of the published contract and
+the reference validator (`tooling/validate.py`) does not implement it.
+
 The **Reports** row (sidebar footer) also shows the total issue count,
 coloured red for errors or yellow for warnings.
 
 ---
 
-## 11. Reports — coverage & reference index
+## 11. Reports — coverage, references & prose
 
 Click **Reports** (pinned to the sidebar footer) to open the Reports panel.
 
-The panel has two columns:
+The panel has three tabs — **Issues**, **Prose** and **Find usages** — plus
+**Search text**, which opens the shared full-text overlay (⌘⇧F).
+
+The **Issues** tab has two columns:
 
 ### Left — Coverage & structural issues
 
@@ -677,6 +687,95 @@ skill id, etc. to see:
 
 Each entry is clickable and navigates to the exact entity. This is the
 "find usages" feature — useful for safely renaming or removing a variable.
+
+### Prose — spelling & canon names
+
+The **Prose** tab checks the words themselves. It runs on demand (never on save)
+and reports findings grouped by kind:
+
+| Finding | What it means |
+|---------|---------------|
+| **Canon near-miss** | A word within two edits of one of your own names — `Mistfal` where the location is `Mistfall`. Usually a misspelling of it. |
+| **Canon capitalization** | One of your names written in lowercase — `calloway` where the character is `Calloway`. |
+| **Unknown words** | Not in the dictionary. On a fresh project most of these are proper nouns, not typos. |
+| **Repeated words** | The same word twice in a row (`and and`). Punctuation-separated repeats ("No, no") are not flagged. |
+| **Unbalanced quotes/brackets** | An odd number of `"`, or mismatched `(` `)` / `[` `]` / `“` `”`. |
+| **Double spaces** | Two or more spaces mid-line. |
+| **Quote style** | A straight quote in a project that otherwise uses curly ones, or vice versa — only when one style is clearly dominant. |
+| **Unparsed dictionary lines** | A line in `lore/dictionary.md` that looked like an entry but parsed as nothing. |
+
+Rows navigate to the entity like every other report row, and unknown words carry
+a **+ dictionary** button.
+
+#### Where the words come from
+
+Three layers, checked in order:
+
+1. **Your project's own names**, derived automatically from character, faction,
+   item, location, skill, codex, ending and quest-journal names. Nothing to
+   maintain — rename a character and the check follows. This layer is
+   case-sensitive, which is what makes the near-miss and capitalization findings
+   possible.
+2. **`lore/dictionary.md`** — words you add by hand or with the **+ dictionary**
+   button. It lives in `lore/` because it is authoring canon that never ships to
+   the game.
+3. **The English dictionary** bundled with the editor.
+
+One deliberate limitation: a name that is *also* an ordinary English word — a
+character called "Hawk", a faction called "The Order" — is not treated as a canon
+name, because nothing can tell "the hawk circled" from "the Hawk circled". Those
+words are simply spell-checked normally.
+
+#### `lore/dictionary.md`
+
+Plain Markdown, so a writer can edit it without touching JSON:
+
+```markdown
+## Locale
+
+- en-US
+
+## Words
+
+- Vashti — the merchant. Not "Vashi".
+- gaolhouse
+
+## Style
+
+- grey → gray
+- OK -> okay — house style
+```
+
+The `## Locale` section sets the language for the check (English only today).
+Notes after an em dash are for humans and are ignored.
+
+#### While you type
+
+Prose fields underline findings inline as you write, with a heavier underline for
+canon near-misses and capitalization than for ordinary unknown words. The word and
+character count below each field also reports the number of prose notes; hover it
+to read them.
+
+#### From the command line
+
+```bash
+npm run prose                        # report on the project
+npm run prose -- --check             # exit non-zero if anything is found (CI)
+npm run prose -- --write-dictionary  # seed lore/dictionary.md from the unknown words
+```
+
+`--check` runs in CI, so a new typo fails the build.
+
+#### Sorting the first run with AI (optional)
+
+The first run on a large project surfaces a lot of unknown words, most of them
+names. **Sort these with AI** groups them into names, jargon, dialect and real
+typos so the names can be accepted in one click. It uses the API key configured in
+**AI settings** and is entirely optional — everything above works offline and free.
+
+The model only *classifies* words that were already found; it never edits your
+prose, and typos are never added to the dictionary. Nothing is written until you
+accept the result.
 
 ---
 
