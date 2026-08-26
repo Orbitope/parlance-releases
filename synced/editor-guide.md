@@ -416,6 +416,26 @@ Click a node to open its inspector.
 - **Notes** — an author-only annotation ("revisit this beat", "placeholder
   VO"). The player never sees it and the runtime ignores it; it's purely for
   you. Notes survive Text mode too, as a `> …` line under the node header.
+- **Show If** — an optional condition that gates whether this node is **displayed
+  at all**. This is *conditional narration*: a line that appears only in some
+  world states. When the condition fails the node is skipped entirely — no line,
+  no effects, no transcript entry — and the dialogue continues at **Next**.
+
+  Read that twice, because it is the one thing here that surprises people:
+  a skipped node's **On Enter Effects do not fire**. A skipped node did not
+  happen. If a flag must be set whether or not the line shows, put it on the
+  node the gate falls through *to*.
+
+  Use it for a beat that depends on what the player already knows. It is not a
+  choice — a choice would fabricate a decision the player never made — and it is
+  not a branch, because a node advances to one fixed **Next**.
+
+  The control is only offered where a gate is legal: the node needs a **Next**,
+  and must not carry choices or be an end node. Where it isn't legal the row
+  says *"unavailable here"* and gives the reason, rather than letting you author
+  a gate the validator would then reject. The rules are enforced by the `COND`
+  validator code (see §10), which also warns if you put effects on a gated node.
+
 - **Is End** — marks this as a valid conversation-end node (shown with an
   "end" badge). Conversations that reach an isEnd node with no choices end
   automatically.
