@@ -65,12 +65,11 @@ Review it in a pull request like everything else.</span></pre></div>
 
   <div class="split feature-row">
     <div class="copy">
-      <h3>Dialogue ladders: state-aware conversations, first-match-wins</h3>
+      <h3>Dialogue ladders and conditional narration</h3>
       <p>Each character carries an ordered ladder of dialogues, each rung optionally gated
       on game state. Talk to a suspect before you find the evidence and you get one scene;
       talk to them after, and the ladder re-points — no scripting required.</p>
-      <p>A live preview shows which rung currently wins, and the validator catches the
-      classic mistakes: dead rungs, stuck rungs, missing fallthroughs.</p>
+      <p>Within a scene, <strong><a href="{{root}}docs/concepts/conditional-narration/">conditional narration</a></strong> lets you gate individual lines on state. A node carrying a display condition is skipped entirely when it doesn't hold—so a beat belongs only to a player who earned it, without fabricating fake choices.</p>
       <p><a href="{{root}}docs/concepts/dialogue-laddering/">How dialogue laddering works →</a></p>
     </div>
     <div>
@@ -103,10 +102,10 @@ Review it in a pull request like everything else.</span></pre></div>
   <div class="split feature-row">
     <div class="copy">
       <h3>Validation everywhere — on save, in CI, in your pipeline</h3>
-      <p>Eighteen families of checks run on every save and stream to every open editor
-      window: dangling references, unreachable nodes, flags nothing reads, quests that
-      can't complete, ladder mistakes. The same validator runs headless as
-      <code>parlance ci-check</code>, so a broken story fails the build before it ships.</p>
+      <p>Twenty-eight families of checks run on every save and stream to every open editor
+      window. The validator catches classic structural bugs like dangling references, unreachable nodes, quests that
+      can't complete, and ladder mistakes. It also includes a <strong><a href="{{root}}docs/concepts/prose-check/">prose check</a></strong> that learns your project's proper nouns to act as a narrative-aware spellchecker inline as you type.</p>
+      <p>The same validator runs headless as <code>parlance ci-check</code>, so a broken story fails the build before it ships.</p>
       <p><a href="{{root}}docs/concepts/validation/">The validation model →</a></p>
     </div>
     <div class="code-panel"><pre style="margin:0"><span class="comment">$ parlance ci-check . --strict</span>

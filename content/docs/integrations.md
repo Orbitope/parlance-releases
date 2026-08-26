@@ -24,6 +24,24 @@ executes Parlance JSON natively in Godot 4:
   areas (quest resolution, progression) declared as skips in the README
   scoreboard rather than fudged.
 
+## Unity (C#) — official port
+
+The [parlance-unity](https://github.com/Orbitope/parlance-unity) package provides a 
+pure C# `.NET` runtime for Unity projects:
+
+- **Install**: Add the git repository URL via the Unity Package Manager (UPM). It is a framework-agnostic C# library without `MonoBehaviour` singletons.
+- **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
+- **Conformance-verified**: NUnit test suite automatically runs all vectors headless. 136 vectors passing, 0 failing.
+
+## Unreal Engine (C++) — official port
+
+The [parlance-unreal](https://github.com/Orbitope/parlance-unreal) plugin integrates Parlance 
+natively into Unreal Engine using Core C++ types:
+
+- **Install**: Drop the plugin into your project's `Plugins/` folder and rebuild. 
+- **Blueprints First**: The core runtime logic is exposed via `UBlueprintFunctionLibrary` wrappers. You can drive your entire narrative system visually without writing C++.
+- **Conformance-verified**: Uses the native Unreal Automation Testing framework (`BEGIN_DEFINE_SPEC`) to run JSON vectors natively against the C++ code. 136 vectors passing, 0 failing.
+
 ## TypeScript — the reference runtime
 
 `@parlance/core` is the reference implementation: pure and deterministic (no
