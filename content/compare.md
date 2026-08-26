@@ -85,7 +85,14 @@ pedigree (80 Days, Heaven's Vault, countless others) speaks for itself. The
 structured layer is yours to hand-roll — quests, factions, items, endings — as
 are any static guarantees beyond compiler errors.
 
-### If you've already written it
+### Yarn Spinner
+
+You're Unity-first and want a friendly, well-supported dialogue system with a
+strong community, voice-over-oriented line tagging, and a syntax writers pick up
+in an afternoon. Like ink, it stays a *dialogue* tool: quests, factions, items,
+endings, and the validation over them are yours to build and maintain.
+
+## If you've already written it
 
 Two of the tools on this page are ones Parlance can **import from**: ink and Yarn Spinner.
 The importers check every emitted string against your source byte for byte and name
@@ -96,13 +103,6 @@ Worth knowing before you weigh it: conditional text — `{ cond: line }` in ink,
 `<<if>>` in Yarn — had no equivalent in Parlance until v0.11.0. It does now
 ([conditional narration](/docs/concepts/conditional-narration/)), which is what turned
 moving a real manuscript into a conversion rather than a rewrite.
-
-### Yarn Spinner
-
-You're Unity-first and want a friendly, well-supported dialogue system with a
-strong community, voice-over-oriented line tagging, and a syntax writers pick up
-in an afternoon. Like ink, it stays a *dialogue* tool: quests, factions, items,
-endings, and the validation over them are yours to build and maintain.
 
 The fastest way to judge: [play the demo](/demo/), then
 [open it in the editor](/docs/get-started/first-project/).
