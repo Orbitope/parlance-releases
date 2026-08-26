@@ -302,7 +302,20 @@ and checks are `check wit >= 12 -> pass / fail`.
 
 The script is a **lossless** representation: saving reproduces the dialogue
 exactly, changing only what you edited (a byte-level round-trip is enforced by
-tests over every dialogue). A syntax error blocks the save and points at the
+tests over every dialogue).
+
+A node's display gate (conditional narration) rides in the script as a `~ showIf:`
+directive on the line after the node header — the same compact condition syntax choices
+already use after `?`:
+
+```
+== n_aside next=n_close ==
+~ showIf: flag met_keeper
+You have been here before, and they know it.
+```
+
+An older editor build that predates the directive rejects it with a parse error and blocks
+the save — loud by design, never a silent drop of the gate. A syntax error blocks the save and points at the
 line — it never writes partial data. Rich logic (nested conditions, all effect
 types) is expressible in the compact grammar, but the graph's builders remain
 the friendliest way to author it; use whichever fits the moment.
@@ -615,6 +628,7 @@ Common codes:
 | `SCHEMA` | Field fails JSON Schema validation |
 | `REF` | References an id that doesn't exist |
 | `DUP` | Duplicate id detected (entity ids, dialogue nodes/choices, or a location's spawns/exits/interactables) |
+| `COND` | A node's `showIf` breaks a conditional-narration rule — a gated node must have `next` and must not have `choices` or `isEnd`, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Also warns when a gated node carries `onEnter`, since those effects do not fire when it is skipped |
 | `FLOW` | Dialogue has an unreachable node or dead-end choice |
 | `GATE` | Active check missing onSuccess / onFailure destination |
 | `QUEST` | Quest stage issue — including stage/outcome effects with no `completeWhen`/`reachedWhen` (they can never fire; quest resolution only fires condition-gated items) |
