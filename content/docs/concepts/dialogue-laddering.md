@@ -46,7 +46,17 @@ resolution against current state, so once flags change, a different rung wins.
 
 ## A worked example
 
-Aldous Wren, one of the demo's suspects — this is his actual character file:
+Here is how a ladder conceptually thinks when the player talks to a character, checking conditions from top to bottom until it finds a match:
+
+```mermaid
+flowchart TD
+    Start([Player talks to Wren]) --> Rung1{"Rung 1:<br/>Knows Wren was dismissed?"}
+    Rung1 -- "Yes" --> Dlg1["Play: Cornered"]
+    Rung1 -- "No" --> Rung2{"Rung 2:<br/>(Fallthrough)"}
+    Rung2 --> Dlg2["Play: First Meeting"]
+```
+
+Under the hood, this is represented in Aldous Wren's actual character file as:
 
 ```json
 "dialogues": [
