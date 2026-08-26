@@ -41,6 +41,10 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 - **Conditions & effects builders** — structured editors for flags, counters, items,
   reputation, relationships, quest state, and boolean combinators; no scripting language
   to learn, and everything they produce is validated.
+- **[Conditional narration](/docs/concepts/conditional-narration/)** — gate a *line*, not
+  just a choice. A node carrying a display condition is skipped entirely when it doesn't
+  hold, so a beat can belong only to a player who worked something out — without
+  fabricating a decision they never made.
 - **Text variables** — let the player name the protagonist; `{placeholder}` substitution
   is render-time only, so authored files stay clean.
 - **Pacing panel** — scene size, branch shape, longest path, check density, and dead-end
@@ -67,15 +71,19 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 
 ## Validation
 
-- **[Eighteen check families](/docs/reference/validation-checks/)** covering references,
-  reachability, flag flow, quest logic, ladder shape, coverage, localization targets,
-  progression math, and more.
+- **[Twenty-eight validation families](/docs/reference/validation-checks/)** covering
+  references, reachability, flag flow, quest logic, ladder shape, coverage, conditional
+  narration, localization targets, progression math, and more.
 - **Runs on every save**, streamed live to every open editor window.
 - **Runs headless in CI** via [`parlance ci-check`](/docs/reference/cli/), plus an
   independent Python reference validator kept in enforced parity.
 - **Reports panel** — coverage issues grouped and clickable, plus a searchable
   **reference index**: for any id, see where it's defined, read, and written
   ("find usages" for your story).
+- **[A prose check that knows your names](/docs/concepts/prose-check/)** — spelling, plus
+  your own proper nouns derived from your data and matched case-sensitively. `Kestral`
+  reports as a near-miss of `Kestrel`; `kestrel` reports as a name written lowercase.
+  Runs in the editor, inline as you type, and in CI.
 
 ## Collaboration
 
@@ -97,6 +105,25 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
   re-validation after every write.
 - **AI drafting** — optional in-editor drafting against Anthropic or OpenAI-compatible
   providers; drafts are visually marked until accepted.
+
+## Migrating in, and reviewing what's there
+
+Two optional bundles ship separately from the editor, both MIT and both meant to be
+forked. See [integrations](/docs/integrations/).
+
+- **Importers for [ink and Yarn Spinner](/docs/integrations/)** — move a manuscript you
+  already wrote. Every emitted string is checked against the source byte for byte, and
+  anything that can't be carried is *named*, with its source line, rather than
+  approximated.
+- **Five editorial audits** — read a project and report on it: whether a ladder's
+  ordering tells the story you meant, whether a character sounds like themselves, whether
+  a line can be reached in a state where it isn't true yet.
+
+One rule governs both, and it's enforced rather than promised: **nothing in either bundle
+writes prose.** The audits report and never draft; the importers convert and never
+paraphrase. Loss is declared, never silent — a migration with three named losses is a good
+outcome honestly reported, and one that came out clean because the awkward lines were
+reworded is a failure wearing a success.
 
 ## The editor itself
 
