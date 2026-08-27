@@ -1,9 +1,10 @@
 {
   "files": [
     "editor-guide.md",
+    "cookbook.md",
     "play-mistfall.html"
   ],
   "sourceRepo": "Orbitope/parlance",
-  "sourceSha": "d99f87609625384b1ce3203bdfc95772de4fcd52",
-  "syncedAt": "2026-08-27T04:09:09Z"
+  "sourceSha": "905442902b5a93b2c1d6c6aa8829b4ed2b10b7f5",
+  "syncedAt": "2026-08-27T17:34:09Z"
 }

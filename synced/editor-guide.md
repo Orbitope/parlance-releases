@@ -321,6 +321,12 @@ line — it never writes partial data. Rich logic (nested conditions, all effect
 types) is expressible in the compact grammar, but the graph's builders remain
 the friendliest way to author it; use whichever fits the moment.
 
+**Patterns.** For the recurring shapes these pieces compose into — say-it-once
+re-entry, one-shot choices, hub-and-spoke topic menus, reputation tone shifts,
+quest state machines, storylet selection — see the [Pattern cookbook](COOKBOOK.md).
+Each is a copyable recipe with the pitfalls that bite, and an *also known as* map
+to Ink, Yarn Spinner, Twine, and Ren'Py for authors arriving from another tool.
+
 ### Canvas controls
 
 | Action | How |
