@@ -91,3 +91,6 @@ the picker to create the flag inline without a side trip. The
   plays* depend on that flag you just set.
 - [Playtest & share](/docs/get-started/playtest-and-share/) — roll that check
   with real dice.
+- [Pattern cookbook](/docs/cookbook/) — the recipes these pieces build into:
+  one-shot options, hub-and-spoke topic menus, skill-check forks, and letting
+  the world react to a flag you set.

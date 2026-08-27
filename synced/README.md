@@ -7,6 +7,7 @@ next sync and are lost. Fix the source instead:
 | File here | Source in `Orbitope/parlance` |
 |---|---|
 | `editor-guide.md` | `tooling/EDITOR_GUIDE.md` |
+| `cookbook.md` | `tooling/COOKBOOK.md` |
 | `play-mistfall.html` | share build of `examples/mistfall-inn` (host `/api/playbuild?dialogue=dlg_examine_body` — scenes with `next` beats are avoided until the standalone player handles them) |
 | `manifest.json` | written by the sync itself: source repo, commit, timestamp, file list |
 
