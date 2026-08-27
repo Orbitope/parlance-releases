@@ -82,4 +82,5 @@ a shorter list than the manuscript, and it is a list you can trust.
 
 - [`COND` validation checks](/docs/reference/validation-checks/) — every rule a gate must satisfy
 - [Editor guide: the node inspector](/docs/editor-guide/#node-inspector-right-panel) — authoring one
+- [Pattern cookbook](/docs/cookbook/) — node-gate recipes: skip-the-setup, event memory, and knowledge unlocks
 - [Migrating from other tools](/docs/integrations/)

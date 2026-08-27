@@ -83,3 +83,5 @@ alive. A character's ladder is their arc, in one screen.
   ladder: finish the first scene, return, get the second.
 - [Dialogue laddering, the concept](/docs/concepts/dialogue-laddering/) — the
   resolution rule, the feed model, and the conformance guarantees.
+- [Pattern cookbook](/docs/cookbook/) — ladder recipes in full: reputation tone
+  shifts, most-specific-wins (storylet) selection, and the say-it-once idiom.
