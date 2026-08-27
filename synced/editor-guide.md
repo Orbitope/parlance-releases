@@ -25,6 +25,7 @@ human-readable JSON so your narrative data stays in git.
 15. [Localization & VO](#15-localization--vo)
 16. [Review — reading someone else's branch](#16-review--reading-someone-elses-branch)
 17. [Getting help & sending feedback](#17-getting-help--sending-feedback)
+18. [Bringing in a story from another tool](#18-bringing-in-a-story-from-another-tool)
 
 ---
 
@@ -1239,3 +1240,62 @@ The two things that make a report actionable are the **version** (*Parlance ▸
 About Parlance*) and whether the problem **reproduces on the bundled demo
 project** — a demo repro is one anyone can run, and one you can paste in full
 without revealing anything about your own game.
+
+---
+
+## 18. Bringing in a story from another tool
+
+If your story is already written in **Yarn Spinner**, **Ink**, or **Twine**
+(Harlowe), you do not have to retype it. Three importers convert a story into a
+Parlance project, and they are published — with their source, their gate, and
+three worked migrations — at
+[github.com/orbitope/parlance-spec](https://github.com/orbitope/parlance-spec)
+under `importers/`.
+
+They are not part of the editor. Nothing is installed with Parlance and nothing
+runs unless you run it; they are optional Claude Code skills you copy into a
+project, MIT-licensed and meant to be forked when your story uses a dialect they
+do not.
+
+### What they promise, and what they do not
+
+**They convert. They never rewrite.** Every player-facing string in the output
+came from your file byte for byte, and that is enforced rather than intended: a
+content check compares the result against the source and refuses to finish if a
+line went missing, and stops outright — permanently — if a line appears that you
+did not write. Nothing fills in a `summary`, invents a variable, or rephrases a
+line that did not quite fit.
+
+**What the format cannot carry is declared, never quietly dropped.** Each import
+ends with a report that leads with what was lost, names the construct and the
+source line, and says which losses you could fix by moving a line and which are
+real gaps.
+
+### Read the last number in the report
+
+An import can preserve every word of your story and still hand you something a
+player cannot walk through. That is not a contradiction: the content check proves
+no prose was lost, and it is blind to whether the story still hangs together. A
+single condition the format cannot express, sitting on a link everyone passes
+through, cuts off everything behind it.
+
+So every report states **how many nodes a player can actually reach**, and that
+is the number to look at first. Of the three worked migrations, one reaches 81%
+of its story, one 70%, one 45% — all three having preserved every line.
+
+### Before you start
+
+The importers' own [fit guide](https://github.com/orbitope/parlance-spec)
+(`importers/IMPORTERS.md`) answers whether your story will survive the trip, and
+it turns on one question: **how does your story move forward?**
+
+- The player picks from options you wrote — it will carry well.
+- The engine works out where to go — a call that returns, a jump chosen by a
+  condition, a gate on how many times something has been seen — it will not.
+  Parlance is a data format, and nothing in it decides where the story goes at
+  play time except the player choosing or a check you authored.
+
+Then read a worked migration under `importers/examples/`. Each one holds the
+author's original file beside the imported project, so you can run the check
+yourself and see what the honest result of a real conversion looks like before
+committing your own story to one.
