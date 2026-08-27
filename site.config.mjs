@@ -71,7 +71,10 @@ export default {
     },
     {
       group: "Guides",
-      items: [{ href: "docs/editor-guide/", label: "Editor guide" }],
+      items: [
+        { href: "docs/editor-guide/", label: "Editor guide" },
+        { href: "docs/cookbook/", label: "Pattern cookbook" },
+      ],
     },
     {
       group: "Concepts",
@@ -138,6 +141,13 @@ export default {
       synced: true,
       title: "Editor guide",
       description: "The complete Parlance editor reference — layout, entity types, dialogue and quest canvases, validation, playtest, localization, and review.",
+    },
+    {
+      src: "synced/cookbook.md",
+      out: "docs/cookbook/index.html",
+      synced: true,
+      title: "Pattern cookbook",
+      description: "Recipes for common narrative-logic patterns in Parlance — say-it-once, hub menus, reputation tone shifts, quest state machines, storylet selection — with the pitfalls that bite and an 'also known as' map to Ink, Yarn, Twine, and Ren'Py.",
     },
 
     { src: "content/docs/get-started/index.md", out: "docs/get-started/index.html" },

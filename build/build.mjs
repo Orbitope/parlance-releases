@@ -45,6 +45,7 @@ hljs.registerLanguage("yaml", hljsYaml);
 const SYNCED_LINK_MAP = {
   "EDITOR_GUIDE.md": "/docs/editor-guide/",
   "SETUP_AND_MANAGEMENT.md": "/docs/install/",
+  "COOKBOOK.md": "/docs/cookbook/",
 };
 
 // Output paths the checker tolerates missing, with a warning. The demo share
