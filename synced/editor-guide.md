@@ -977,6 +977,9 @@ parlance save import path/to/slot1.json --id snap_bug_41 --name "Bug 41 repro"
 parlance route rt_bug_41
 ```
 
+On a build box without the desktop app, `parlance` is the published CLI —
+`npx @orbitope/parlance-cli save import …` (or `… route …`) runs the same verbs.
+
 ### What playtest does NOT change
 
 Playtest is **read-only**. It never writes to any dialogue file or layout
