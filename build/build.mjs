@@ -179,6 +179,77 @@ function fillTemplate(tpl, vars) {
   return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => (k in vars ? vars[k] : ""));
 }
 
+function escapeXml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+// Releases for the RSS feed, fetched at build time from the same GitHub Releases
+// API the on-page list uses at runtime (assets/js/site.js). Authenticated when
+// GITHUB_TOKEN is present (CI) to dodge the 60/hr unauthenticated IP limit.
+// Fails soft: a transient API error yields an empty list and a warning rather
+// than aborting — the deploy gates on this build succeeding, and a doc change
+// must not be blocked by GitHub being briefly unreachable. The empty-but-valid
+// feed self-heals on the next build.
+async function fetchReleases() {
+  const url = `https://api.github.com/repos/${config.releasesRepo}/releases?per_page=${config.feedLimit}`;
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "parlance-docs-build",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  try {
+    const r = await fetch(url, { headers });
+    if (!r.ok) throw new Error(`GitHub API ${r.status}`);
+    const releases = await r.json();
+    return releases.filter((rel) => !rel.draft).slice(0, config.feedLimit);
+  } catch (e) {
+    console.warn(`! releases fetch failed (${e.message}) — feed.xml will have no items`);
+    return [];
+  }
+}
+
+// RSS 2.0 feed of releases. Full release notes (rel.body) are rendered to HTML
+// and carried in a CDATA description, so subscribers get the whole changelog.
+function feedXml(releases) {
+  const md = makeRenderer();
+  const self = `${config.siteUrl}/feed.xml`;
+  const items = releases
+    .map((rel) => {
+      const title = (rel.name || rel.tag_name || "") + (rel.prerelease ? " (pre-release)" : "");
+      // Split any "]]>" so it can't terminate the CDATA the notes are wrapped in.
+      const notes = md.render(rel.body || "").replace(/]]>/g, "]]]]><![CDATA[>");
+      const pubDate = rel.published_at ? new Date(rel.published_at).toUTCString() : "";
+      return `  <item>
+    <title>${escapeXml(title)}</title>
+    <link>${escapeXml(rel.html_url)}</link>
+    <guid isPermaLink="true">${escapeXml(rel.html_url)}</guid>${pubDate ? `\n    <pubDate>${pubDate}</pubDate>` : ""}
+    <description><![CDATA[${notes}]]></description>
+  </item>`;
+    })
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>${escapeXml(config.siteName)} releases</title>
+  <link>${config.siteUrl}/releases/</link>
+  <atom:link href="${self}" rel="self" type="application/rss+xml"/>
+  <description>New ${escapeXml(config.siteName)} releases — downloads and what changed in each version.</description>
+  <language>en</language>
+  <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+${items}
+</channel>
+</rss>
+`;
+}
+
 // Rewrite site-root-relative hrefs ("/foo/") to page-relative, and apply the
 // synced-manual link map. Leaves protocol links and pure #anchors alone.
 function rewriteLinks(html, root, synced) {
@@ -196,7 +267,7 @@ function rewriteLinks(html, root, synced) {
   });
 }
 
-function build() {
+async function build() {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
 
@@ -238,6 +309,7 @@ function build() {
       title: fullTitle,
       description: meta.description || page.description || config.defaultDescription,
       canonical: `${config.siteUrl}/${href}`,
+      feedurl: `${config.siteUrl}/feed.xml`,
       ogimage: `${config.siteUrl}/${ogImage}`,
       ogimagew: String(ogSize.w),
       ogimageh: String(ogSize.h),
@@ -298,6 +370,9 @@ function build() {
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
   );
   write("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`);
+
+  // RSS feed of releases, fetched from the GitHub Releases API at build time.
+  write("feed.xml", feedXml(await fetchReleases()));
 
   // GitHub Pages reads CNAME from the published artifact; without it a deploy
   // can clear a custom domain configured in repo settings.
@@ -375,4 +450,7 @@ function checkLinks() {
   console.log(`Link check passed (${htmlFiles.length} pages).`);
 }
 
-build();
+build().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
