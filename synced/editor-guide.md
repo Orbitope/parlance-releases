@@ -38,9 +38,13 @@ it. Nothing is imported and nothing is copied into a library: the editor reads
 and writes those files in place.
 
 A folder counts as a project if it contains a `parlance.config.json`, a `data/`
-directory, or a `schema/` directory. Open an empty folder and the editor
-scaffolds the standard layout on first save; `parlance init <dir>` does the same
-from the command line.
+directory, or a `schema/` directory. **New Project…** offers a starting point:
+**Blank** lays down the standard empty layout, and **First conversation** seeds a
+tiny working sketch — one character and a branching dialogue that remembers
+whether you accepted their help — so your first project isn't an empty directory.
+The command line mirrors this with `parlance init <dir> [--template first-conversation]`
+(the default is `blank`). Opening an empty folder still scaffolds the layout on
+first save, exactly as before.
 
 ### Start with the demo
 
