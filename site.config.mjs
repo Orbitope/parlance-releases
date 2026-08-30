@@ -53,6 +53,13 @@ export default {
   ],
   githubUrl: "https://github.com/Orbitope/parlance-spec",
 
+  // Repo whose GitHub Releases feed the releases page and the build-time RSS
+  // feed. Must match data-releases-repo in content/releases.md so the on-page
+  // list and feed.xml describe the same releases. feedLimit caps how many
+  // releases the feed carries (the on-page list uses data-releases-limit).
+  releasesRepo: "Orbitope/parlance-releases",
+  feedLimit: 20,
+
   // Docs sidebar groups. Every href must correspond to a page in `pages`.
   docsSidebar: [
     {

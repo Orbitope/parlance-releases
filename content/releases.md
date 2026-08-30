@@ -20,6 +20,8 @@ downloaded, and notes describing what changed. Just want the current build?
   <p><a class="btn btn-primary" href="https://github.com/Orbitope/parlance-releases/releases">View all releases on GitHub →</a></p>
 </noscript>
 
+<p class="releases-subscribe">Prefer to subscribe? <a href="/feed.xml">Follow the release feed (RSS)</a> to get new versions in your reader.</p>
+
 ## Which file do I want?
 
 | Platform | File | Notes |

@@ -26,7 +26,11 @@ jobs:
       - run: npm ci
       # The build fails on any broken internal link or anchor, including
       # anchors inside the synced manuals — that gates the deploy.
+      # GITHUB_TOKEN authenticates the build-time GitHub Releases API call
+      # (feed.xml) so it isn't throttled by the unauthenticated 60/hr IP limit.
       - run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
