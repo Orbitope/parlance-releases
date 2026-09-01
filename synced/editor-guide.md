@@ -636,15 +636,19 @@ canvases.
 ## 10. Validation panel
 
 A bar at the bottom of the editor shows the live validation state. Every save
-triggers a full re-validation of the project; results are pushed to all open
-editor windows via WebSocket.
+triggers a re-validation — incremental, so only the changed entities and
+whatever references them are re-checked (a full pass runs when project-wide
+configuration like `rules.json` changes) — and the pass runs off the editor's
+serving thread, so even very large projects stay responsive while you type.
+Results are pushed to all open editor windows via WebSocket.
 
 By default the bar is **collapsed** to a single status row — it still shows
 the live error / warning counts and per-code filter chips, so project health
 stays glanceable, but the issue list stays out of the way. **Click "Validation
 ▸"** (or any status chip) to expand it and see all issues; the expanded /
-collapsed choice is remembered across sessions. Issues are sorted errors
-first, then warnings. Each row shows:
+collapsed choice is remembered across sessions. Issues are grouped by the
+entity they belong to, errors before warnings within each entity. Each row
+shows:
 
 - Severity badge (red = error, yellow = warning)
 - Issue code (e.g., `[REF]`, `[COVERAGE]`, `[GATE]`)
@@ -1071,9 +1075,25 @@ to pull the latest before saving again.
 
 ### Validation on every save
 
-Every `PUT` re-runs the full validator and broadcasts updated issues to all
-open editor windows via WebSocket. You always see live validation without
-manually refreshing.
+Every save re-validates and broadcasts updated issues to all open editor windows
+via WebSocket, so you always see live validation without manually refreshing.
+
+The save itself never waits on validation: the moment your change is on disk the
+editor is ready for the next edit, and the problems panel catches up a moment
+later. Validation is **incremental** — a save re-checks only the entity you
+changed and the entities that reference it, not the whole project — and runs on
+a background thread, so typing stays responsive no matter how large the project
+grows. In practice the panel refreshes within a few tens of milliseconds of a
+save; only an unusually large *single* dialogue (many hundreds of nodes) adds a
+noticeable lag to that refresh, and even then it is the squiggles catching up,
+never the typing.
+
+You don't need to configure any of this. For debugging, a few environment
+variables on the host change the behavior: `PARLANCE_VALIDATE_WORKER=0` runs
+validation in-process instead of on the worker thread, `PARLANCE_VALIDATE_INCREMENTAL=0`
+forces a full re-validation on every save, and `PARLANCE_VALIDATE_CHECK=1`
+cross-checks every incremental pass against a full one (on by default in dev
+builds).
 
 ---
 
