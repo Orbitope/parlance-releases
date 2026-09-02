@@ -74,9 +74,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npx parlance ci-check . --strict
-      - run: npx parlance route --all --strict
+      - run: npx @orbitope/parlance-cli ci-check . --strict
+      - run: npx @orbitope/parlance-cli route --all --strict
 ```
+
+**Or use the reusable action.** The same `ci-check` is packaged as a composite
+action, pinned to a release tag so the check matches that release exactly:
+
+```yaml
+      - uses: Orbitope/parlance-releases/validate@vX.Y.Z
+        with:
+          project-dir: .
+          strict: "true"
+```
+
+Pin `vX.Y.Z` to the latest release — it runs the matching `@orbitope/parlance-cli`
+version, so your CI never drifts from the release you pinned. The action wraps
+`ci-check`; keep the `route` step above if you also gate on route fixtures.
 
 Now a pull request that breaks the story shows a red ✗ like any other broken
 build — which changes the *social* contract: narrative edits get the same

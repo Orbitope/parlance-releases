@@ -45,6 +45,7 @@ Fast answers, deep-linked into the manuals and tutorials.
 | See which quests gate which | [Quest dependency graph](/docs/editor-guide/#8-quest-dependency-graph) |
 | Map my locations and their gated exits | [Location map](/docs/editor-guide/#9-location-map) |
 | Review a colleague's story branch | [Review](/docs/editor-guide/#16-review--reading-someone-elses-branch) |
+| Set writers up to contribute through the app | [Collaboration setup](/docs/collaboration/) |
 | Hand off strings for translation or VO | [Localization & VO](/docs/editor-guide/#15-localization--vo) |
 | Undo a bad save / get back to where I was | [Undo/redo & navigation history](/docs/editor-guide/#13-undo--redo-and-navigation-history) |
 | Install the app and open a project | [Install & run](/docs/install/) |
@@ -124,6 +125,7 @@ endings · codex · items · portraits · [cutscene manifests](/docs/editor-guid
 [independent Python validator](/docs/reference/cli/#the-python-reference-validator)
 
 **Collaboration** —
+[setting up writers](/docs/collaboration/) ·
 [git-native review](/docs/editor-guide/#16-review--reading-someone-elses-branch) ·
 [narrative diffs](/docs/concepts/git-native/) ·
 [comments, suggestions, verdicts](/docs/editor-guide/#comments-suggestions-verdicts) ·

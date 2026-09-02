@@ -9,6 +9,11 @@ The `parlance` command ships with the host package. Every subcommand resolves
 the project root the same way: explicit path argument → `PARLANCE_ROOT` env
 var → current directory ([details](/docs/reference/config/)).
 
+For CI and other headless use without the editor, the same commands are published
+as a standalone npm package, **`@orbitope/parlance-cli`** — run any subcommand with
+`npx @orbitope/parlance-cli <command>` (no install, no editor). Examples below use
+the short `parlance` form, which assumes it's on your `PATH`.
+
 Running `parlance` with no subcommand starts the editor host itself; if the
 target directory isn't a Parlance project, it says so and suggests
 `parlance init` rather than scaffolding on its own.
@@ -57,6 +62,18 @@ Replays route fixtures — scripted playthroughs with assertions from
 `tests/routes/rt_*.json` — and exits non-zero when a walk diverges or an
 assertion fails. Deterministic play is what makes the replay exact; see the
 [fixture format and workflow](/docs/get-started/validate-in-ci/).
+
+## parlance save import
+
+```bash
+parlance save import <file> [--id <id>]
+```
+
+Imports an **engine save file** as a playtest snapshot — so a save the game itself
+wrote (the file proving a bug a tester hit) can be opened and replayed in the
+editor instead of reproduced by hand. It shares one implementation with the
+editor's `POST /api/saves/import`, so the CLI and the editor can't disagree about
+what a save means.
 
 ## The Python reference validator
 

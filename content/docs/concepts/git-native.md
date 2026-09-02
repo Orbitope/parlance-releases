@@ -44,6 +44,10 @@ The [Review surface](/docs/editor-guide/#16-review--reading-someone-elses-branch
 turns a branch into a reviewable *story*, using nothing but git — a two-person
 team on plain clones gets working review with no server anywhere.
 
+Setting this up for a team of writers? The [collaboration setup
+guide](/docs/collaboration/) covers signing them in (GitHub, GitLab, Bitbucket),
+the one-time studio setup, and exactly what the security model gives you.
+
 - **Roles are decided by git, not modes.** Have the branch checked out? You're
   its author. Otherwise you're a reviewer, reading a snapshot — your own
   working tree is never touched.
