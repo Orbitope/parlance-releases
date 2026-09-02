@@ -1,0 +1,48 @@
+name: "Parlance validate"
+description: "Validate a Parlance narrative project with parlance ci-check, failing CI on errors."
+branding:
+  icon: "check-circle"
+  color: "purple"
+
+inputs:
+  project-dir:
+    description: "Path to the Parlance project (a directory with data/ or parlance.config.json)."
+    required: false
+    default: "."
+  strict:
+    description: "Also fail on warnings, not just errors (\"true\"/\"false\")."
+    required: false
+    default: "false"
+  version:
+    description: >-
+      CLI version to run (e.g. 0.12.0). Defaults to the version matching the tag
+      this action was referenced at, so `@v0.12.0` runs @orbitope/parlance-cli@0.12.0.
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+
+        # Version resolution: an explicit input wins; otherwise pin to the tag
+        # this action was used at (GITHUB_ACTION_REF is that ref, e.g. "v0.12.0").
+        # A non-version ref (a branch, or an untagged local `uses:`) falls back to
+        # "latest" — pin a tag in production, as the versioning policy advises.
+        VERSION="${{ inputs.version }}"
+        if [ -z "$VERSION" ]; then
+          case "${GITHUB_ACTION_REF:-}" in
+            v[0-9]*) VERSION="${GITHUB_ACTION_REF#v}" ;;
+            *)       VERSION="latest" ;;
+          esac
+        fi
+
+        ARGS=(ci-check "${{ inputs.project-dir }}")
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          ARGS+=(--strict)
+        fi
+
+        echo "Running @orbitope/parlance-cli@${VERSION} ${ARGS[*]}"
+        npx --yes "@orbitope/parlance-cli@${VERSION}" "${ARGS[@]}"
