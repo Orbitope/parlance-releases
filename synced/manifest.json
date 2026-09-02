@@ -2,9 +2,12 @@
   "files": [
     "editor-guide.md",
     "cookbook.md",
+    "collaboration-setup.md",
+    "performance.md",
+    "ci-integration.md",
     "play-mistfall.html"
   ],
   "sourceRepo": "Orbitope/parlance",
-  "sourceSha": "ee6f81670b36daa5b0c78d6a46e6fc935d9c421b",
-  "syncedAt": "2026-09-01T00:01:31Z"
+  "sourceSha": "f8fe49a4707ef93db6f1ecd4cfb2da6b81385aa5",
+  "syncedAt": "2026-09-02T21:20:57Z"
 }
