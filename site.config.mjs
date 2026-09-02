@@ -81,6 +81,7 @@ export default {
       items: [
         { href: "docs/editor-guide/", label: "Editor guide" },
         { href: "docs/cookbook/", label: "Pattern cookbook" },
+        { href: "docs/collaboration/", label: "Collaboration setup" },
       ],
     },
     {
@@ -155,6 +156,13 @@ export default {
       synced: true,
       title: "Pattern cookbook",
       description: "Recipes for common narrative-logic patterns in Parlance — say-it-once, hub menus, reputation tone shifts, quest state machines, storylet selection — with the pitfalls that bite and an 'also known as' map to Ink, Yarn, Twine, and Ren'Py.",
+    },
+    {
+      src: "synced/collaboration-setup.md",
+      out: "docs/collaboration/index.html",
+      synced: true,
+      title: "Collaboration setup",
+      description: "Set writers up to contribute through the app — GitHub, GitLab, and Bitbucket sign-in, one-time studio and per-writer setup, the Parlance GitHub App, and exactly what the security model does and does not give you.",
     },
 
     { src: "content/docs/get-started/index.md", out: "docs/get-started/index.html" },

@@ -47,9 +47,13 @@ its cost is proportional to the project. It used to run synchronously inside
 every save, with the response blocked on the result — which meant that at a
 million words, every save cost the author more than two seconds.
 
-It is now scheduled. A save returns as soon as the bytes reach disk; the fresh
-issue set arrives over the validation WebSocket a moment later, and rapid saves
-coalesce into a single pass instead of one each.
+It is now scheduled *and* incremental. A save returns as soon as the bytes reach
+disk; a moment later the fresh issue set arrives over the validation WebSocket,
+and rapid saves coalesce into one pass instead of one each. That pass re-checks
+only the entities you changed and the ones that reference them, on a worker thread
+off the editor's main loop — so the cost of a keystroke no longer scales with the
+whole project the way the table above does. The full whole-project pass still runs
+when a project loads and whenever a panel needs a guaranteed-fresh answer.
 
 | Project size | Save, before | Save, after |
 |---|---:|---:|
@@ -76,6 +80,11 @@ Two things follow, and both are deliberate:
   seconds, which is unusable; scheduled, it is 1 ms.
 - **2M words** — twice the top of the target, and still linear: validation 2.9 s
   in the background, serialization 235 ms, search 42 ms.
+- **A single enormous dialogue is the one exception.** An incremental save
+  re-checks the edited entity in full, so one 5,000-node chapter costs more per
+  edit than the same nodes split across scenes — at that point the project
+  effectively *is* that dialogue. Splitting a very large dialogue keeps edits
+  snappy.
 
 ## Reproducing this
 
