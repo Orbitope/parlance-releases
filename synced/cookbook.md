@@ -1,9 +1,10 @@
 # Pattern cookbook — common narrative-logic recipes
 
 Parlance gives you a small, sharp toolkit: **conditions** (predicates over state),
-**effects** (state changes), an ordered **dialogue ladder** per character, and per-node /
-per-choice **`showIf`** gates. Almost every recurring narrative-logic problem is a
-specific arrangement of those four things.
+**effects** (state changes), self-declaring **dialogue offers** (each dialogue says who
+it is offered to, when, and at what priority), and per-node / per-choice **`showIf`**
+gates. Almost every recurring narrative-logic problem is a specific arrangement of those
+four things.
 
 This cookbook is the arrangements. Each recipe names a problem writers hit in every
 narrative engine, shows the Parlance way to solve it, and — under **Also known as** —
@@ -11,24 +12,27 @@ points at how Ink, Yarn Spinner, Twine, and Ren'Py spell the same idea, so a wri
 arriving from another tool can find the pattern by the name they already know.
 
 None of this is new engine capability. It is the vocabulary already in
-`schema/common.schema.json` (conditions and effects), `schema/dialogue.schema.json`
-(nodes, `showIf`, `next`, `onEnter`), and `schema/character.schema.json` (the ladder),
-used on purpose. When a recipe leans on a rule with a sharp edge, the edge is called out
-in **Pitfalls** — most of them are things that have actually bitten someone here.
+`schema/common.schema.json` (conditions and effects) and `schema/dialogue.schema.json`
+(nodes, `showIf`, `next`, `onEnter`, and the `offer` object), used on purpose. When a
+recipe leans on a rule with a sharp edge, the edge is called out in **Pitfalls** — most
+of them are things that have actually bitten someone here.
 
 ## The four primitives, in one breath
 
 - **Condition** — a testable predicate: `flag`, `counter`, `reputation` (faction),
   `relationship` (character), `skill`, `item`, `quest` (compared by stage *order*),
-  `questOutcome`, composed with `all` / `any` / `not`. Conditions live on ladder rungs,
-  `dialogue.availableWhen`, `node.showIf`, `choice.showIf`, quest gates, location exits,
-  codex unlocks, and ending conditions.
+  `questOutcome`, composed with `all` / `any` / `not`. Conditions live on `offer.when`,
+  `node.showIf`, `choice.showIf`, quest gates, location exits, codex unlocks, and ending
+  conditions.
 - **Effect** — a state change fired from `node.onEnter` or `choice.effects`: `set_flag`,
   `adjust_counter`, `adjust_reputation`, `adjust_relationship`, `give_item` / `take_item`,
   `advance_quest`, `grant_xp`, `set_active_dialogue`, `play_cutscene`, `set_text`.
-- **The ladder** — `character.dialogues` is an **ordered, first-match-wins** list.
-  Resolution walks top to bottom and returns the first rung whose `showIf` passes. A rung
-  with no `showIf` always matches (the fallthrough). **Array order is significant.**
+- **The offer** — a dialogue's `offer` object (`{ character?, when?, priority? }`) is its
+  self-declared candidacy. Its **presence** opts the dialogue in; `resolveCharacterDialogue`
+  gathers a character's offers, drops those whose `when` fails, and picks the most salient —
+  highest **priority tier**, then highest **condition specificity**, then lowest id. An
+  offer with no `when` is the **fallback** (specificity 0). **Order in the file never
+  matters.**
 - **`showIf` on a node** — display gate on an *interstitial* beat. When it fails the node
   is skipped and resolution continues at `next`. Its text is not shown **and its
   `onEnter` effects DO NOT fire.** Requires `next`; forbidden with `choices` / `isEnd`.
@@ -43,33 +47,40 @@ Everything below is built out of exactly these.
 Every visit after, they just want the one useful line — the checkpoint code, today's
 orders. You do not want to replay the recruitment.
 
-**Recipe.** Two dialogues and one flag, arranged on the ladder. The intro fires a
-`set_flag` as its side effect; the ladder rung for the intro is gated on that flag being
-*unset*, so once it fires the rung stops matching and the shorter dialogue wins.
+**Recipe.** Two dialogues and one flag, each offering for the same character. The intro
+fires a `set_flag` as its side effect; the intro's `offer.when` is gated on that flag being
+*unset*, so once it fires the intro stops being eligible and the shorter dialogue — the
+fallback, which loses to the intro's more specific gate only while the intro is eligible —
+wins.
 
 ```jsonc
-// character npc_warden — dialogues ladder (order matters: specific → fallthrough)
-"dialogues": [
-  {
-    "dialogue": "dlg_warden_recruit",
-    "showIf": { "type": "not", "of": { "type": "flag", "flag": "met_warden", "value": true } }
-  },
-  { "dialogue": "dlg_warden_brief" }   // no showIf — the fallthrough, wins forever after
-]
-```
-
-```jsonc
-// dlg_warden_recruit — its ending beat records that the scene has played
+// dlg_warden_recruit — offered while unmet, and records the scene on its way out
 {
-  "id": "node_sworn_in", "isEnd": true,
-  "onEnter": [ { "type": "set_flag", "flag": "met_warden", "value": true } ],
-  "text": "'Then you're one of us. Report to the checkpoint.'"
+  "id": "dlg_warden_recruit",
+  "speakerId": "npc_warden",
+  "offer": {
+    "when": { "type": "not", "of": { "type": "flag", "flag": "met_warden", "value": true } }
+  },
+  "entry": "node_open",
+  "nodes": [
+    {
+      "id": "node_sworn_in", "isEnd": true,
+      "onEnter": [ { "type": "set_flag", "flag": "met_warden", "value": true } ],
+      "text": "'Then you're one of us. Report to the checkpoint.'"
+    }
+  ]
 }
 ```
 
-Now: first talk → `met_warden` is false → recruit plays → on its way out it sets
-`met_warden`. Every later talk → recruit rung fails → `dlg_warden_brief` (the short
-informational one) wins.
+```jsonc
+// dlg_warden_brief — the fallback (offer with no `when`), wins forever after
+{ "id": "dlg_warden_brief", "speakerId": "npc_warden", "offer": {}, "entry": "…", "nodes": [ … ] }
+```
+
+Now: first talk → `met_warden` is false → the recruit offer is eligible and its `when`
+(specificity 1) outranks the bare fallback (specificity 0) → recruit plays → on its way
+out it sets `met_warden`. Every later talk → the recruit offer's `when` fails → only the
+fallback `dlg_warden_brief` (the short informational one) is eligible.
 
 **Pitfalls.**
 - **Set the flag on a beat the player actually *reaches*.** If recruitment can end on
@@ -137,7 +148,7 @@ skipped and flow jumps to `next` — landing on the evergreen menu.
 
 **Recipe.** The action writes a flag; anyone, anywhere, reads it. Effects and conditions
 share one global state, so a `set_flag` in one dialogue is visible to every `showIf`,
-ladder rung, quest gate, and ending in the project.
+`offer.when`, quest gate, and ending in the project.
 
 ```jsonc
 // in the sabotage dialogue
@@ -296,9 +307,9 @@ when you're stronger").
 **Pitfalls.**
 - Compose with `all` / `any` / `not` rather than inventing one mega-flag. The condition
   tree is readable and the reference index can find each part.
-- A `dialogue.availableWhen` gate is a blunter tool than a ladder rung — prefer the ladder
-  for "which conversation," and reserve `availableWhen` for corner-case overrides (the
-  schema says as much).
+- A `choice.showIf` gates a line *within* a scene; an `offer.when` chooses *which* scene.
+  Reach for the offer when the whole conversation should change, and for a choice `showIf`
+  when only one option should appear or vanish.
 
 **Also known as.** Ink `* {condition} [choice]`; Yarn `<<if>>` around an option; Ren'Py
 `"Option" if condition:`; Twine conditional `(link:)`.
@@ -310,23 +321,33 @@ when you're stronger").
 **Problem.** The same guard is hostile to strangers, curt to the tolerated, and warm to
 allies — and you don't want to write that fork inside every line.
 
-**Recipe.** Put the fork on the **ladder**, not in the dialogue. Order rungs from the
-highest bar down; the first that passes wins. Faction `reputation` conditions do the
-selecting; `adjust_reputation` effects move the needle elsewhere.
+**Recipe.** Give each tone its own dialogue, and let each **offer** for the guard. The
+gate on each is the reputation band it covers; the fallback (no `when`) catches strangers.
+Faction `reputation` conditions do the selecting; `adjust_reputation` effects move the
+needle elsewhere. Order in the file is irrelevant — specificity, then value, decides.
 
 ```jsonc
-"dialogues": [
-  { "dialogue": "dlg_guard_ally",   "showIf": { "type": "reputation", "faction": "faction_a", "op": ">=", "value": 30 } },
-  { "dialogue": "dlg_guard_known",  "showIf": { "type": "reputation", "faction": "faction_a", "op": ">=", "value": 10 } },
-  { "dialogue": "dlg_guard_cold" }   // fallthrough: strangers and enemies
-]
+// dlg_guard_ally
+{ "id": "dlg_guard_ally", "speakerId": "npc_guard",
+  "offer": { "when": { "type": "reputation", "faction": "faction_a", "op": ">=", "value": 30 } }, "entry": "…", "nodes": [ … ] }
+// dlg_guard_known
+{ "id": "dlg_guard_known", "speakerId": "npc_guard",
+  "offer": { "when": { "type": "reputation", "faction": "faction_a", "op": ">=", "value": 10 } }, "entry": "…", "nodes": [ … ] }
+// dlg_guard_cold — the fallback: strangers and enemies
+{ "id": "dlg_guard_cold", "speakerId": "npc_guard", "offer": {}, "entry": "…", "nodes": [ … ] }
 ```
 
 **Pitfalls.**
-- **Order matters and overlapping thresholds are a classic bug.** List the *strictest*
-  rung first. If `>= 10` sits above `>= 30`, the ally rung is dead — reputation 40 matches
-  `>= 10` first and never reaches it. (The `ladder-audit` skill exists to catch exactly
-  this kind of ordering mistake.)
+- **Overlapping bands used to be a first-match ordering bug; they no longer are — but
+  ties are.** Two bands that read the same reputation value (`>= 10` and `>= 30`) are
+  *equally specific* (both a single leaf, specificity 1), so at reputation 40 the two
+  offers tie on `(priority, specificity)` and the id decides — here `dlg_guard_ally`
+  happens to sort before `dlg_guard_known`, so it wins by its name, not by design. Break
+  the tie deliberately: tier the more specific band up (`offer.priority: 1` on
+  `dlg_guard_ally`), or make its `when` an `all` that *excludes* the lower band (`>= 30`
+  alone stays specificity 1; add a second conjunct to raise it). The validator's `OFFER`
+  tie warning flags the un-broken tie, since two reputation reads are not provably
+  exclusive.
 - Faction reputation is clamped to the faction's declared range; character standing
   (recipe 9) is not.
 
@@ -377,8 +398,8 @@ resolved — and dialogue, objectives, and endings all need to know where it sta
 
 **Recipe.** Model the quest with ordered stages. `advance_quest` moves it forward from an
 effect; `quest` conditions read it **by stage order** (`>=` means "at or past"). Objective
-`showIf` and ladder rungs key off the same stages, so the whole world stays in sync with
-one write.
+`showIf` and `offer.when` gates key off the same stages, so the whole world stays in sync
+with one write.
 
 ```jsonc
 // accepting the job, in dialogue
@@ -445,31 +466,42 @@ the NPC gets annoyed, buy five and unlock a discount.
 
 ---
 
-## 12. Priority ladder (most-specific line wins)
+## 12. Salience (most-specific line wins)
 
 **Problem.** A greeting should reflect the *most relevant* current fact: mid-quest? just
 betrayed them? raining? Otherwise, a default. You don't want to hand-branch all
 combinations.
 
-**Recipe.** This is the ladder (recipe 8) generalized into storylet selection: order rungs
-**most-specific → most-general**, each gated by the fact it needs, ending in an
-unconditional default. The engine picks the first that applies.
+**Recipe.** This is what offers do by default — no arrangement needed. Give each variant
+its own dialogue offering for the character, gated by the fact it needs, plus one fallback
+with no `when`. `resolveCharacterDialogue` picks the **most specific** eligible offer
+automatically; the fallback wins only when nothing more specific applies.
 
 ```jsonc
-"dialogues": [
-  { "dialogue": "dlg_wren_betrayed", "showIf": { "type": "flag", "flag": "betrayed_wren", "value": true } },
-  { "dialogue": "dlg_wren_onquest",  "showIf": { "type": "quest", "quest": "task_prove_worth", "op": ">=", "stage": "stg_active" } },
-  { "dialogue": "dlg_wren_warm",     "showIf": { "type": "relationship", "character": "npc_wren", "op": ">=", "value": 20 } },
-  { "dialogue": "dlg_wren_default" }
-]
+// each is a dialogue offering for npc_wren — order in the file is irrelevant
+{ "id": "dlg_wren_betrayed", "speakerId": "npc_wren",
+  "offer": { "when": { "type": "flag", "flag": "betrayed_wren", "value": true } }, "entry": "…", "nodes": [ … ] }
+{ "id": "dlg_wren_onquest", "speakerId": "npc_wren",
+  "offer": { "when": { "type": "quest", "quest": "task_prove_worth", "op": ">=", "stage": "stg_active" } }, "entry": "…", "nodes": [ … ] }
+{ "id": "dlg_wren_warm", "speakerId": "npc_wren",
+  "offer": { "when": { "type": "relationship", "character": "npc_wren", "op": ">=", "value": 20 } }, "entry": "…", "nodes": [ … ] }
+{ "id": "dlg_wren_default", "speakerId": "npc_wren", "offer": {}, "entry": "…", "nodes": [ … ] }
 ```
 
 **Pitfalls.**
-- The whole pattern rests on order. A general rung above a specific one shadows it
-  permanently — the single most common ladder bug, and what the `ladder-audit` skill
-  traces: for each rung, *when does it first win and when does it stop winning?*
-- Keep rungs mutually recognizable at a glance; if two rungs can both be "the interesting
-  one," you have a design decision to make explicit, not a tie for the engine to break.
+- **Equal specificity is a real tie, not "the first one".** The three gates above are each
+  a single leaf (specificity 1), so if the player is *both* betrayed and mid-quest, the two
+  offers tie and the id decides. When one fact should dominate another, say so: raise its
+  `offer.priority` (a higher tier beats every lower tier however specific), or make its
+  `when` an `all` that carries the dominant fact plus the weaker one (specificity is the
+  sum, so it outranks either alone). The validator's `OFFER` tie warning flags un-broken
+  ties, and stays quiet when it can prove two gates never both hold (opposite values of
+  one flag or item, disjoint ranges of one counter/reputation/relationship/skill, each
+  also under a `not`); the offer-audit judges whether the resolution tells the arc you
+  intended.
+- Keep offers mutually recognizable at a glance; if two can both be "the interesting one"
+  at equal specificity, that is a design decision to make explicit with a priority tier,
+  not a tie for the engine to break by id.
 
 **Also known as.** Fallen London / StoryNexus storylets and "salience"; Valve's Left 4
 Dead / Dota response rules (most-specific matching context wins); Versu.
@@ -514,21 +546,28 @@ next talk to whoever's relevant. Who decides which conversation plays?
 **Recipe.** Two mechanisms, deliberately different:
 - **Push (preferred):** `set_active_dialogue` from an effect targets a character and names
   the exact dialogue to play next time. The demo Broker does this — its ending routes the
-  *player* to `dlg_pick_side`. Pair it with a ladder rung gated on the flag the engine
-  sets (`active_dialogue__<character>`), as `npc_warden` does.
-- **Pull:** the ladder itself decides on every open, from world state, via each rung's
-  `showIf`. Nobody "queues" anything — the highest matching rung just wins.
+  *player* to `dlg_pick_side`. Pair it with a **tier-1 offer** gated on the flag the engine
+  sets (`active_dialogue__<character>`), as `dlg_pick_side` does — a higher tier beats every
+  ordinary offer, so the queued scene wins until its flag is cleared.
+- **Pull:** offers decide on every open, from world state, via each `offer.when`. Nobody
+  "queues" anything — the most salient eligible offer just wins.
 
-Prefer **push** for a scripted "next beat happens here"; prefer **pull** (the ladder) for
-"whatever fits the current state." The schema is explicit: use `availableWhen` only for
-corner-case overrides, not as your main switch.
+Prefer **push** for a scripted "next beat happens here"; prefer **pull** (offers) for
+"whatever fits the current state."
 
 **Pitfalls.**
-- Push sets a flag named `active_dialogue__<character>`; the receiving rung's `showIf`
-  reads that flag. Don't hand-invent a different flag name and wonder why the rung never
-  fires.
+- Push sets a flag named `active_dialogue__<character>`; the receiving offer's `when`
+  reads that flag. Don't hand-invent a different flag name and wonder why the offer never
+  wins. Clear the flag once the scene is consumed, or it keeps winning.
 - Don't drive the *same* transition from both push and pull — pick one owner for each
   scene switch or you'll get double-fires that are miserable to trace.
+- The effect's `dialogue` field is a label; what routes is the target's **offer**. The
+  validator warns (`OFFER`) when the named dialogue carries no offer for that character
+  gated on the flag, and when that offer sits at a tier an ordinary offer can beat — in
+  both cases the runtime plays something else and the queued scene never lands.
+- A dialogue is offered by **one** character. If two characters must each be able to
+  open the same scene, give each a one-node routing dialogue of their own (offered for
+  that character, gated on their flag) whose only beat jumps to the shared scene.
 
 **Also known as.** Ink `-> divert` / a scheduled knot vs. a `{condition: -> knot}`
 selector; Yarn `<<jump>>` vs. a node picked by `<<if>>`; a state machine's explicit
@@ -543,7 +582,7 @@ scenes, but pay off later with a line that remembers which way you went.
 
 **Recipe.** At the fork, each branch sets a distinguishing flag; the branches then
 converge (`goto`/`next` to the same node). Later, an interstitial `showIf` beat (or a whole
-ladder rung) reads the flag and delivers the callback.
+offered dialogue gated on the flag) reads it and delivers the callback.
 
 ```jsonc
 // the fork
@@ -641,7 +680,7 @@ membership test; Twine an inventory datamap.
 machine. You want variety across visits.
 
 **Recipe.** Parlance has no inline variant syntax and no RNG in the data — variety is
-authored as a **counter you bump on entry** plus a ladder of interstitial `showIf` beats,
+authored as a **counter you bump on entry** plus a chain of interstitial `showIf` beats,
 each gated on a counter band. This gives a *sequence* (each line once, then hold on the
 last), which is the version most worth having.
 
@@ -703,19 +742,19 @@ vocabulary above.
 
 | You want to… | Reach for | Recipe |
 |---|---|---|
-| Not replay a whole intro scene | ladder rung gated on a "met" flag | 1 |
+| Not replay a whole intro scene | offer gated on a "met" flag + a fallback offer | 1 |
 | Skip a preamble inside one replayable dialogue | node `showIf` + `next`, flag on the surviving beat | 2 |
 | Let the world react to an off-screen deed | `set_flag`, read from anywhere | 3 |
 | Unlock a topic once the player *learns* it | knowledge flag on a `choice.showIf` | 4 |
 | Offer something exactly once | choice that sets a flag and hides on it | 5 |
 | A returnable topic menu | hub node + `next`-back spokes + exhaustion flags | 6 |
 | Require a prerequisite (hidden or signposted) | condition on `choice.showIf` (hard) vs. re-test node / passive check (soft) | 7, 16 |
-| Shift tone by standing | ordered ladder on `reputation` / `relationship` | 8, 9 |
+| Shift tone by standing | one offer per band on `reputation` / `relationship` | 8, 9 |
 | Track a multi-stage quest | `advance_quest` + `quest` (stage-order) conditions | 10 |
 | Count things / "asked enough" | `adjust_counter` + `counter` condition | 11 |
-| Pick the most relevant line automatically | most-specific-first ladder (storylet) | 12 |
+| Pick the most relevant line automatically | offers ranked by specificity (salience) | 12 |
 | Quote the player's specific choice back | `set_text` + `{var}` | 13 |
-| Script the next conversation explicitly | `set_active_dialogue` (push) vs. ladder (pull) | 14 |
+| Script the next conversation explicitly | `set_active_dialogue` (push) vs. offers (pull) | 14 |
 | Pay off an early fork much later | flag at the fork, `showIf` at the payoff | 15 |
 | Fork on a skill / let failure through | active/passive `check`, `kind: priced` | 16 |
 | Gate on carrying an object | `item` condition + `give_item`/`take_item` | 17 |
@@ -727,10 +766,10 @@ vocabulary above.
   `data/variables.json`; items in `data/items.json`; skills, factions, quests in their
   registries. Both validators check references — an undeclared flag is an error, not a
   silent no-op.
-- **Order is meaning.** Wherever there's a list — ladder rungs, `all`/`any` members read
-  by a human, a `next` chain — the arrangement carries intent. The ladder is
-  first-match-wins, so "most specific first, unconditional last" is not style, it's
-  correctness (recipes 8, 12).
+- **Salience is meaning.** Offers are ranked by priority tier, then condition specificity,
+  then id — file order never matters. When two offers can apply at once, the *more specific*
+  gate wins, and an equal-specificity tie is a design decision to make explicit with a
+  priority tier, not a coin flip to leave to the id (recipes 8, 12).
 - **"Is true" is not "just became true."** A threshold like `reputation >= 30` or
   `level >= 10` stays true forever once crossed, so a beat gated on it alone replays every
   visit. When you want a *one-time* reaction to crossing a line — a congratulation, a

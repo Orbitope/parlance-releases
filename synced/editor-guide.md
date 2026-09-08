@@ -222,13 +222,15 @@ Most fields get a real editor, not a generic fallback:
   the actual matching entities
 - **Reference-list** fields (e.g. a faction's `opposes`/`alliedWith`) →
   removable chips plus an "add" dropdown
-- **Dialogue ladder** (`Character.dialogues`) → a reorderable list of rungs,
-  each a dialogue dropdown plus an optional `showIf` condition builder (empty =
-  "always (fallthrough)"); ▲/▼ reorder because the ladder is first-match-wins
+- **Dialogue offer** (`Dialogue.offer`) → the offer editor (dialogues open on
+  the canvas, so it lives in the dialogue inspector — see §5): an "offered by"
+  character dropdown (defaults to the speaker), a priority-tier number, and an
+  "offered when" condition builder (empty = "always (fallback)"). There is
+  nothing to reorder — resolution ranks by tier, then specificity, then id
 - **`loreRef`** → a dropdown of the real files under `lore/` (so you can't
   typo a path), an anchor text input, and an inline **Open** button that
   previews the file without leaving the form
-- **Conditions / effects** (`availableWhen`, `onEnter`, …) → the structured
+- **Conditions / effects** (`showIf`, `onEnter`, …) → the structured
   condition/effect builders described in §6
 - Location-specific structured fields (`spawns`, `exits`, `interactables`)
   get their own dedicated editors
@@ -277,13 +279,13 @@ Selecting the **Dialogues** type without opening a specific dialogue shows the
 **flow map** — every dialogue as a single node, laid out left-to-right, with
 edges for the cross-scene jumps between them:
 
-- **routes** — a `set_active_dialogue` effect re-points a character's ladder at
-  another dialogue (grey edge).
+- **routes** — a `set_active_dialogue` effect forces a character's next dialogue
+  to another one (grey edge).
 - **cutscene chains** — a `play_cutscene` effect queues a cutscene that chains
   into another dialogue via its `entersDialogue` (violet dashed edge).
 
 Each node shows the dialogue's title, id, speaker, and word count; a **START**
-badge marks dialogues with no incoming jump (reached by a ladder default, a
+badge marks dialogues with no incoming jump (reached by an offer, a
 quest, or a cutscene from elsewhere). Click a node to open that dialogue's node
 graph. "Auto layout" re-runs the dagre arrangement; positions you drag are
 saved. It's the project-level companion to the [quest dependency
@@ -502,21 +504,95 @@ Select a choice to expand it.
 
 - **Title** — display name for the entity list.
 - **Default speaker** — *every node inherits this unless overridden.* The
-  dialogue's fallback speaker (a character; not a skill — this field doubles
-  as ownership for the character's dialogue ladder and discovery, so it stays
+  dialogue's fallback speaker (a character; not a skill — this field also
+  supplies the default `offer.character` for offer resolution, so it stays
   character-only even though a node's own Speaker override can be a skill).
   Leave unset for a dialogue that's entirely narration/multi-speaker with no
-  single default — see Speaker in the node inspector above. Don't confuse
-  this with **Default for speaker** directly below — different field, similar
-  name, unrelated concept.
-- **Default for speaker** — this dialogue is the NPC's default when no
-  other dialogue matches `availableWhen`.
+  single default — see Speaker in the node inspector above.
+- **Offer** — whether and how this dialogue offers itself for selection: an
+  "offered by" character (defaults to the speaker), a priority tier, and an
+  "offered when" gate. An offer with no gate is the **fallback** — the NPC's
+  default when no more specific or higher-tier offer applies. A dialogue with
+  no offer at all is reached only by `goto`/route/cutscene/world placement.
 - **Replayable** — the dialogue can be started again after it has been
   completed once.
 - **Lore** button (toolbar, far right) — appears if the dialogue has a
   `loreRef`; opens the linked Markdown doc inline.
 - **Delete dialogue** (toolbar, far right) — deletes the whole dialogue
   file with confirmation.
+
+### Offers — which dialogue a character opens with
+
+When the player talks to a character, the game asks: *of everything this
+character could say right now, what is the most relevant?* Offers are how a
+dialogue answers "me, when…". There is no list to keep in order — each dialogue
+carries its own claim, and the engine ranks the claims.
+
+**The model, in four rules.**
+
+1. **A dialogue opts in by carrying an offer.** No offer means it is never
+   presented on its own; it is reached only by a `goto`, a route, a cutscene,
+   or a place in the world (an interactable). Click **Offer this dialogue** in
+   the inspector to opt in.
+2. **An offer with no gate is the fallback.** It is what the character says
+   when nothing more specific applies. Every character with offers should have
+   exactly one; the validator warns (`OFFER`) when there is none (a character
+   whose every offer is a forced routing target is exempt: resolving to nothing
+   outside a routed beat is the intent).
+3. **Among offers whose gate passes, the most specific wins.** Specificity is
+   how many conditions the gate carries: a single `flag` is 1, an `all` of
+   three is 3, an `any` counts its weakest side. So "betrayed me AND mid-quest"
+   beats "mid-quest" beats the fallback, with no ordering on your part.
+4. **A priority tier beats specificity.** Set **priority** above 0 only when one
+   scene must win regardless — a forced next beat queued by
+   `set_active_dialogue` is the standard case (tier 1, gated on the
+   `active_dialogue__<character>` flag the effect sets). A tier above 0 with no
+   gate wins forever, which is almost never what you mean; the validator says so.
+
+Two offers with the same tier and specificity are a **tie**, and the lower id
+wins. The validator names the winner in an `OFFER` warning, unless it can
+prove the two can never both apply: opposite values of one flag or item, or
+ranges of one counter (or reputation, relationship, skill) that do not
+overlap, which is why a sequence gated `== 0`, `== 1`, `== 2` on one counter
+is silent. Break a real tie on purpose: raise a tier, or add the dominant
+fact to the gate so it is more specific. A dialogue that has been played and is
+not **Replayable** drops out of the running (the preview in Play ignores that,
+so a played one-shot can still show as the winner there).
+
+**Where you set it.** Open the dialogue on the canvas; with no node selected,
+the inspector's top section shows **Offer**:
+
+- **offered by** — the character who presents it. Defaults to the dialogue's
+  speaker; set it only for a scene the player carries (a hub the *player*
+  opens) or that someone other than the speaker should present.
+- **priority** — the tier, normally 0.
+- **offered when** — the gate, built with the same condition builder as a
+  choice's `showIf`. Empty means fallback.
+- **Stop offering** — removes the offer; the dialogue stays reachable by jumps.
+
+In the **Text** view the same fields are header directives under the title
+line: a bare `~ offer` opts in as a fallback; `~ offer by: npc_wren`,
+`~ offer priority: 1`, and `~ offer: flag betrayed_wren` set the three fields
+(the condition uses the same syntax as `~ showIf:`). Deleting the lines removes
+the offer.
+
+**How to see what will happen.** Open **▶ Play** on any dialogue and expand
+**Dialogue Offers** above the transcript. Pick a character (it opens on the
+first with offers); it lists every offer of that character in rank order, marks the one that wins against the current state,
+and shows each offer's tier and condition count — the two numbers that decide.
+Flip the flags the gates read, right there, and watch the winner change. On the
+flow map, a dialogue with an offer carries an **offered** badge; one with no
+offer and no incoming jump is marked **orphan**, because nothing presents it.
+
+**Patterns.** The cookbook (`tooling/COOKBOOK.md`) builds the common shapes out of
+offers: say-it-once (recipe 1), the salience greeting (12), and push versus pull
+for a queued next scene (14).
+
+**Coming from a 0.13 project.** The old character `dialogues` ladder is
+converted for you: the Validation panel's **Convert ladders to offers** button
+turns each rung into an offer that resolves exactly as the ladder did, and
+prints a report of the few places worth a look (a rung that needed a tier,
+a rung that was already shadowed).
 
 ### Pacing (inspector, with no node selected)
 
@@ -675,10 +751,11 @@ Common codes:
 | `LORE` | `loreRef` points to a file that doesn't exist |
 | `LOC` | Location graph issue — bad exit spawn, a spawn nothing arrives at, more than one default spawn, gate/gateType mismatch, unreachable location, npc interactable missing its character |
 | `CUT` | Cutscene issue — unknown `entersDialogue`, never-triggered cutscene, or ambiguous ordering (two `play_cutscene` effects on one node) |
-| `LADDER` | Character dialogue-ladder shape issue — a **dead rung** (an unconditional rung before the end shadows the rungs below it), a **stuck rung** (an unconditional, top-priority, effectful rung re-fires forever on every re-entry), or **no fallthrough** (the last rung is gated, so the character may resolve to no dialogue). A dangling `dialogues[].dialogue` is a `REF` error. All warning-level; none blocks a save. |
+| `OFFER` | Dialogue-offer selection issue — **no fallback** (a character has offers but none is unconditional, so resolution can return nothing — silent for a routing-only character whose every offer is forced through its `active_dialogue__` flag), **names no character** (an offer on a dialogue with neither a speaker nor `offer.character`, so nothing ever presents it), a **prioritized fallback** (an offer with `priority > 0` and no `when` shadows every lower tier forever and re-fires on re-entry), an **unbreakable tie** (two of one character's offers share priority and specificity and aren't provably exclusive, so the id decides — provable means opposite values of one flag or item, disjoint ranges of one counter/reputation/relationship/skill, each also under a `not`, or an OR whose every side is), an **offer-only stranded** speaker dialogue (nothing offers it and it has no world placement), a **`set_active_dialogue` target with no forced offer** (the named dialogue carries no offer for that character gated on `active_dialogue__<character>`, so the flag routes nothing), or a **forced offer that can be out-ranked** (an ordinary offer of the same character beats it while the flag is set, so routing plays the wrong scene — raise its tier). A dangling `offer.character`/`offer.when` ref is a `REF` error. All warning-level; none blocks a save. |
+| `MIGRATE` | A stale project still carrying the retired `character.dialogues` ladder (Parlance 0.13). An error; the Validation panel shows a **Convert ladders to offers** button that rewrites every ladder into dialogue offers and prints the conversion report (`parlance migrate <project>` does the same from a terminal, and `tooling/scripts/migrate_ladders.py` without the editor). |
 | `PROG` | Progression config (`progression.json`) issue — malformed thresholds (not strictly increasing), `pointsPerLevel`/`maxSkill` < 1 (error), a starting skill already at the ceiling, or the **soft-cap sanity** warning (authored XP grants enough points to max every skill). |
 | `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only — silent in a project with no quests). |
-| `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some character ladder reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
+| `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some `offer.when` reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
 
 Spelling is deliberately **not** in this table. Prose findings carry the code
 `SPELL`, they are never produced by validation, and they never appear in this
@@ -717,7 +794,7 @@ A searchable index of every id in the project. Type a flag id, character id,
 skill id, etc. to see:
 
 - Where it is **defined** (entity type, entity id, JSON path)
-- Every place it is **read** (conditions, showIf, availableWhen)
+- Every place it is **read** (conditions, showIf, offer.when, quest availableWhen)
 - Every place it is **written** (effects, setsFlags)
 
 Each entry is clickable and navigates to the exact entity. This is the
@@ -898,8 +975,8 @@ section appears below the transcript:
 - **Continue with…** — an explicit `set_active_dialogue` effect queued a
   specific dialogue for a character; click it to keep playing straight into
   that scene, carrying the accumulated game state forward.
-- **Discover…** — no explicit route was queued, so this lists the discovery
-  pool instead — dialogues whose `availableWhen` now matches the current
+- **Discover…** — no explicit route was queued, so this lists the eligible
+  offers instead — dialogues whose `offer.when` now matches the current
   state, the same set the game itself would offer.
 - A queued cutscene with an `entersDialogue` shows as **▶ cutscene: `<name>`**
   — click to apply its `effectsOnComplete` and continue into that dialogue.
@@ -1170,7 +1247,7 @@ rather than stashing them behind your back.
 
 Pick a **Base** and **Head** and press **Show changes** for a narrative diff —
 not a file diff. It reports what happened to the *story*: "2 nodes added, 1 line
-edited, ladder reordered", each entity's before/after lines, flags introduced or
+edited, offer changed", each entity's before/after lines, flags introduced or
 retired, and the validation delta.
 
 Both branch pickers are searchable: type any part of a name — several words, in
@@ -1200,7 +1277,7 @@ annotation is searchable too, so typing *line edited* narrows the list to just
 those scenes.
 
 The rest of the project stays in the list on purpose. A branch that edits a
-quest, a flag, or a character ladder changes how a scene *behaves* without
+quest, a flag, or a dialogue's offer changes how a scene *behaves* without
 touching that scene's own file, so the dialogues worth playing are often ones
 that show up as unchanged — and reading an edit in context usually means
 playing the scenes on either side of it.
