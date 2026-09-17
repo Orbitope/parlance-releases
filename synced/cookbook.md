@@ -617,14 +617,20 @@ usually shouldn't be a dead stop.
 
 **Recipe.** Wrap a choice in a **check**. *Active* rolls against a difficulty and routes to
 `onSuccess` / `onFailure` nodes. *Passive* reveals or hides the option against a threshold
-(a stat gate that shows the player *why*). Convey cost/identity with `kind`.
+(a stat gate that shows the player *why*). Convey cost/identity with `kind`. Make a check
+easier or harder in a given situation with **`modifiers`** — each a `when` condition and a
+`bonus` added to the total when it holds (they sum; negative = harder):
 
 ```jsonc
 {
   "id": "ch_persuade",
   "text": "Talk your way past him.",
   "check": { "mode": "active", "skill": "rhetoric", "difficulty": 12,
-             "onSuccess": "node_waved_through", "onFailure": "node_rebuffed", "kind": "priced" }
+             "onSuccess": "node_waved_through", "onFailure": "node_rebuffed", "kind": "priced",
+             "modifiers": [
+               { "when": { "type": "item", "item": "guild_seal", "has": true }, "bonus": 3, "label": "Guild seal" },
+               { "when": { "type": "flag", "flag": "drunk", "value": true }, "bonus": -2 }
+             ] }
 }
 ```
 
@@ -637,6 +643,15 @@ usually shouldn't be a dead stop.
   omits `goto`. Don't supply both.
 - Passive checks still need their `goto` targets to be reachable — the validator once had a
   blind spot here; don't rely on it to catch a dangling passive branch.
+- Modifiers move the **roll**, not the DC: `difficulty` stays the fixed bar and the bonus
+  adjusts what the player brings to it. A modifier bonus lifts an otherwise-impossible
+  difficulty back into reach — the reachability warning accounts for it.
+- Modifiers are **per-check, not global.** An item that should help every rhetoric check is
+  re-declared on each, or — if the engine has an equip system — reflected as a flag the
+  `when` reads. There is no equipment→skill layer.
+- Don't double-gate: a `showIf` of `has guild_seal` on the same choice as a `+3 ? has
+  guild_seal` modifier means the choice only appears when the bonus already applies. Gate
+  *or* modify; rarely both on the same condition.
 
 **Also known as.** Disco Elysium white/red checks; Fallout SPECIAL dialogue checks; Ren'Py
 `if renpy.random...`; any `[Persuade]` / `[Strength]` tagged option.

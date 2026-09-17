@@ -305,7 +305,15 @@ canvas and an editable **script view** — the whole scene as text, for authors
 who'd rather type than click. Node headers are `== node_id [entry] [end] ==`,
 an optional author note is a `> …` line under the header, prose follows, choices
 are `- choice_id: "text" -> target`, node/choice effects are `+ set_flag x = true`,
-and checks are `check wit >= 12 -> pass / fail`.
+and checks are `check wit >= 12 -> pass / fail` — with a conditional modifier written on an
+indented `bonus <±n> ["label"] ? <condition>` line under the check:
+
+```
+- ch_bribe: "Slip him a coin."
+    check wit >= 12 -> win / lose
+    bonus +2 "Coin purse" ? has coin_purse
+    bonus -3 ? flag drunk
+```
 
 The script is a **lossless** representation: saving reproduces the dialogue
 exactly, changing only what you edited (a byte-level round-trip is enforced by
@@ -475,6 +483,11 @@ Select a choice to expand it.
   - `active` — rolls `d20 + skill_value ≥ difficulty`. Routes to `onSuccess`
     or `onFailure` node.
   - A **probability bar** previews P(success) at any given stat value.
+  - **Modifiers** — conditional bonuses added to the roll (or, for a passive
+    check, to the reveal threshold) when their condition holds. "+2 with the
+    crowbar", "−1 while drunk"; they sum, and a negative bonus makes the check
+    harder. `difficulty` stays the fixed bar. Modifiers are per-check, not a
+    global equipment bonus.
 - **Goto** — for non-check choices, the destination node id (set by dragging
   an edge on the canvas, or typed directly).
 - Reorder choices with the ↑/↓ buttons; delete with ×.
