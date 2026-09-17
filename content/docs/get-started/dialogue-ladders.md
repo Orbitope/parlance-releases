@@ -1,85 +1,81 @@
 ---
-title: Dialogue ladders
-description: Give a character a state-aware conversation in ten minutes — build a two-rung ladder, watch the live preview re-point, and trigger (then fix) a dead-rung warning.
+title: Dialogue offers
+description: Give a character a state-aware conversation in ten minutes — declare two offers, watch the live preview re-point, and trigger (then fix) a missing-fallback warning.
 ---
 
-# Dialogue ladders
+# Dialogue offers
 
-**Goal:** a character whose conversation *changes when the world does* — and a
-deliberate ladder mistake, caught by the validator, then fixed. ~10 minutes.
-Concept background: [dialogue laddering](/docs/concepts/dialogue-laddering/).
+**Goal:** a character whose conversation *changes when the world does* — plus a
+deliberate offer mistake, caught by the validator, then fixed. ~10 minutes.
+Concept background: [dialogue offers](/docs/concepts/dialogue-laddering/).
 
 You need a character and two dialogues; the gatekeeper from the
 [previous tutorial](/docs/get-started/branching-dialogue/) works. Create a
 second dialogue for them, `dlg_gate_after` — what they say once you're known:
 *"'Back again? Gate's open for you.'"*
 
-## 1. Build the ladder
+## 1. Declare the offers
 
-Open the character. The **Dialogue Ladder** field is a reorderable list of
-rungs — each a dialogue plus an optional condition:
+Each dialogue says when it should play — you set it on the dialogue, not on the
+character. Open each dialogue's inspector and fill in its **Offer**:
 
-1. **Add rung** → `dlg_gate_after`, and give it a **show if** condition:
-   flag `talked_past_gate` is `true`.
-2. **Add rung** → `dlg_gate_first` — leave its condition empty. The row reads
-   **— always (fallthrough)**.
+1. `dlg_gate_after` → **offered when** flag `talked_past_gate` is `true`.
+2. `dlg_gate_first` → leave **offered when** empty. That makes it the
+   **fallback** — offered whenever nothing more specific applies.
 
 (In `dlg_gate_first`, make sure some choice or end node actually **sets**
 `talked_past_gate` — a flag read but never written is a `FLAG` warning, and
 rightly so.)
 
-Top-to-bottom, first match wins: an unknown player falls through to the first
-meeting; a known one hits the gated rung. The order **is** the logic — which
-is why the rows reorder with ▲/▼ instead of asking you to write priorities.
+There is no ordering to manage: an unknown player has only the fallback
+available; a known one also has the gated offer, which is more specific, so it
+wins. The engine picks — you just state each scene's situation.
 
 ## 2. Watch it resolve, live
 
-Open the **ladder preview** on the dialogue surface. It shows every rung and
-highlights the one currently winning, with quick toggles for the flags the
-ladder reads:
+Open the dialogue inspector's **resolution preview**. It shows the character's
+offers, marks which are eligible right now, and highlights the one currently
+winning — with quick toggles for the flags the offers read:
 
-- `talked_past_gate` off → rung 2 highlighted (`dlg_gate_first`)
-- flip it on → the highlight *jumps* to rung 1
+- `talked_past_gate` off → the fallback wins (`dlg_gate_first`)
+- flip it on → the highlight *jumps* to `dlg_gate_after`
 
 The preview runs the same `resolveCharacterDialogue` the engine runtime uses —
 what you see is what ships.
 
 ## 3. Break it on purpose
 
-Drag the fallthrough rung (**`dlg_gate_first` — always**) to the **top** with ▲.
-Save, and look at the validation bar:
+Give `dlg_gate_first` a gate too — set its **offered when** to some flag that is
+rarely set. Save, and look at the validation bar:
 
-> ⚠ `[LADDER]` rung 1 is unconditional — rungs below it can never be selected
+> ⚠ `[OFFER]` character has offers but none is unconditional — resolution
+> returns no dialogue in states where every `when` fails (add a fallback offer
+> with no `when`)
 
-That's a **dead rung**: an unconditional rung anywhere but last shadows
-everything beneath it. Your gated scene became unreachable — and instead of
-discovering that in a playtest next month, you got told at save time. Move it
-back down; the warning clears.
-
-The other shapes the [`LADDER` family](/docs/reference/validation-checks/)
-catches: a **stuck rung** (unconditional *and* effectful at the top — re-fires
-its effects on every re-entry, forever), **no fallthrough** (last rung gated,
-so the character can resolve to nothing), and **stranded speakers** (dialogues
-whose character has no ladder at all). Deleting a dialogue a rung points at is
-a hard `REF` error, not a warning.
+Now *both* offers are gated, so in the opening state — before anything is set —
+the character has nothing to say and resolves to `null`. Instead of discovering
+that in a playtest next month, you got told at save time. Clear the gate again;
+the warning clears with it.
 
 ## 4. The idiom to keep
 
-Most characters in most games are exactly this shape:
+Most characters in most games are exactly this shape — a few gated offers over
+one fallback:
 
 ```
-1. dlg_confrontation   if the_big_flag        ← most specific on top
-2. dlg_midgame_hints   if met_character
-3. dlg_first_meeting   — always (fallthrough) ← safety net on the bottom
+dlg_confrontation   offered when the_big_flag     ← most specific
+dlg_midgame_hints   offered when met_character
+dlg_first_meeting   (no gate — the fallback)      ← safety net
 ```
 
-Read the demo's three suspects for the pattern under real pressure —
-evidence-gated rungs over a fallthrough, so *talking to anyone twice* feels
-alive. A character's ladder is their arc, in one screen.
+There's no order to get right: each scene names its own situation, and the most
+specific eligible one wins. Read the demo's three suspects for the pattern under
+real pressure — evidence-gated offers over a fallback, so *talking to anyone
+twice* feels alive.
 
 ## Where next
 
 - [Playtest & share](/docs/get-started/playtest-and-share/) — play across the
-  ladder: finish the first scene, return, get the second.
-- [Dialogue laddering, the concept](/docs/concepts/dialogue-laddering/) — the
+  offers: finish the first scene, return, get the second.
+- [Dialogue offers, the concept](/docs/concepts/dialogue-laddering/) — the
   resolution rule, the feed model, and the conformance guarantees.

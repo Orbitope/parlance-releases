@@ -1,9 +1,9 @@
 ---
-title: Dialogue laddering
-description: How Parlance decides which dialogue a character plays — ordered, state-gated rungs resolved first-match-wins, with static checks for the classic ordering mistakes.
+title: Dialogue offers
+description: How Parlance decides which dialogue a character plays — each dialogue self-declares when it applies, resolved by priority then specificity, order-independent, with static checks for the classic mistakes.
 ---
 
-# Dialogue laddering
+# Dialogue offers
 
 ## The problem
 
@@ -15,144 +15,160 @@ they've done. Most tools answer with scripting: `if` chains in the engine, or
 availability flags scattered across the dialogues themselves. Both drift, and
 neither can be checked.
 
-Parlance's answer is the **ladder**: each character owns an *ordered* list of
-dialogues, each rung optionally gated on game state, resolved top-to-bottom,
-**first match wins**.
+Parlance's answer is the **offer**: each dialogue self-declares when it should
+play, and the engine picks the best fit. There is no ordered list to maintain
+and no array position that silently decides the outcome.
 
 ## The mechanism
 
-A character's `dialogues` field is an array of rungs, each
-`{ dialogue, showIf? }`. Resolution is the entire rule — this is the actual
-pseudocode from the runtime contract:
+A dialogue carries an optional `offer` object — `{ character?, when?,
+priority? }`. Its presence is the opt-in: a dialogue with an offer is a
+candidate for that character; one without is reached only by direct routing (a
+choice's `goto`, a scene push, a world placement). Resolution is the entire
+rule — this is the shape of the runtime contract:
 
 ```
-resolveCharacterDialogue(state, character, project):
-  for rung in character.dialogues ?? []:
-    if rung.showIf is absent or evaluate(rung.showIf, state, project): return rung.dialogue
-  return null
+resolveCharacterDialogue(state, character, project, visited?):
+  candidates = every dialogue whose offer is for `character`
+               and whose `when` passes (absent `when` = always)
+  drop any visited, non-replayable candidate
+  pick the best by: highest priority tier,
+                    then most specific condition,
+                    then lowest id
+  (nothing left → null)
 ```
 
-Three consequences fall straight out:
+Consequences fall straight out:
 
-- **Array order is significant.** Earlier rungs outrank later ones. The ladder
-  reads top-down as "the most specific situation first."
-- **A rung with no `showIf` always matches** — an unconditional **fallthrough**.
-  Put one last and the character always has *something* to say.
-- **Nothing matched → `null`.** The character has no dialogue right now. That's
-  legal, but usually a mistake — see the checks below.
+- **Order in the file never matters.** A dialogue carries its own eligibility;
+  where it sits in the project is irrelevant. "Most specific wins" is the
+  engine's job, not something you hand-sort.
+- **`offer.character` defaults to the dialogue's `speakerId`** — set it only
+  when one character presents a scene spoken by another.
+- **An offer with no `when` is a fallback** — offered whenever nothing more
+  specific or higher-tier applies. Give a character one and they always have
+  *something* to say.
+- **`offer.priority` (default 0) is a tier.** A higher tier beats every
+  lower-tier candidate, however specific — the escape hatch for "this must win
+  now."
+- **Nothing matched → `null`.** The character has no dialogue right now. Legal,
+  but usually a mistake — see the checks below.
 
 Re-entry needs no special code: talking to a character again just re-runs
-resolution against current state, so once flags change, a different rung wins.
+resolution against current state, so once flags change, a different offer wins.
 
 ## A worked example
 
-Here is how a ladder conceptually thinks when the player talks to a character, checking conditions from top to bottom until it finds a match:
+When the player talks to a character, the engine gathers every offer aimed at
+them, keeps the ones whose gate passes, and picks the most specific:
 
 ```mermaid
 flowchart TD
-    Start([Player talks to Wren]) --> Rung1{"Rung 1:<br/>Knows Wren was dismissed?"}
-    Rung1 -- "Yes" --> Dlg1["Play: Cornered"]
-    Rung1 -- "No" --> Rung2{"Rung 2:<br/>(Fallthrough)"}
-    Rung2 --> Dlg2["Play: First Meeting"]
+    Start([Player talks to Wren]) --> Gather["Gather Wren's offers"]
+    Gather --> C1{"Cornered:<br/>knows_wren_dismissed?"}
+    Gather --> C2["First Meeting:<br/>(fallback — no gate)"]
+    C1 -- "true" --> Win1["Most specific candidate wins → Cornered"]
+    C1 -- "false" --> Win2["Only the fallback applies → First Meeting"]
+    C2 -. always eligible .-> Win2
 ```
 
-Under the hood, this is represented in Aldous Wren's actual character file as:
+Each dialogue declares its own offer — Wren's two live in the dialogue files,
+not on the character:
 
 ```json
-"dialogues": [
-  {
-    "dialogue": "dlg_wren_cornered",
-    "showIf": { "type": "flag", "flag": "knows_wren_dismissed", "value": true }
-  },
-  { "dialogue": "dlg_wren_first" }
-]
+// dlg_wren_cornered.json
+"offer": { "when": { "type": "flag", "flag": "knows_wren_dismissed", "value": true } }
+
+// dlg_wren_first.json
+"offer": {}
 ```
 
-Talk to Wren early and rung 1 fails its gate — you get `dlg_wren_first`, the
+Talk to Wren early and only the fallback applies — you get `dlg_wren_first`, the
 polite apothecary. Learn that Vane dismissed him without a character
-(`knows_wren_dismissed` set by another scene), come back, and rung 1 now wins:
-you can corner him. Nobody scripted a transition; the ladder re-pointed.
+(`knows_wren_dismissed`, set by another scene), come back, and the gated offer
+is now the most specific candidate: you can corner him. Nothing scripted a
+transition, and neither dialogue references the other — the engine re-picked.
 
 <div class="dialogue-sample">
-  <div class="speaker">Wren — rung 2, before you know</div>
+  <div class="speaker">Wren — the fallback, before you know</div>
   <p class="line">"I sell tinctures, magistrate. Nothing stronger."</p>
 </div>
 <div class="dialogue-sample">
-  <div class="speaker">Wren — rung 1, once you know</div>
+  <div class="speaker">Wren — the gated offer, once you know</div>
   <p class="line">"He dismissed you without a character, Mr. Wren. In spring.
   Shall we start again?"</p>
 </div>
 
 ## Patterns
 
-**The arc as a ladder.** Order rungs from most specific to least: the
-confrontation gated on evidence at the top, mid-arc variations below it, an
-unconditional greeting at the bottom. A character's ladder *is* their arc,
-readable in one place.
+**The arc, spread across its scenes.** Instead of one ordered list, each scene
+states the situation it belongs to: the confrontation gates on evidence, the
+mid-arc variations gate on their flags, the greeting gates on nothing. The arc
+is the same, but each piece is local and can't be shadowed by a neighbour's
+position in a list.
 
-**The feed model.** The effect `set_active_dialogue` doesn't write some hidden
-override — it sets the flag `active_dialogue__{character}`, and the character's
-ladder carries a high-priority rung gated on that flag. Scene routing is
-therefore visible in the same ladder as everything else, not in a parallel
-mechanism.
+**Tiers for "this wins now."** When a scene must take precedence regardless of
+how specific the others are, give its offer a higher `priority`. That is the one
+place ordering is explicit — a number you set on purpose, not an accident of
+array position.
+
+**The feed model.** The effect `set_active_dialogue` doesn't write a hidden
+override — it sets the flag `active_dialogue__{character}`, and the routed scene
+carries a tier-1 offer gated on that flag. Scene routing is therefore visible as
+an offer, in the same place as everything else.
 
 **NPC interactables** in locations resolve through exactly the same call — a
-"forced" conversation is just a high-priority rung.
+"forced" conversation is just a high-priority, flag-gated offer.
 
 ## The mistakes the validator catches
 
-Ladders have four classic failure shapes. All are
-[`LADDER` checks](/docs/reference/validation-checks/) — warnings on every save,
+Offers have a handful of classic failure shapes. All are
+[`OFFER` checks](/docs/reference/validation-checks/) — warnings on every save,
 none blocking:
 
-1. **Dead rung** — an unconditional rung that isn't last. Everything below it
-   can never win:
+1. **No fallback** — a character has offers but none is unconditional, so in
+   states where every `when` fails they resolve to `null` and have nothing to
+   say. Add a no-`when` offer.
+2. **Prioritized fallback** — an offer carries a `priority` but no `when`: it
+   wins over every lower tier forever and re-fires on every re-entry. Gate it,
+   or drop the priority.
+3. **Unbreakable tie** — two offers at equal priority *and* specificity that
+   aren't provably exclusive: the lower id silently decides which wins. Make one
+   more specific, tier it, or gate them so they can't both apply.
+4. **Forced offer out-ranked** — a `set_active_dialogue` target that an ordinary
+   higher-priority offer would beat while the routing flag is set, so the push
+   plays the wrong scene. Raise the forced offer's tier.
+5. **Routes nothing** — `set_active_dialogue` names a dialogue that carries no
+   offer reading its `active_dialogue__` flag, so the push lands nowhere.
+6. **Stranded speaker** — a character's dialogue that carries no offer and has
+   no world placement: unreachable content.
 
-   ```json
-   "dialogues": [
-     { "dialogue": "dlg_greeting" },
-     { "dialogue": "dlg_confront", "showIf": { "type": "flag", "flag": "has_proof" } }
-   ]
-   ```
-   > ⚠ `[LADDER]` rung 1 is unconditional — rungs below it can never be selected
-
-2. **Stuck rung** — the *top* rung is unconditional **and** effectful: it wins
-   forever and re-fires its effects on every re-entry.
-
-3. **No fallthrough** — the *last* rung is gated, so there are states where the
-   character resolves to `null` and has nothing to say.
-
-4. **Stranded speakers** — a character with no ladder at all, whose dialogues
-   also carry no `availableWhen`: unreachable content.
-
-A rung pointing at a dialogue that doesn't exist is a hard `REF` **error**, not
-a warning.
+A dangling `offer.character`, or an offer for a dialogue that doesn't exist, is
+a hard error, not a warning.
 
 ## Seeing it live
 
-<img class="shot" src="/assets/images/editor-ladder.png" alt="The Dialogue Ladder editor on Aldous Wren's character form: rung 1 gated on knows_wren_dismissed, rung 2 marked always (fallthrough)" loading="lazy">
-<p class="shot-caption">Wren's actual ladder in the editor — the worked example above, as you'd author it.</p>
+<img class="shot" src="/assets/images/editor-offers.png" alt="A dialogue inspector in Parlance showing the Offer fields and a live resolution preview that highlights which of a character's dialogues wins in the current state" loading="lazy">
+<p class="shot-caption">The inspector's offer editor and resolution preview — the worked example above, as you'd author and check it.</p>
 
-The character form's **Dialogue Ladder** editor shows numbered rungs with ▲/▼
-reordering and a per-rung condition builder (empty = "always (fallthrough)").
-Beside it, the **ladder preview** re-runs `resolveCharacterDialogue` against
-the current play state and highlights the winning rung — with quick flag
-toggles, so you can flip `knows_wren_dismissed` and watch the highlight jump.
-The preview calls the same resolution code the runtime uses, so what you see is
-what ships. Try it in the [hands-on tutorial](/docs/get-started/dialogue-ladders/).
+The dialogue inspector shows an offer's **status** — does its `when` pass in the
+current play state? — **where it ranks** against the character's other offers,
+and a **live resolution preview** that re-runs `resolveCharacterDialogue` and
+highlights the winner. Flip a flag like `knows_wren_dismissed` and watch the
+winner change. The preview calls the same resolution code the runtime uses, so
+what you see is what ships. Try it in the
+[hands-on tutorial](/docs/get-started/dialogue-ladders/).
 
 ## The guarantees
 
 - `resolveCharacterDialogue` is **the canonical mechanism** — the only dialogue
   selection with published conformance vectors, which every engine port must
-  pass. The [Godot runtime](https://github.com/Orbitope/parlance-gdscript)
-  passes all of them.
+  pass.
 - Editor preview, playtest, and engine runtime share the same resolution
   semantics; they cannot disagree.
-- `selectDialogue` (dialogues filtered by their own `availableWhen`) exists as
-  a documented **escape hatch** for when availability genuinely belongs to the
-  dialogue rather than the character's arc — it has no ordering guarantee and
-  no vectors. Prefer the ladder.
+- Selection is **order-independent**: the vectors pin the ranking (priority tier
+  → condition specificity → lowest id), so two conformant engines resolve the
+  same winner from the same state.
 
 **Next:** [build one in ten minutes](/docs/get-started/dialogue-ladders/), or
-see how ladders slot into [the wider loop](/docs/concepts/workflow/).
+see how offers slot into [the wider loop](/docs/concepts/workflow/).

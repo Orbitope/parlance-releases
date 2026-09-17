@@ -17,7 +17,7 @@ Parlance data without us — is MIT-licensed and published at
 | Path | What it gives you |
 |---|---|
 | `schema/` | JSON Schema for every entity type — the authoritative shape of the format, validatable with any JSON Schema library ([schema-first data](/docs/concepts/schema-first/)) |
-| `docs/` | The runtime contract (conditions, effects, checks, [ladders](/docs/concepts/dialogue-laddering/), quest resolution, RNG, every edge case), plus integration, naming, versioning, and migration guides |
+| `docs/` | The runtime contract (conditions, effects, checks, [dialogue offers](/docs/concepts/dialogue-laddering/), quest resolution, RNG, every edge case), plus integration, naming, versioning, and migration guides |
 | `conformance/` | Executable vectors any port must pass — how a runtime [proves itself](/docs/concepts/engine-contract/). Where prose and vectors disagree, the vectors win |
 | `validate/` | The standalone Python [reference validator](/docs/reference/cli/#the-python-reference-validator) |
 

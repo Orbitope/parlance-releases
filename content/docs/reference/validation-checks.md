@@ -17,7 +17,8 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 | Code | Severity | Fires when | Fix by |
 |---|---|---|---|
 | `SCHEMA` | error | A field fails JSON Schema validation — wrong type, missing required key, unknown enum | Correcting the field; the [schemas](/docs/concepts/schema-first/) are the format's ground truth |
-| `REF` | error | Any reference names an id that doesn't exist — a choice's `goto`, a ladder rung's dialogue, a `factionId`, a condition's flag | Re-pointing or creating the target. The [reference index](/docs/editor-guide/#11-reports--coverage--reference-index) finds every usage of an id |
+| `REF` | error | Any reference names an id that doesn't exist — a choice's `goto`, an offer's dialogue, a `factionId`, a condition's flag | Re-pointing or creating the target. The [reference index](/docs/editor-guide/#11-reports--coverage--reference-index) finds every usage of an id |
+| `MIGRATE` | error | A project still carries the retired `character.dialogues` ladder (pre-0.14). Blocks loading until converted | The Validation panel's **Convert ladders to offers** button, `parlance migrate <project>`, or `migrate_ladders.py` — see [dialogue offers](/docs/concepts/dialogue-laddering/) |
 | `DUP` | error | Duplicate ids — entities, dialogue nodes/choices, or a location's spawns/exits/interactables | Renaming one of the twins |
 
 ## Dialogue flow
@@ -45,14 +46,14 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 |---|---|---|---|
 | `QUEST` | warning/error | Quest stage issues — notably stage/outcome **effects with no condition** (`completeWhen`/`reachedWhen`), which can never fire; outcome reference cycles are errors | Adding the condition; quest resolution only fires condition-gated items ([why](/docs/concepts/engine-contract/)) |
 | `ENDING` | warning | An ending is unreachable — no path leads to it | Wiring the path, or retiring the ending |
-| `COVERAGE` | warning | A character has no dialogue | Giving them a [ladder](/docs/concepts/dialogue-laddering/) — or accepting silence knowingly |
+| `COVERAGE` | warning | A character has no dialogue | Giving them an [offer](/docs/concepts/dialogue-laddering/) — or accepting silence knowingly |
 | `LOC` | warning | Location graph issues — a bad exit spawn, a spawn nothing arrives at, more than one default spawn, gate/gateType mismatch, an unreachable location, an npc interactable whose character can't speak | Following the message; the [location map](/docs/editor-guide/#9-location-map) shows the topology |
 | `CUT` | warning | Cutscene issues — unknown `entersDialogue`, a cutscene nothing triggers, or two `play_cutscene` effects racing on one node | Fixing the reference or the ordering |
 | `CODEX` | warning | A codex entry is gated on a flag nothing ever sets, so it may be unreachable | Setting the flag somewhere, or ungating the entry |
 | `LOGIC` | warning | A relationship contradicts itself — a faction that opposes itself, say | Fixing whichever side is wrong |
 | `PORT` | error | A `portrait` id isn't in the registry | Adding it to `portraits.json`, or fixing the reference |
 | `OBJ` | warning/error | Journal objective problems — a duplicate objective id inside a stage, or a quest tag outside a declared `rules.quest.tagVocabulary` | Renaming the twin, or adding the tag to the vocabulary |
-| `LADDER` | warning | Ladder shape mistakes — **dead rung** (unconditional, not last), **stuck rung** (top rung unconditional *and* effectful — re-fires forever), **no fallthrough** (last rung gated). A rung's dangling dialogue is a `REF` error | Reordering; the [deep dive](/docs/concepts/dialogue-laddering/) shows each shape with examples |
+| `OFFER` | warning | Offer resolution mistakes — **no fallback** (a character's offers are all gated, so some states resolve to nothing), **prioritized fallback** (a no-`when` offer carrying a priority — wins forever, re-fires), **unbreakable tie** (two offers at equal priority *and* specificity that aren't provably exclusive — the id decides), **forced offer out-ranked** / **routes nothing** (a `set_active_dialogue` target an ordinary offer beats, or one carrying no offer for its flag), **stranded speaker** (a dialogue offered by nothing with no world placement). A dangling `offer.character` is an error | The [deep dive](/docs/concepts/dialogue-laddering/) shows each shape with examples |
 
 ## Content & progression
 
@@ -61,7 +62,7 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 | `LORE` | error | A `loreRef` points at a file that doesn't exist | Fixing the path — the form's file dropdown exists so this can't be typed wrong |
 | `PROG` | warning/error | Progression config problems — thresholds not strictly increasing, `pointsPerLevel`/`maxSkill` < 1 (errors), a starting skill already at the ceiling, or authored XP generous enough to max *every* skill (the soft-cap sanity warning) | Adjusting `progression.json` |
 | `XP` | warning | A `grant_xp` with a non-positive amount, or authored outside a quest outcome (advisory — the convention is XP from quests only) | Moving the grant, or granting something |
-| `CHECK` | warning | Priced-check discipline — a `priced` active check whose failure branch doesn't proceed, or a priced-gate failure that sets a flag some ladder reads (the punishment-spiral advisory). `oneshot` checks are exempt | Giving failure somewhere to go — failure is content |
+| `CHECK` | warning | Priced-check discipline — a `priced` active check whose failure branch doesn't proceed, or a priced-gate failure that sets a flag some offer reads (the punishment-spiral advisory). `oneshot` checks are exempt | Giving failure somewhere to go — failure is content |
 
 ## Test fixtures
 

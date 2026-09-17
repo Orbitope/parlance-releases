@@ -87,7 +87,7 @@ the picker to create the flag inline without a side trip. The
 
 ## Where next
 
-- [Dialogue ladders](/docs/get-started/dialogue-ladders/) — make *which scene
+- [Dialogue offers](/docs/get-started/dialogue-ladders/) — make *which scene
   plays* depend on that flag you just set.
 - [Playtest & share](/docs/get-started/playtest-and-share/) — roll that check
   with real dice.

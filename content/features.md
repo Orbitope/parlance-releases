@@ -1,6 +1,6 @@
 ---
 title: Features
-description: Everything Parlance does — the visual editor, dialogue ladders, playtesting, validation, localization, review, CLI, and AI integration.
+description: Everything Parlance does — the visual editor, dialogue offers, playtesting, validation, localization, review, CLI, and AI integration.
 ---
 
 # Features
@@ -33,9 +33,9 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
   lossless byte-level round-trip. Type or click; your choice per moment.
 - **Flow map** — every dialogue in the project as one graph, with edges for cross-scene
   routing and cutscene chains.
-- **[Dialogue ladders](/docs/concepts/dialogue-laddering/)** — each character owns an
-  ordered, state-gated list deciding which dialogue plays *right now*, with a live
-  resolution preview.
+- **[Dialogue offers](/docs/concepts/dialogue-laddering/)** — each dialogue declares
+  when it should play, and the engine picks the most specific eligible one to decide
+  which dialogue plays *right now*, with a live resolution preview.
 - **Skill checks** — passive or active (`d20 + skill ≥ difficulty`), with a probability
   bar previewing success chance, and check badges generated automatically on the canvas.
 - **Conditions & effects builders** — structured editors for flags, counters, items,
@@ -72,7 +72,7 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 ## Validation
 
 - **[Twenty-eight validation families](/docs/reference/validation-checks/)** covering
-  references, reachability, flag flow, quest logic, ladder shape, coverage, conditional
+  references, reachability, flag flow, quest logic, offer resolution, coverage, conditional
   narration, localization targets, progression math, and more.
 - **Runs on every save**, streamed live to every open editor window.
 - **Runs headless in CI** via [`parlance ci-check`](/docs/reference/cli/), plus an
@@ -88,7 +88,7 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 ## Collaboration
 
 - **[Git-native review](/docs/concepts/git-native/)** — read a colleague's branch as a
-  *narrative* diff ("2 nodes added, ladder reordered"), play the branch's own content,
+  *narrative* diff ("2 nodes added, offer re-gated"), play the branch's own content,
   comment on story anchors rather than line numbers, propose replacement text the author
   applies in one click, and record verdicts. Works with nothing but git — no server.
 - **Localization & VO pipeline** — extract every player-facing string with stable keys,
@@ -114,8 +114,8 @@ Two optional [AI agent skill bundles](https://github.com/Orbitope/parlance-spec)
   already wrote. Every emitted string is checked against the source byte for byte, and
   anything that can't be carried is *named*, with its source line, rather than
   approximated.
-- **Five editorial audits** — read a project and report on it: whether a ladder's
-  ordering tells the story you meant, whether a character sounds like themselves, whether
+- **Five editorial audits** — read a project and report on it: whether a character's
+  offers resolve to the story you meant, whether a character sounds like themselves, whether
   a line can be reached in a state where it isn't true yet.
 
 One rule governs both, and it's enforced rather than promised: **nothing in either bundle

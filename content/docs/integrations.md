@@ -106,8 +106,8 @@ wrong output is the one result worth refusing to risk.
 
 ## Editorial audits
 
-Five review-only skills that read a project and report on it — ladder ordering against a
-character's arc, whether a character sounds like themselves, whether a line can be reached
+Five review-only skills that read a project and report on it — how a character's offers
+resolve against their arc, whether a character sounds like themselves, whether a line can be reached
 in a state where it isn't true yet, journal coherence, state reachability.
 
 They never draft. Every command is a read; none writes to `data/`. An audit that can't

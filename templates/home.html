@@ -65,19 +65,19 @@ Review it in a pull request like everything else.</span></pre></div>
 
   <div class="split feature-row">
     <div class="copy">
-      <h3>Dialogue ladders and conditional narration</h3>
-      <p>Each character carries an ordered ladder of dialogues, each rung optionally gated
-      on game state. Talk to a suspect before you find the evidence and you get one scene;
-      talk to them after, and the ladder re-points — no scripting required.</p>
+      <h3>Dialogue offers and conditional narration</h3>
+      <p>Each dialogue declares an offer — when it should play, and at what priority.
+      Talk to a suspect before you find the evidence and you get one scene; talk to them
+      after, and a more specific offer wins — no ordering to maintain, no scripting.</p>
       <p>Within a scene, <strong><a href="{{root}}docs/concepts/conditional-narration/">conditional narration</a></strong> lets you gate individual lines on state. A node carrying a display condition is skipped entirely when it doesn't hold—so a beat belongs only to a player who earned it, without fabricating fake choices.</p>
-      <p><a href="{{root}}docs/concepts/dialogue-laddering/">How dialogue laddering works →</a></p>
+      <p><a href="{{root}}docs/concepts/dialogue-laddering/">How dialogue offers work →</a></p>
     </div>
     <div>
-      <img class="shot" src="{{root}}assets/images/editor-ladder.png"
-           alt="A character form in Parlance showing the Dialogue Ladder editor: rung 1 gated on a flag, rung 2 marked always (fallthrough)"
+      <img class="shot" src="{{root}}assets/images/editor-offers.png"
+           alt="A dialogue inspector in Parlance showing the Offer fields and a live resolution preview highlighting which of a character's dialogues wins in the current state"
            loading="lazy">
-      <p class="shot-caption">Wren's ladder: the confrontation on top, gated on evidence;
-      the first meeting below as the fallthrough.</p>
+      <p class="shot-caption">Wren's offers: the confrontation gated on evidence, the first
+      meeting as the fallback — the inspector shows which one wins right now.</p>
     </div>
   </div>
 

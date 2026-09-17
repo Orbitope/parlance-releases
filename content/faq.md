@@ -66,13 +66,14 @@ flat JSON templates; coverage and stale keys are tracked per language, and VO
 maps voiceable lines to engine audio keys the same way. See the
 [editor guide](/docs/editor-guide/#15-localization--vo).
 
-## What's "dialogue laddering"?
+## What are "dialogue offers"?
 
 The mechanism that answers "which dialogue plays when I talk to this character
-*right now*?" — an ordered, state-gated list per character, resolved
-first-match-wins, with static checks for the classic ordering mistakes. It's the
-heart of state-aware conversations in Parlance:
-[dialogue laddering, explained](/docs/concepts/dialogue-laddering/).
+*right now*?" — each dialogue declares an `offer` saying when it should play, and
+the engine picks the most specific eligible one. It's order-independent, with
+static checks for the classic mistakes, and it's the heart of state-aware
+conversations in Parlance:
+[dialogue offers, explained](/docs/concepts/dialogue-laddering/).
 
 ## Can a team use it without a server?
 

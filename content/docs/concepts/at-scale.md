@@ -24,7 +24,7 @@ routes and `play_cutscene` chains.
 ![The Parlance flow map showing 112 dialogues](../../../assets/images/scale-flow-map.png)
 
 What this view tells you is *shape*: which scenes hand off to another, and which
-are entered only from a location or a character's ladder. Most dialogues in a
+are entered only from a location or a character's offers. Most dialogues in a
 healthy project are the latter, so a sparse map is normal — what you are looking
 for is the clusters, and anything stranded that should not be.
 
@@ -47,7 +47,7 @@ right.
 
 Worth noticing in the inspector: **pacing statistics** (words, nodes, choices,
 max and average branch, longest path, checks, gated choices, dead ends) and
-**encounter pushes** — the routes that re-point a character's ladder when this
+**encounter pushes** — the routes that re-point which dialogue a character offers when this
 scene ends. Two here send Caderousse and La Carconte to different follow-ups.
 
 ## Quest dependencies
@@ -75,7 +75,7 @@ expensive with scale: where is this id actually used?
 
 ![Find usages for a flag, showing one write and eight reads](../../../assets/images/scale-find-usages.png)
 
-One flag, one write, eight reads — across five character ladders, a quest
+One flag, one write, eight reads — across five characters' offers, a quest
 stage's `completeWhen`, and a location exit's gate, each with the exact JSON
 path. This is what makes renaming or retiring a variable safe.
 
@@ -100,7 +100,7 @@ cleanly. Only a player arriving with the wrong flags ever finds it.
 This page is about *structural* scale — the point where a project has more
 moving parts than you can hold in your head, which for most stories arrives
 somewhere around a hundred dialogues. Monte Cristo is firmly there: 112
-dialogues, 31 reactive ladders, 14 quests.
+dialogues, 31 offer-driven characters, 14 quests.
 
 It is not large by *word count*. At 5,500 words it is a demonstration piece, not
 a novel-length game, and the two axes are worth keeping separate — a project can

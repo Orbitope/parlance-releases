@@ -63,7 +63,7 @@ export default {
         { href: "docs/get-started/", label: "Get started" },
         { href: "docs/get-started/first-project/", label: "Your first project" },
         { href: "docs/get-started/branching-dialogue/", label: "Branching dialogue" },
-        { href: "docs/get-started/dialogue-ladders/", label: "Dialogue ladders" },
+        { href: "docs/get-started/dialogue-ladders/", label: "Dialogue offers" },
         { href: "docs/get-started/playtest-and-share/", label: "Playtest & share" },
         { href: "docs/get-started/quests-and-journal/", label: "Quests & journal" },
         { href: "docs/get-started/validate-in-ci/", label: "Validate in CI" },
@@ -77,7 +77,7 @@ export default {
       group: "Concepts",
       items: [
         { href: "docs/concepts/workflow/", label: "How it fits together" },
-        { href: "docs/concepts/dialogue-laddering/", label: "Dialogue laddering" },
+        { href: "docs/concepts/dialogue-laddering/", label: "Dialogue offers" },
         { href: "docs/concepts/schema-first/", label: "Schema-first data" },
         { href: "docs/concepts/git-native/", label: "Git-native workflow" },
         { href: "docs/concepts/validation/", label: "Validation" },

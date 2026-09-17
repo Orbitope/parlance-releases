@@ -22,7 +22,7 @@ implementation's head. So it's published in two layers:
 1. **The runtime contract** — a document defining the execution semantics
    precisely: how conditions evaluate, how effects apply, how checks roll
    (`d20 + skill ≥ difficulty` on a seeded `mulberry32` RNG), how
-   [ladders resolve](/docs/concepts/dialogue-laddering/), how quest resolution
+   [offers resolve](/docs/concepts/dialogue-laddering/), how quest resolution
    fires effects to a fixpoint, what happens on every edge case (unknown ids,
    unadvanced quests, cycles) — the boring cases spelled out, because the
    boring cases are where ports drift.

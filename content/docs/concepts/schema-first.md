@@ -57,7 +57,7 @@ save, so re-saving a drifted file through Parlance restores canonical form.
 
 Schemas constrain *shape*. What the data **does** when executed — how
 conditions evaluate, how effects apply, how
-[ladders resolve](/docs/concepts/dialogue-laddering/) — is defined by the
+[offers resolve](/docs/concepts/dialogue-laddering/) — is defined by the
 runtime contract and its conformance vectors:
 [the engine contract](/docs/concepts/engine-contract/). The two layers
 together are the spec.
