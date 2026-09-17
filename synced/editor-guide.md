@@ -483,11 +483,9 @@ Select a choice to expand it.
   - `active` — rolls `d20 + skill_value ≥ difficulty`. Routes to `onSuccess`
     or `onFailure` node.
   - A **probability bar** previews P(success) at any given stat value.
-  - **Modifiers** — conditional bonuses added to the roll (or, for a passive
-    check, to the reveal threshold) when their condition holds. "+2 with the
-    crowbar", "−1 while drunk"; they sum, and a negative bonus makes the check
-    harder. `difficulty` stays the fixed bar. Modifiers are per-check, not a
-    global equipment bonus.
+  - **Modifiers** *(new in 0.14.0)* — conditional bonuses on the roll (or, for a
+    passive check, the reveal threshold). See **Conditional check modifiers**
+    below.
 - **Goto** — for non-check choices, the destination node id (set by dragging
   an edge on the canvas, or typed directly).
 - Reorder choices with the ↑/↓ buttons; delete with ×.
@@ -498,6 +496,29 @@ Select a choice to expand it.
 > (e.g. `wit >= 6`), derived from the structured fields. You do **not** need
 > to type a `[Wit]`-style prefix into the choice text — the badge is generated
 > for you, and the text stays clean prose that serializes verbatim to JSON.
+
+### Conditional check modifiers
+
+*New in 0.14.0.* A check's odds can shift with the situation. Under a choice's
+**Check**, **Modifiers** are conditional bonuses — each a `when` condition and a
+signed `bonus`, with an optional label: "+2 with the crowbar", "−1 while drunk".
+Every modifier whose condition holds contributes its bonus, and they sum.
+
+- **What moves is the roll, not the bar.** `difficulty` stays the fixed DC; the
+  bonus changes what the player brings to it. An active check resolves
+  `d20 + skill + Σbonus ≥ difficulty`; a passive reveal, `skill + Σbonus ≥
+  difficulty`. A negative bonus makes the check harder.
+- **Per-check, not global.** A modifier lives on the one check that declares it —
+  there is no equipment layer applying a bonus everywhere. If an item should help
+  every rhetoric check, it goes on each of them; the editor invents no global
+  bonus.
+- **The probability bar accounts for them**, so the previewed P(success) already
+  reflects any modifier whose condition holds in the current preview state.
+- **In the Text view**, a modifier is an indented `bonus <±n> ["label"] ?
+  <condition>` line under the check (see **Graph vs. Text**).
+
+The cookbook's skill-check recipe (recipe 16 in `tooling/COOKBOOK.md`) works a
+full example and lists the mistakes to avoid.
 
 ### Effects reference
 
@@ -540,6 +561,9 @@ When the player talks to a character, the game asks: *of everything this
 character could say right now, what is the most relevant?* Offers are how a
 dialogue answers "me, when…". There is no list to keep in order — each dialogue
 carries its own claim, and the engine ranks the claims.
+
+*New in 0.14.0 — offers replace the character `dialogues` ladder; see "Coming
+from a 0.13 project" at the end of this section to migrate.*
 
 **The model, in four rules.**
 
