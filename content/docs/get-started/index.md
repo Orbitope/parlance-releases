@@ -17,7 +17,7 @@ the demo mystery, *The Mistfall Inn*, which ships with the app.
 |---|---|---|
 | [1. Your first project](/docs/get-started/first-project/) | Run the editor, tour the layout, create your first entities | ~10 min |
 | [2. Branching dialogue](/docs/get-started/branching-dialogue/) | The dialogue canvas: nodes, choices, checks, script view | ~15 min |
-| [3. Dialogue ladders](/docs/get-started/dialogue-ladders/) | State-aware conversations, live ladder preview, ladder warnings | ~10 min |
+| [3. Dialogue offers](/docs/get-started/dialogue-ladders/) | State-aware conversations, live resolution preview, offer warnings | ~10 min |
 | [4. Playtest & share](/docs/get-started/playtest-and-share/) | Seeded play sessions, forced outcomes, one-file share builds | ~10 min |
 | [5. Quests & the journal](/docs/get-started/quests-and-journal/) | Stages, objectives, outcomes, the dependency graph | ~15 min |
 | [6. Validate in CI](/docs/get-started/validate-in-ci/) | Route fixtures, `parlance ci-check`, a GitHub Actions gate | ~10 min |

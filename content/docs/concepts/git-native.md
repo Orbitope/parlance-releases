@@ -51,8 +51,8 @@ the one-time studio setup, and exactly what the security model gives you.
 - **Roles are decided by git, not modes.** Have the branch checked out? You're
   its author. Otherwise you're a reviewer, reading a snapshot — your own
   working tree is never touched.
-- **Narrative diffs, not file diffs.** "2 nodes added, 1 line edited, ladder
-  reordered" — per-entity before/after lines, flags introduced or retired, and
+- **Narrative diffs, not file diffs.** "2 nodes added, 1 line edited, offer
+  re-gated" — per-entity before/after lines, flags introduced or retired, and
   the validation delta.
 - **Play the branch.** Reviewers run the branch's *own* content in
   [playtest](/docs/concepts/playtest-determinism/) — hear the scene as it

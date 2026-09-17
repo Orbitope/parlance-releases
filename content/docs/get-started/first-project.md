@@ -63,17 +63,18 @@ kind of colleague. Leave it for a moment.
    field with a live word count: narrative text is
    [typographically first-class](/docs/editor-guide/#node-inspector-right-panel).
 3. Set the dialogue's **Default speaker** to `npc_gatekeeper`.
-4. In the character's **Dialogue Ladder** field, add a rung pointing at
-   `dlg_gate_first`. The `COVERAGE` warning clears — your character can now
-   actually speak.
+4. Open `dlg_gate_first` and add an **Offer** — leave its condition empty, a
+   fallback. Since the dialogue's speaker is `npc_gatekeeper`, that character is
+   now offered a dialogue: the `COVERAGE` warning clears and they can actually
+   speak.
 
 ## 5. Watch validation work for you
 
 Delete the dialogue (toolbar → **Delete dialogue**, confirm) and watch the
-validation bar: the ladder rung you just authored is now a dangling reference —
-a red `REF` error naming the exact spot. Click the issue row: it navigates
-straight to the character. Undo the deletion with <kbd>Cmd/Ctrl+Z</kbd>; the
-error clears. That save-validate-navigate loop is
+validation bar: the character's only offer went with it, so `npc_gatekeeper` has
+nothing to say — a `COVERAGE` warning naming the exact character. Click the issue
+row: it navigates straight to them. Undo the deletion with <kbd>Cmd/Ctrl+Z</kbd>;
+the warning clears. That save-validate-navigate loop is
 [the core of how Parlance feels](/docs/concepts/validation/) — nothing broken
 gets to hide.
 
@@ -82,7 +83,7 @@ gets to hide.
 An empty project teaches layout; a real one teaches craft. Open
 **The Mistfall Inn** — the demo project that ships with Parlance, and the
 [playable demo](/demo/) on this site — and poke around: three characters with
-[ladders](/docs/concepts/dialogue-laddering/), a quest with three outcomes,
+[offers](/docs/concepts/dialogue-laddering/), a quest with three outcomes,
 route fixtures, zero validation issues under `--strict`.
 
 ## Where next

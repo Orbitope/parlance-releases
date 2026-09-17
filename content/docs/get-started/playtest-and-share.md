@@ -65,7 +65,7 @@ At a **— Conversation ended —** marker, the panel offers what the *game* wou
 offer next: an explicitly routed next scene (**Continue with…**), or the
 **discovery pool** — every dialogue whose conditions pass in the current state.
 Click through and your flags ride along: this is how you playtest a
-[ladder](/docs/get-started/dialogue-ladders/) arc across scene boundaries
+character's [offers](/docs/get-started/dialogue-ladders/) across scene boundaries
 without re-entering state by hand.
 
 ## 6. Share build: one file, anyone, anywhere

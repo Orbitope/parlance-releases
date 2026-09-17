@@ -30,7 +30,7 @@ Every feature in the demo is doing a job:
 | Feature | Where you'll meet it |
 |---|---|
 | Skill checks with a real failure branch | Examining the body — failing Observation still moves the plot, it just costs you a detail |
-| [Dialogue ladders](/docs/concepts/dialogue-laddering/) | Each suspect has a gated rung on top and a fallthrough below — talk to anyone twice and the conversation re-points |
+| [Dialogue offers](/docs/concepts/dialogue-laddering/) | Each suspect has a gated offer over a fallback — talk to anyone twice and the conversation re-points |
 | Evidence-gated choices | Cornering Wren offers a different way in for each piece of evidence you actually hold |
 | Items as gates | The stable yard needs a lantern; without it a different scene plays |
 | Counters | The militia won't act on fewer than three facts — `evidence_count` gates the accusation |
@@ -45,7 +45,7 @@ route fixtures, and the lore doc with the actual solution. It ships with the
 app, so it's the first thing you can open.
 
 - [Open it in the editor](/docs/get-started/first-project/) and see the same
-  scenes as node graphs, ladders, and quest stages.
+  scenes as node graphs, offers, and quest stages.
 - It validates clean under `--strict` — zero errors, zero warnings — and CI
   keeps it that way. It's also the reference project used throughout the
   [tutorials](/docs/get-started/).

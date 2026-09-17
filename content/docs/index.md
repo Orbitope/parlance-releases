@@ -30,7 +30,7 @@ Fast answers, deep-linked into the manuals and tutorials.
 | Jump to any entity from anywhere | [Command palette `Cmd/Ctrl+K`](/docs/editor-guide/#2-layout-overview) |
 | Create my first dialogue | [Tutorial: branching dialogue](/docs/get-started/branching-dialogue/) |
 | Add a skill check with success/failure branches | [Tutorial: branching dialogue](/docs/get-started/branching-dialogue/) · [node inspector](/docs/editor-guide/#node-inspector-right-panel) |
-| Make a character's dialogue change with game state | [Tutorial: dialogue ladders](/docs/get-started/dialogue-ladders/) |
+| Make a character's dialogue change with game state | [Tutorial: dialogue offers](/docs/get-started/dialogue-ladders/) |
 | Write a scene as text instead of nodes | [Graph vs. Text](/docs/editor-guide/#graph-vs-text) |
 | Add a beat with no choices (narration, overheard line) | [`next` — choiceless advance](/docs/editor-guide/#connecting-nodes) |
 | Let the player name their character | [`set_text` + placeholders](/docs/editor-guide/#effects-reference) |
@@ -96,7 +96,7 @@ affordances get the same billing as headline features; most rows link into the
 [condition & effect builders](/docs/editor-guide/#node-inspector-right-panel) ·
 [effects reference](/docs/editor-guide/#effects-reference) ·
 [pacing analysis](/docs/editor-guide/#pacing-inspector-with-no-node-selected) ·
-[dialogue ladders](/docs/concepts/dialogue-laddering/) ·
+[dialogue offers](/docs/concepts/dialogue-laddering/) ·
 [share builds](/docs/editor-guide/#share-build)
 
 **Quests, locations, world** —
@@ -140,7 +140,7 @@ endings · codex · items · portraits · [cutscene manifests](/docs/editor-guid
 
 **You write the story** → [first project](/docs/get-started/first-project/) →
 [branching dialogue](/docs/get-started/branching-dialogue/) →
-[dialogue ladders](/docs/get-started/dialogue-ladders/) →
+[dialogue offers](/docs/get-started/dialogue-ladders/) →
 [playtest & share](/docs/get-started/playtest-and-share/) →
 the [editor guide](/docs/editor-guide/) end to end.
 

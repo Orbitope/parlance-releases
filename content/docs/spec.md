@@ -17,7 +17,7 @@ Parlance data without us — is MIT-licensed and published at
 | Path | What it gives you |
 |---|---|
 | `schema/` | JSON Schema for every entity type — the authoritative shape of the format, validatable with any JSON Schema library ([schema-first data](/docs/concepts/schema-first/)) |
-| `docs/` | The runtime contract (conditions, effects, checks, [ladders](/docs/concepts/dialogue-laddering/), quest resolution, RNG, every edge case), plus integration, naming, versioning, and migration guides |
+| `docs/` | The runtime contract (conditions, effects, checks, [dialogue offers](/docs/concepts/dialogue-laddering/), quest resolution, RNG, every edge case), plus integration, naming, versioning, and migration guides |
 | `conformance/` | Executable vectors any port must pass — how a runtime [proves itself](/docs/concepts/engine-contract/). Where prose and vectors disagree, the vectors win |
 | `validate/` | The standalone Python [reference validator](/docs/reference/cli/#the-python-reference-validator) |
 
@@ -25,12 +25,13 @@ The public [Godot runtime](https://github.com/Orbitope/parlance-gdscript) is
 built on exactly this surface — as any engine port, importer, linter, or
 pipeline tool can be, in any license, commercial included.
 
-> **Status: awaiting first publication.** The repository is up and MIT, but
-> deliberately empty until Parlance tags **v0.9.0** — a spec repo pinned to an
-> untagged version gives a port nothing to pin to, which is the whole point of
-> publishing. Contents arrive by a one-way sync from the upstream repo.
+> **Status: published.** The repository is live and MIT, filled by a one-way
+> sync from the upstream repo on every release tag — currently through
+> **v0.14.0**. Contents track the tags exactly, because a spec repo pinned to an
+> untagged version would give a port nothing to pin to, which is the whole point
+> of publishing.
 >
-> When it lands: **pin an exact tag**, never a branch or a range, and vendor
+> To adopt it: **pin an exact tag**, never a branch or a range, and vendor
 > the conformance vectors at that tag. Pre-1.0, breaking changes may land in
 > any minor release; the repo's versioning policy is the promise to read
 > before pinning. Issues are welcome there; pull requests aren't, since the
