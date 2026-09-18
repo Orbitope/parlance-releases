@@ -319,6 +319,32 @@ The script is a **lossless** representation: saving reproduces the dialogue
 exactly, changing only what you edited (a byte-level round-trip is enforced by
 tests over every dialogue).
 
+The text is syntax-highlighted as you type: `~` directives, `==` node fences and
+the `-` / `+` markers in one colour, node ids and `-> targets` in another, ids that
+refer to other entities (flags, items, skills, characters) in a third, quoted text,
+numbers and grammar keywords each their own, and `> notes` in a muted italic. A
+keyword the grammar does not know is marked red at the word, and any line the
+parser rejects is underlined — the same lines the error list below the text
+points at. The highlighting is a layer painted over the text, never part of it:
+what you type is exactly what is saved.
+
+Three more affordances ride on that layer:
+
+- **Line numbers** in a gutter on the left; the number of the line your caret is on
+  is brighter, and a line with a parse error gets a red number.
+- **Find & replace** (⌘F, or the **Find** button). Plain text, no escaping; **Aa**
+  toggles case sensitivity. Matches are shaded in the text, Enter / Shift+Enter step
+  through them, **Replace** rewrites the current one and **Replace all** every one.
+  Both go through the text box itself, so ⌘Z undoes them like any keystroke.
+- **Autocomplete**, as you type or on Ctrl+Space. Where the grammar expects an id the
+  list offers the project's: flags after `flag` / `set_flag`, counters after
+  `counter`, skills after `check` / `skill`, factions after `rep`, characters after
+  `rel` / `route` / `speaker`, items after `has` / `give`, quests after `quest` /
+  `advance` (and that quest's stages after `->`), cutscenes, dialogues, portraits,
+  and this dialogue's node ids after `->` or `next=`. Where it expects a keyword —
+  after `~`, `+`, `?`, or on an indented line — it offers the grammar's, each with a
+  one-line reminder of the form. ↑ ↓ pick, Enter or Tab insert, Esc dismisses.
+
 A node's display gate (conditional narration) rides in the script as a `~ showIf:`
 directive on the line after the node header — the same compact condition syntax choices
 already use after `?`:
