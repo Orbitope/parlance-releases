@@ -48,11 +48,16 @@ PASS  applyEffect                 27 vectors
 PASS  resolveCheck                24 vectors
 PASS  stepDialogue                11 vectors
 PASS  resolveCharacterDialogue    16 vectors
+PASS  nextContinuations            4 vectors
+PASS  resolveQuests                6 vectors
+PASS  progression                 13 vectors
 ...
-159 passed, 0 failed, 23 skipped (not yet ported)
+182 passed, 0 failed, 0 skipped (not yet ported)
 ```
 
-Note the honesty of `SKIP`: unported functions are declared, not fudged. A
+Every family passes. A port that is not there yet reports each unported
+function as `SKIP`, declared rather than fudged — this one did, until quest
+resolution and progression landed. A
 Unity/C# port, a Rust port, a bespoke-engine port all follow the same path —
 implement the contract, run the vectors, ship when green. The
 [integration guide](/docs/integrations/) covers the practical steps.
