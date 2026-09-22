@@ -41,7 +41,7 @@ The same rule set runs in three places, and they are kept in agreement:
 [Eighteen check families](/docs/reference/validation-checks/), spanning shape
 (`SCHEMA`), wiring (`REF`, `DUP`), flow (`FLOW`, `REACH`, `GATE`), state
 (`FLAG`, `REP`), structure (`QUEST`, `ENDING`, `COVERAGE`, `LOC`, `CUT`,
-[`LADDER`](/docs/concepts/dialogue-laddering/)), content (`LORE`), and
+[`OFFER`](/docs/concepts/dialogue-laddering/)), content (`LORE`), and
 progression math (`PROG`, `XP`, `CHECK`). The reference page lists every family
 with what it scans and how to fix what it finds.
 
@@ -49,7 +49,7 @@ with what it scans and how to fix what it finds.
 
 - **Errors** are broken wiring — a reference to something that doesn't exist,
   data that violates schema. CI fails on these.
-- **Warnings** are story smells — a dead ladder rung, an unreachable ending, a
+- **Warnings** are story smells — an offer that can never win, an unreachable ending, a
   write-only flag. They're often *work in progress*, which is exactly why the
   editor **never blocks a save on validation**: a half-built quest should be
   savable, committable, and shareable mid-thought. The discipline point is CI,

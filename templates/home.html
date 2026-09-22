@@ -104,7 +104,7 @@ Review it in a pull request like everything else.</span></pre></div>
       <h3>Validation everywhere — on save, in CI, in your pipeline</h3>
       <p>Twenty-eight families of checks run on every save and stream to every open editor
       window. The validator catches classic structural bugs like dangling references, unreachable nodes, quests that
-      can't complete, and ladder mistakes. It also includes a <strong><a href="{{root}}docs/concepts/prose-check/">prose check</a></strong> that learns your project's proper nouns to act as a narrative-aware spellchecker inline as you type.</p>
+      can't complete, and dialogue-offer mistakes. It also includes a <strong><a href="{{root}}docs/concepts/prose-check/">prose check</a></strong> that learns your project's proper nouns to act as a narrative-aware spellchecker inline as you type.</p>
       <p>The same validator runs headless as <code>parlance ci-check</code>, so a broken story fails the build before it ships.</p>
       <p><a href="{{root}}docs/concepts/validation/">The validation model →</a></p>
     </div>
@@ -112,8 +112,8 @@ Review it in a pull request like everything else.</span></pre></div>
 
 <span class="del">✗ [REF]</span>    dlg_accuse: choice targets missing
            node <span class="s">"node_confession"</span>
-<span class="del">✗ [LADDER]</span> npc_bragg: rung 1 is unconditional —
-           rungs below it can never win
+<span class="k">⚠ [OFFER]</span>  dlg_bragg_first: priority 1 but no <span class="s">'when'</span> —
+           it out-ranks every other offer forever
 <span class="k">⚠ [FLAG]</span>   flag <span class="s">"heard_bell"</span> is set but never read
 
 exit 1  <span class="comment">— the build fails, the story stays whole</span></pre></div>
@@ -141,14 +141,14 @@ exit 1  <span class="comment">— the build fails, the story stays whole</span><
     <div class="code-panel scoreboard"><pre style="margin:0">  <span class="pass">PASS</span>  mulberry32                  6 vectors
   <span class="pass">PASS</span>  evaluate                   53 vectors
   <span class="pass">PASS</span>  applyEffect                27 vectors
-  <span class="pass">PASS</span>  resolveCheck               18 vectors
-  <span class="pass">PASS</span>  stepDialogue                8 vectors
-  <span class="pass">PASS</span>  chooseChoice                9 vectors
-  <span class="pass">PASS</span>  advanceNode                 9 vectors
-  <span class="pass">PASS</span>  resolveCharacterDialogue    6 vectors
-  <span class="skip">SKIP</span>  resolveQuests / progression — not yet ported
+  <span class="pass">PASS</span>  resolveCheck               24 vectors
+  <span class="pass">PASS</span>  stepDialogue               11 vectors
+  <span class="pass">PASS</span>  chooseChoice               10 vectors
+  <span class="pass">PASS</span>  advanceNode                12 vectors
+  <span class="pass">PASS</span>  resolveCharacterDialogue   16 vectors
+  <span class="skip">SKIP</span>  resolveQuests / progression / nextContinuations — not yet ported
 
-  <span class="pass">136 passed</span>, 0 failed, 19 skipped</pre></div>
+  <span class="pass">159 passed</span>, 0 failed, 23 skipped</pre></div>
   </div>
 </section>
 
@@ -156,7 +156,7 @@ exit 1  <span class="comment">— the build fails, the story stays whole</span><
   <h2>Try it on a real mystery</h2>
   <p class="section-sub">The demo project is a complete, tiny whodunit: one night, one body,
   three suspects, three endings. Skill checks with real failure branches, evidence-gated
-  dialogue ladders, counters, quests — every feature demonstrated in a story you can
+  dialogue offers, counters, quests — every feature demonstrated in a story you can
   actually play. Released CC0.</p>
   <div class="cta-row" style="display:flex;gap:0.8rem;flex-wrap:wrap">
     <a class="btn btn-primary" href="{{root}}demo/">Play The Mistfall Inn</a>
