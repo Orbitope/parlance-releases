@@ -79,5 +79,5 @@ twice* feels alive.
   offers: finish the first scene, return, get the second.
 - [Dialogue offers, the concept](/docs/concepts/dialogue-laddering/) — the
   resolution rule, the feed model, and the conformance guarantees.
-- [Pattern cookbook](/docs/cookbook/) — ladder recipes in full: reputation tone
+- [Pattern cookbook](/docs/cookbook/) — offer recipes in full: reputation tone
   shifts, most-specific-wins (storylet) selection, and the say-it-once idiom.

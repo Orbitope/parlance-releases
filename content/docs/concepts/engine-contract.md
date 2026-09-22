@@ -45,11 +45,11 @@ its conformance scoreboard in the README:
 ```
 PASS  evaluate                    53 vectors
 PASS  applyEffect                 27 vectors
-PASS  resolveCheck                18 vectors
-PASS  stepDialogue                 8 vectors
-PASS  resolveCharacterDialogue     6 vectors
+PASS  resolveCheck                24 vectors
+PASS  stepDialogue                11 vectors
+PASS  resolveCharacterDialogue    16 vectors
 ...
-136 passed, 0 failed, 19 skipped (not yet ported)
+159 passed, 0 failed, 23 skipped (not yet ported)
 ```
 
 Note the honesty of `SKIP`: unported functions are declared, not fudged. A

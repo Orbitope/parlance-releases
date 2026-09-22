@@ -20,9 +20,9 @@ executes Parlance JSON natively in Godot 4:
   plugin to enable, no autoloads.
 - **Immutable state**: every entry point returns a new state, never mutates
   input — save/load and rewind stay trivial.
-- **Conformance-verified**: 136 vectors passing, 0 failing, with unported
-  areas (quest resolution, progression) declared as skips in the README
-  scoreboard rather than fudged.
+- **Conformance-verified** against the v0.14.0 vectors: 159 passing, 0 failing,
+  with unported areas (quest resolution, progression, `nextContinuations`)
+  declared as skips in the README scoreboard rather than fudged.
 
 ## Unity (C#) — official port
 
@@ -31,7 +31,7 @@ pure C# `.NET` runtime for Unity projects:
 
 - **Install**: Add the git repository URL via the Unity Package Manager (UPM). It is a framework-agnostic C# library without `MonoBehaviour` singletons.
 - **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
-- **Conformance-verified**: NUnit test suite automatically runs all vectors headless. 136 vectors passing, 0 failing.
+- **Conformance-verified**: an NUnit suite runs the v0.14.0 vectors headless — 159 passing, 0 failing. Quest resolution, progression and `nextContinuations` are not ported yet.
 
 ## Unreal Engine (C++) — official port
 
@@ -40,7 +40,7 @@ natively into Unreal Engine using Core C++ types:
 
 - **Install**: Drop the plugin into your project's `Plugins/` folder and rebuild. 
 - **Blueprints First**: The core runtime logic is exposed via `UBlueprintFunctionLibrary` wrappers. You can drive your entire narrative system visually without writing C++.
-- **Conformance-verified**: Uses the native Unreal Automation Testing framework (`BEGIN_DEFINE_SPEC`) to run JSON vectors natively against the C++ code. 136 vectors passing, 0 failing.
+- **Conformance-verified**: Uses the native Unreal Automation Testing framework (`BEGIN_DEFINE_SPEC`) to run JSON vectors natively against the C++ code. 136 vectors passing, 0 failing — **against v0.9.0**. It has not moved to 0.14 yet, so it still resolves character ladders rather than dialogue offers and does not apply check modifiers.
 
 ## TypeScript — the reference runtime
 
