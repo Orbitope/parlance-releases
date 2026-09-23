@@ -64,7 +64,7 @@ scenes that show them off.
 <your game repo>/
   data/    the narrative — what your game reads at runtime
   tests/   route fixtures; a shipping game never loads these
-  lore/    Markdown canon docs, read-only in the editor
+  lore/    Markdown canon docs, edited on the Lore surface; never shipped
   review/  review threads; invisible to the runtime and the validator
 ```
 
@@ -268,6 +268,107 @@ or effect picker (a flag / counter / item field), type a name that doesn't
 exist yet and choose the **＋ New flag "…"** row that appears. The name is
 slugified to a valid id, the variable is created immediately, and the field is
 set to it — no trip to the Variables list. Fill in its description later.
+
+### Lore — linked Markdown documents
+
+`lore/*.md` is your canon: character bios, faction histories, the world bible.
+It never ships to the game and the validator never reads its content. The
+**Lore** row at the bottom of the sidebar lists every lore file (except
+`lore/dictionary.md`, the prose dictionary — §11) and edits them in place.
+
+**Links.** Link an entity with an ordinary Markdown link using the `parlance:`
+scheme and the singular entity type:
+
+```markdown
+[Mara](parlance:character/mara) keeps the ledger at [the inn](parlance:location/inn).
+```
+
+Types: `character`, `faction`, `quest`, `location`, `item`, `skill`,
+`dialogue`, `codex`, `ending`, `cutscene`, `variable`, and any custom entity
+type by its id. The file stays plain Markdown — it reads normally on GitHub or
+in any viewer; the editor makes the links live. Links inside backticks or a
+fenced code block are examples, not links.
+
+**The editor** is the Text view's editor: syntax colour, a line gutter, **⌘F**
+find & replace, and autocomplete — type `](` and pick `parlance:`, then a type,
+then an id (**Ctrl+Space** re-opens the list). Save with **⌘S** or **Save**;
+unsaved lore is guarded like an unsaved script, so navigating away asks first.
+If the file changed on disk since you opened it (a git pull, another editor),
+the save is refused rather than overwriting it: the banner reports it and you
+choose **Discard mine, load the file** or **Keep mine, overwrite**. **Preview**
+renders the file with live links; **+ New file** creates one (lowercase name,
+`-` and `_` allowed).
+
+**Unlinked mentions.** An entity's name written as plain text (`Mara`, `the
+Mistfall Inn`) is underlined, and listed under the editor with a **Link**
+button that turns it into `[Mara](parlance:character/mara)` in one click. With
+the caret inside a mention the toolbar offers the same. Names that are ordinary
+English words on their own (a character called "Hawk") are not flagged.
+
+**Mentioned in lore.** An entity's detail panel lists every lore line that
+links to it; click one to open the file at that line. The entity's `loreRef`
+stays its one canonical document — backlinks are everything else. Links are
+usages like any other: they show in **Find usages** (§11), and ⌘⇧F content
+search covers lore text too.
+
+**Deleting** an entity lists everything that refers to it — data and lore
+links — in the confirm step. It is a warning, never a block: the lore links go
+dangling (lore about a cut character is normal) and show up in the prose
+report as **Dangling lore links**.
+
+### Renaming an id
+
+**Rename id…** in the entity's detail header (or **Rename id of …** in the ⌘K
+palette, for whatever is selected — dialogues and quests included) changes an
+entity's id and rewrites every reference to it in the same operation:
+
+- other entities — conditions, effects, speakers, offers, gates, exits,
+  interactables, portraits, custom-type reference fields, `{variable}`
+  placeholders in text;
+- route and snapshot fixtures in `tests/`, `progression.json` starting skills
+  and `rules.json` exclusive flag groups;
+- localization and VO catalog keys (`dialogue/<id>/nodes/…`) and asset-binding
+  keys, so translations and recordings stay attached;
+- `parlance:` links in lore;
+- review threads anchored to the entity or anything inside it;
+- editor layout (a dialogue's node positions, a quest or location's place on
+  its map).
+
+A character rename also renames its routing flag, `active_dialogue__<id>`,
+because `set_active_dialogue` writes that flag by name.
+
+**Preview first.** Type the new id (checked as you type, with the same rules as
+creating an entity), then **Preview**. The preview counts what changes per
+category, lists every lore line it will rewrite as before → after, and expands
+to every file it touches. **Rename** stays disabled until you have previewed the
+exact id in the box. If anything changed between the preview and the confirm (a
+save, a pull, a lore edit), the rename is refused with *The project changed
+since the preview — preview again.* and the fresh plan is shown instead, so you
+never confirm one list of changes and get another.
+
+Refused: an id that already exists in the same type, an invalid id, and a
+character's `active_dialogue__` flag on its own (rename the character). An id
+that also names an entity of a different type is allowed with a warning.
+Also refused, before anything is written: a rename whose new file name is
+already taken by a file holding something else (*file … already exists (it
+holds id '…'); rename would overwrite it*), and a rename that would have to
+save an entity whose own id is invalid — the entity being renamed or any
+referrer (*'Mara' is not a valid id; rename can't fix invalid ids yet — edit
+the file by hand*).
+
+A file named for a different id than the one inside it is fine, and renaming
+the entity to match its file name is how to tidy it up: `quests/old_name.json`
+holding `task_new`, renamed to `old_name`, is rewritten in place — the preview
+lists it as one update, and the file keeps its name.
+
+**Not renamed:** ids *inside* an entity — dialogue node and choice ids, quest
+stage, outcome and objective ids, exit and spawn ids — and custom entities
+themselves (a custom entity that *refers* to a renamed one is rewritten). VO
+asset file names stay as they are: they are paths on disk, not keys.
+
+The same rename runs from a terminal — `parlance rename characters mara
+mara_vell --dry-run` prints the plan, lore lines included; drop `--dry-run` to
+apply — and from an agent through the MCP server's `rename_entity` tool.
 
 ---
 
@@ -826,6 +927,9 @@ panel or block a save — they live in **Reports → Prose** (§11). The reason 
 that spelling is editorial rather than structural: it says nothing about whether
 a project conforms to the format, so it is not part of the published contract and
 the reference validator (`tooling/validate.py`) does not implement it.
+The lore findings are the same kind of thing: `LORE_LINK` (a `parlance:` link
+in lore that names nothing) and `LORE_MENTION` (a name that could be a link)
+live in **Reports → Prose** too, and never here — lore never ships.
 
 The **Reports** row (sidebar footer) also shows the total issue count,
 coloured red for errors or yellow for warnings.
@@ -878,9 +982,25 @@ and reports findings grouped by kind:
 | **Double spaces** | Two or more spaces mid-line. |
 | **Quote style** | A straight quote in a project that otherwise uses curly ones, or vice versa — only when one style is clearly dominant. |
 | **Unparsed dictionary lines** | A line in `lore/dictionary.md` that looked like an entry but parsed as nothing. |
+| **Dangling lore links** | A `parlance:` link in lore that names nothing — an unknown type, or an id no entity has (renamed or deleted). Code `LORE_LINK`. |
 
 Rows navigate to the entity like every other report row, and unknown words carry
 a **+ dictionary** button.
+
+#### Lore is part of the corpus
+
+Every `lore/*.md` file except the dictionary is checked with the same rules
+(quote style excepted — lore is authoring text, not player-facing), with link
+targets and code masked out. Lore rows read `lore/factions.md:L12` and open the
+Lore surface at that line.
+
+**Unlinked lore mentions** are listed below the findings as *notes* (code
+`LORE_MENTION`): an entity's name written as plain text in lore. They are
+suggestions, not problems — they never count as findings and never fail
+`--check`. Open one and the editor offers **Link**.
+
+`LORE_LINK` and `LORE_MENTION` are editorial, like `SPELL`: produced by this pass
+only, never by validation, and not part of the published format's rule set.
 
 #### Where the words come from
 
@@ -951,6 +1071,42 @@ typos so the names can be accepted in one click. It uses the API key configured 
 The model only *classifies* words that were already found; it never edits your
 prose, and typos are never added to the dictionary. Nothing is written until you
 accept the result.
+
+### Export — Word screenplay & Excel line sheet
+
+For the people who read the script outside the editor — a VO director, a
+proofreader, a producer — dialogues export to two Office formats:
+
+| Format | What you get |
+|--------|--------------|
+| **.docx** screenplay | A heading per dialogue, then each line as a speaker cue and the text beneath it, with gates, notes and on-enter effects as italic parentheticals and each choice listed as `→ text {if gate} [check] → target`. Paragraph styles (*Character*, *Dialogue*, *Parenthetical*, *Choice*) are named, so the whole script restyles from Word's styles pane. |
+| **.xlsx** line sheet | One row per line and per choice: dialogue, node, choice, speaker, text, condition, check, effects, next, notes, entry/end, **loc key** and **VO key**. Header frozen, filters on. |
+
+Speakers are resolved to names the way the Play transcript shows them — the
+character or skill name, **Narration** for a line with no speaker, **Player**
+for a plain choice, and the skill for a check choice. The **Loc key** column is
+the same key the Localization catalog uses, and **VO key** is filled on exactly
+the lines the Localization panel counts as voiceable, so the sheet lines up
+with a VO manifest row for row.
+
+Two places to export from:
+
+- **Canvas toolbar → ⇩ Export .docx / .xlsx** — the dialogue you have open.
+- **Reports header → ⇩ Export script .docx / .xlsx** — every dialogue in the
+  project.
+
+And from the command line, run in the project folder:
+
+```bash
+parlance export --format docx --out script.docx                   # every dialogue
+parlance export --format xlsx --out lines.xlsx --dialogue dlg_arrival
+```
+
+Exit codes: `0` written, `1` unknown dialogue, `2` bad usage or not a project.
+
+Export is **one-way**. Nothing reads a .docx or .xlsx back into the project;
+edits made in Word or Excel have to be carried back by hand (or through a
+translation catalog, for text — see [Localization & VO](#15-localization--vo)).
 
 ---
 
@@ -1128,11 +1284,62 @@ parlance route rt_bug_41
 On a build box without the desktop app, `parlance` is the published CLI —
 `npx @orbitope/parlance-cli save import …` (or `… route …`) runs the same verbs.
 
+A route that was fast-forwarded with **Start at** cannot be saved: a route always
+replays from the dialogue's entry node, so it would fail on its first step. The
+**⦿ Save route** button is disabled for such a session and its tooltip says why —
+restart from *Entry* to record one.
+
+### Replaying a saved route
+
+**Replay a saved route**, in the Starting State editor under the snapshot picker,
+lists the routes that start in this dialogue. Loading one starts the session from
+exactly the state the headless runner uses — the route's snapshot, its start-state
+overrides and its seed — and shows the route's steps with a cursor:
+
+| Control | What it does |
+|---------|--------------|
+| **Step** | Applies the next step: a choice (forced if the route forced it), a continuation into the next scene, a cutscene, or a run of *Continue* hops |
+| **Play all** | Steps until the route ends, then checks its end assertions |
+| **Show on map** | Opens the dialogue flow map with the route's scenes highlighted in order |
+| **Stop replay** | Leaves replay mode; the session stays, as an ordinary one |
+
+The canvas follows the replay exactly as it follows a live session, including into
+other dialogues.
+
+When an edit has broken the route, the replay **stops at the first step that no
+longer holds** and says why — *Step 2: choice 'ch_press_check' not found in dialogue
+…*, or *End: …* when every step ran but an assertion no longer holds. Nothing else
+happens: the session is left live where it broke, so you can play on by hand from
+there. Then:
+
+- **Update route** rewrites the route with the steps you actually played, keeping
+  its id, description and start. If the file changed on disk since you loaded it
+  the update is refused, and nothing is saved — load the route again, or:
+- **Save as new** writes a new route with the same start.
+
+Editing the dialogue *during* a replay pauses it, since the remaining steps were
+recorded against the old version. **Resume** re-checks them against your edit,
+from where the replay stopped.
+
+The replay and `parlance route` are the same engine, so a route that passes here
+passes in CI, and `parlance route` reports a failure as `FAIL at step N: …` with
+the same step number.
+
+On the dialogue flow map, a route's scenes carry a *route N* badge (a scene
+the route visits twice shows both positions). A jump between two scenes that the
+map has no edge for — a scene reached because its offer became available, which
+no effect names — is drawn as a dotted *discovered* edge. **Clear route** in the
+map's toolbar removes the trail.
+
 ### What playtest does NOT change
 
 Playtest is **read-only**. It never writes to any dialogue file or layout
 file. You can verify this — the dialogue JSON and `.layout.json` are
 byte-identical before and after any play session.
+
+The one thing a session can write is placeholder voice audio, and only when you
+ask for it: **Generate** in the voice row saves to the gitignored `tts/` folder,
+never to `data/` (see [Placeholder voice (TTS)](#placeholder-voice-tts)).
 
 `advance_quest` effects fire in the transcript (they appear in the applied
 list) but are a **no-op** in playtest — quest stage tracking is the
@@ -1187,7 +1394,7 @@ tests/
   routes/          rt_*.json — scripted playthroughs with assertions
   snapshots/       snap_*.json — saved states to resume from
 schema/            JSON Schemas; editor loads these for validation + forms
-lore/              Markdown canon docs (read-only in the editor)
+lore/              Markdown canon docs (the Lore surface, §5; never shipped)
 review/            review requests + comment threads (§16)
 ```
 
@@ -1267,15 +1474,71 @@ strings live in catalog files alongside your data.
    `data/locales/<lang>.json`. Reload — the coverage bar fills in.
 4. **VO template** works the same way for `data/vo/<lang>.json`, mapping
    voiceable keys to opaque audio asset keys (the engine resolves them, exactly like
-   cutscene manifest assets — Parlance never touches the audio).
+   cutscene manifest assets). Parlance never touches recorded masters; it can
+   generate throwaway placeholder audio on your own provider, kept out of `data/`
+   and out of git — see [Placeholder voice (TTS)](#placeholder-voice-tts) below.
 
 ### Keys
 
 A string's key mirrors the reference-index path, e.g.
 `dialogue/dlg_arrival/nodes/node_open/text` or
-`quest/qst_inquest/summary`. Keys are stable as long as the underlying ids are;
-renaming an entity, node, or choice id orphans its translation, which shows up
-as a **stale** key on the coverage bar so you know to remap it.
+`quest/qst_inquest/summary`. Keys are stable as long as the underlying ids are.
+Renaming an entity with **Rename id…** (§5) rewrites its keys in every catalog,
+so translations follow; changing a node or choice id by hand orphans its
+translation, which shows up as a **stale** key on the coverage bar so you know
+to remap it.
+
+### Placeholder voice (TTS)
+
+Before a line is recorded you can still **hear** it in playtest. The Play panel
+shows a voice row under the current line:
+
+| Control | What it does |
+|---------|--------------|
+| Status pill | **Recorded** (the VO manifest points at an audio file in the project), **Placeholder** (generated audio exists for this exact text), or **None** |
+| **▶ Play** | Plays the recorded take if there is one, else the placeholder |
+| **🔈 Generate** | Synthesizes a placeholder for the line on your TTS provider. Disabled, with the reason in its tooltip, when no provider is configured |
+| Language | `base` (the text on the entity) or any language that has a `data/locales/` or `data/vo/` file. A locale language speaks the translation, falling back to the base text |
+| **Auto-play** | Plays each new line as you step: the recorded take, else a cached placeholder, else nothing |
+| **auto-generate** | Shown once Auto-play is on, and off by default because it spends your provider credits: also generates a missing placeholder as you step |
+
+The line spoken is exactly the one shown, **including interpolated values**, so a
+line that reads differently depending on game state gets one placeholder per
+variant.
+
+**Recorded takes.** A `data/vo/<lang>.json` value that is a relative path to a
+`.wav`, `.mp3`, `.ogg`, `.m4a` or `.flac` file inside the project plays directly.
+Anything else — a `res://` path, an engine asset key, an absolute path, a URL —
+is the engine's to resolve, and the row shows no recorded take for it.
+
+**Choosing a provider.** Open **AI settings** (the same dialog as AI drafting)
+and fill in the **Voice (placeholder TTS)** section:
+
+- **OpenAI-compatible speech API** — anything that serves `POST /audio/speech`:
+  OpenAI itself (leave the Base URL blank for `https://api.openai.com/v1`, model
+  `tts-1`), or a local server such as Kokoro or openedai-speech (set its Base URL;
+  the key can be blank). Voice defaults to `alloy`.
+- **Local command** — a speech program on your machine, as one line split on
+  spaces and run **without a shell**. The line's text arrives on standard input;
+  the audio is read from standard output (`espeak-ng --stdout`), or from the file
+  named by the token `{out}` if you use it (`say -o {out} --data-format=LEI16@22050`).
+  `{voice}` is replaced by the Voice field.
+
+The key is stored with the AI key — locally, owner-only, never sent to the
+client in full. **Clear voice provider** removes it.
+
+**Where the audio goes.** Placeholders are written to `tts/<lang>/` at the project
+root, named by a hash of the language, voice, provider and text, with an
+`index.json` beside them recording which line each file belongs to. `parlance init`
+adds `tts/` to the project's `.gitignore`. Nothing is written to `data/`, no VO
+manifest or binding is touched, and **VO coverage never counts a placeholder** —
+it only ever reads `data/vo/`. Editing a line changes its hash, so the old
+placeholder simply stops matching; stale audio is never played. Deleting `tts/`
+at any time is safe.
+
+**Privacy.** Parlance runs no voice service. A line's text leaves your machine only
+when you press Generate (or turn on auto-generate), and only to the provider you
+configured — a local command never leaves the machine at all.
 
 ---
 
@@ -1372,6 +1635,47 @@ read*. If the author pushes more work afterwards, the review says so — "the
 branch has moved since this verdict" — rather than showing a stale tick over
 unread lines. Nothing enforces a verdict; with no server there is nothing that
 could. It is a note between colleagues, and a record of who read what.
+
+### Comments on lore paragraphs
+
+Lore can be reviewed too. With a review open (pick it in **Review**), go to
+**Lore**, open the file, and switch to **Preview**: every paragraph carries a
+**💬 Comment** button (a heading and a fenced code block each count as one
+paragraph). Clicking it takes you back to Review with the composer already
+anchored — "on lore/the-order.md ¶3" — and, like a text field, the comment can
+carry a **suggested replacement** for the whole paragraph. Save the file first;
+a comment anchors to the saved text, so the button waits while the buffer is
+unsaved. Paragraphs that have threads show a count badge, and each lore thread
+in Review has **Open ¶n**, which lands on that paragraph in the preview.
+
+Markdown has no ids, so the anchor is the paragraph's position *plus the words
+you commented on*. When the file changes, the editor compares the two and says
+what happened rather than guessing:
+
+- **resolved** — the paragraph still reads as it did.
+- **moved to ¶n** — someone inserted or removed paragraphs above it; the same
+  words are further down. The thread is not moved for you: **Re-anchor to ¶n**
+  does that, in one click.
+- **stale** — the paragraph was rewritten or deleted. The thread goes under
+  *Unanchored*; **Keep on ¶n** pins it to the paragraph as it now reads, if
+  the comment still applies.
+- **orphaned** — the lore file itself is gone.
+
+All three are warnings in Reports, never errors. A suggestion is applied only
+to a paragraph that resolves — on a moved one, re-anchor first, so the new
+words never land on whichever paragraph slid into the old slot. Applying goes
+through the same guarded write as saving the file, so it is refused, not
+merged, if the file changed on disk in the meantime.
+
+One caveat for **reviewers**: the Lore surface edits *your* checked-out files,
+while a thread is judged against the lore on the branch under review. When the
+two differ, a fresh comment can show as moved or stale straight away — the
+same reason the canvas can't show a branch you haven't checked out.
+
+Lore files named outside the new-file rule (lowercase letters, digits, `-` and
+`_`) cannot take paragraph comments; the preview says so. **Show changes**
+lists what the branch did to lore, paragraph by paragraph, below the entity
+changes — old words beside new — with **Open** to jump to the file.
 
 ### Syncing, and merging
 
