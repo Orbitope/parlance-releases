@@ -20,9 +20,9 @@ executes Parlance JSON natively in Godot 4:
   plugin to enable, no autoloads.
 - **Immutable state**: every entry point returns a new state, never mutates
   input — save/load and rewind stay trivial.
-- **Conformance-verified** against the v0.14.0 vectors: 159 passing, 0 failing,
-  with unported areas (quest resolution, progression, `nextContinuations`)
-  declared as skips in the README scoreboard rather than fudged.
+- **Conformance-verified** against the v0.14.0 vectors: all 182 passing, every
+  family ported, including quest resolution, progression and
+  `nextContinuations`.
 
 ## Unity (C#) — official port
 
@@ -31,7 +31,7 @@ pure C# `.NET` runtime for Unity projects:
 
 - **Install**: Add the git repository URL via the Unity Package Manager (UPM). It is a framework-agnostic C# library without `MonoBehaviour` singletons.
 - **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
-- **Conformance-verified**: an NUnit suite runs the v0.14.0 vectors headless — 159 passing, 0 failing. Quest resolution, progression and `nextContinuations` are not ported yet.
+- **Conformance-verified**: an NUnit suite runs the v0.14.0 vectors headless — all 182 passing, every family ported, including quest resolution, progression and `nextContinuations`.
 
 ## Unreal Engine (C++) — official port
 
