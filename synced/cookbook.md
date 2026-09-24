@@ -130,9 +130,17 @@ skipped and flow jumps to `next` — landing on the evergreen menu.
 - **`onEnter` on a skipped node never fires.** That is exactly why the `set_flag` sits on
   `node_office_seen` (never skipped), not on `node_establish` (skipped on re-entry). Put
   the flag-write on the beat that *survives* the skip.
-- A `showIf` node **must** have `next` and **must not** have `choices` or `isEnd` (FLOW
-  rule). The skip is only defined for listen-only beats. A `next` chain must end at a node
-  with no `showIf`, or resolution can fall off the end.
+- A skipped `showIf` node **must** have `next` (COND rule). The skip is only defined for
+  listen-only beats. A `next` chain must end at a node with no `showIf`, or resolution
+  can fall off the end.
+- **Since 0.15 you do not need a filler line to carry choices.** A gate on a node with
+  `choices` or `isEnd` hides only its line (the choices still show, the dialogue still
+  ends, and its `onEnter` still fires), and a node with `choices` may omit `text`
+  entirely. An unconditional "So?" or "Anything else?" invented just to host a choice
+  list, or to end the scene after a gated line, can go. Where every choice on a node is
+  gated, add one `fallback: true` choice (e.g. "Leave.") rather than an extra ungated
+  option: it shows only when nothing else does, and the validator stops warning that the
+  player may be stuck.
 - Recipe 1 vs 2: use **1** when the two versions are structurally different conversations;
   use **2** when it is one conversation with a disposable preamble.
 
@@ -722,6 +730,47 @@ once-through, `{~a|b|c}` shuffle; Skyrim idle-chatter pools; Left 4 Dead barks.
 
 ---
 
+## 19. Engine cue on a line (camera shake, a sound, a mood)
+
+**Problem.** The door slams and the camera should shake; the keeper snaps and her
+portrait should switch to *angry*. That is the engine's work, but it has to fire *at
+this line*, in order with the story's own effects.
+
+**Recipe.** Two hand-offs, both opaque to Parlance (0.15). A one-shot **action** is an
+`engine` effect in the node's `onEnter` (or a choice's `effects`). A **property of the
+line** that the engine reads while presenting it is a tag.
+
+```jsonc
+{ "id": "node_slam", "text": "The door slams behind you.",
+  "tags": ["mood:startled"],
+  "onEnter": [
+    { "type": "set_flag", "flag": "door_shut", "value": true },
+    { "type": "engine", "command": "shake", "args": [0.5] },
+    { "type": "engine", "command": "play_sfx", "args": ["door_slam"] }
+  ],
+  "next": "node_keeper" }
+```
+
+Declare the commands your engine handles in `rules.json`
+(`"engine": { "commands": { "shake": { "args": 1 }, "play_sfx": { "args": 1 } } }`), so a
+typo is a validator warning instead of a silent no-op.
+
+**Pitfalls.**
+- **An engine command is not state.** Nothing in the data can later ask "did the camera
+  shake?". If the story needs to remember it, add a `set_flag` beside it.
+- **A skipped node fires nothing.** An engine command in a `showIf`-gated node's
+  `onEnter` never reaches the engine when the node is skipped (recipe 2), the same as any
+  other effect.
+- **Action or property?** Use an effect for something that *happens once* at this point
+  (shake, sting, fade). Use a tag for something that *describes the line* for as long as
+  it is on screen (mood, voice filter, camera framing). An engine re-reads a tag on
+  replay; an `onEnter` fires on first arrival only.
+
+**Also known as.** Yarn `<<shake 0.5>>` custom commands and `#hashtags`; Ink `EXTERNAL`
+functions and `# tags`; Ren'Py `with vpunch` / `play sound`.
+
+---
+
 ## What Parlance deliberately doesn't model (and how to fake it)
 
 Authors coming from Ink, Yarn, Twine, or Ren'Py will reach for a few things that aren't in
@@ -774,6 +823,7 @@ vocabulary above.
 | Fork on a skill / let failure through | active/passive `check`, `kind: priced` | 16 |
 | Gate on carrying an object | `item` condition + `give_item`/`take_item` | 17 |
 | Vary a repeated line across visits | `adjust_counter` + counter-band `showIf` beats | 18 |
+| Shake the camera / play a sound / set a mood on a line | `engine` effect (an action) or a line tag (a property) | 19 |
 
 ## Two rules that cut across every recipe
 

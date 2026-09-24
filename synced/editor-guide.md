@@ -462,6 +462,44 @@ line — it never writes partial data. Rich logic (nested conditions, all effect
 types) is expressible in the compact grammar, but the graph's builders remain
 the friendliest way to author it; use whichever fits the moment.
 
+### Line tags and engine commands
+
+Two hand-offs to the game engine, both opaque to Parlance:
+
+- **Tags on a line or a choice**, e.g. `mood:angry` or `sfx:door`. Edit them in the node
+  inspector's **Tags** row (node section, and again in the choice section). The canvas
+  shows a tagged node's first tag and a count, and a tagged choice gets a small chip.
+  Playtest prints the current line's tags after its text. The `.xlsx` line sheet has a
+  **Tags** column. No rule reads tags; the engine gets them on the step.
+- **Engine commands**: the *engine command* effect type, e.g. `shake` with args `0.5`.
+  Playtest lists it among the applied effects marked **→ engine**, because it changes no
+  state here by design.
+
+In the Text view:
+
+```
+== n_door ==
+~ tags: mood:angry, sfx:door
+The door slams.
++ engine shake 0.5
+- c_calm: "Easy." -> n_next ? flag met #tone:calm #"vo skip"
+    + engine play_sfx door_creak 0.8
+```
+
+A node's tags are a `~ tags:` line under its header, in the same list form as the
+dialogue's. A tag holding a comma or a quote is written `"quoted"`. A choice's tags trail
+its line as `#tag` tokens after any `?` gate; a `#` inside the quoted choice text is never
+a tag, and a tag with a space is `#"quoted"`. An engine command's args are typed by token:
+a number, `true`/`false`, a bare word (a string), or a `"quoted"` string. Anything that
+would read back as a different type is quoted. Autocomplete offers the project's existing
+tags after `~ tags:` or `#`, and declared engine commands after `+ engine`.
+
+To catch typos, declare the commands your engine handles in `data/rules.json`:
+
+```json
+{ "engine": { "commands": { "shake": { "args": 1, "description": "camera shake" }, "play_sfx": { "args": "any" } } } }
+```
+
 **Patterns.** For the recurring shapes these pieces compose into — say-it-once
 re-entry, one-shot choices, hub-and-spoke topic menus, reputation tone shifts,
 quest state machines, storylet selection — see the [Pattern cookbook](COOKBOOK.md).
@@ -624,6 +662,27 @@ Select a choice to expand it.
 > to type a `[Wit]`-style prefix into the choice text — the badge is generated
 > for you, and the text stays clean prose that serializes verbatim to JSON.
 
+### Fallback and locked choices, text-less and gated choice nodes
+
+- **Fallback.** Tick **Fallback** on a choice to offer it only when no other choice
+  on the node is visible — a "Walk away" under two gated options. A node whose every
+  other choice is gated stops getting the *player may be stuck* warning once it has an
+  ungated fallback. The canvas marks it with a dashed `fallback` tag.
+- **When locked.** A gated choice is hidden when its **Show If** fails. Set **When
+  locked** to *show greyed out* (or set the project default, `rules.choices.
+  whenLockedDefault`) to present it disabled instead, with optional **Locked text**
+  such as `[Requires Engineering 3]`. It is never selectable. Play shows it greyed
+  with a lock; the canvas tags it `🔒 shown`. Locked text is exported for translation
+  under `…/choices/<id>/lockedText`.
+- **Gated choice or end node.** A **Show If** on a node with choices, or on an end
+  node, hides only its line when it fails — the choices still appear, the dialogue
+  still ends, and its On Enter effects still run. (On a plain narration node it still
+  skips the node entirely.) The inspector's hint says which one you are getting.
+- **Text-less node.** A node with choices may have no text: clear the Text field and it
+  presents only its options — the canvas shows *(options only)*. In the Text view it is
+  a node header followed directly by its `- choice` lines; the tags read
+  `- id: "Text" -> target fallback locked=show lockedText="…" ? <condition>`.
+
 ### Conditional check modifiers
 
 *New in 0.14.0.* A check's odds can shift with the situation. Under a choice's
@@ -660,6 +719,7 @@ full example and lists the mistakes to avoid.
 | `set_active_dialogue` | Queues a specific dialogue for a character (push-based scene switch) |
 | `play_cutscene` | Queues a cutscene manifest (`pendingCutscene`); the host plays its `asset`, applies `effectsOnComplete`, then enters `entersDialogue` if set |
 | `set_text` | Sets a text variable to a literal string, substituted wherever `{variable}` appears in player-facing text. Pick the variable from the dropdown (or create one inline) and type the value. |
+| `engine` | **Engine command.** A command for the game engine (camera shake, a sound cue), handed over in order among the other effects. It changes no state in Parlance. Type the command name (suggested from `rules.engine.commands` when the project declares them) and the args on one line: `0.5 camera_main true "two words"`. See *Line tags and engine commands* below. |
 
 ### Dialogue metadata (inspector, top section)
 
@@ -903,7 +963,7 @@ Common codes:
 | `SCHEMA` | Field fails JSON Schema validation |
 | `REF` | References an id that doesn't exist |
 | `DUP` | Duplicate id detected (entity ids, dialogue nodes/choices, or a location's spawns/exits/interactables) |
-| `COND` | A node's `showIf` breaks a conditional-narration rule — a gated node must have `next` and must not have `choices` or `isEnd`, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Also warns when a gated node carries `onEnter`, since those effects do not fire when it is skipped |
+| `COND` | A node's `showIf` breaks a conditional-narration rule — a gated narration node (no choices, not an end) must have `next`, a gate needs a line to hide, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Also warns when a skippable gated node carries `onEnter`, since those effects do not fire when it is skipped |
 | `FLOW` | Dialogue has an unreachable node or dead-end choice |
 | `GATE` | Active check missing onSuccess / onFailure destination |
 | `QUEST` | Quest stage issue — including stage/outcome effects with no `completeWhen`/`reachedWhen` (they can never fire; quest resolution only fires condition-gated items) |
@@ -919,6 +979,7 @@ Common codes:
 | `MIGRATE` | A stale project still carrying the retired `character.dialogues` ladder (Parlance 0.13). An error; the Validation panel shows a **Convert ladders to offers** button that rewrites every ladder into dialogue offers and prints the conversion report (`parlance migrate <project>` does the same from a terminal, and `tooling/scripts/migrate_ladders.py` without the editor). |
 | `PROG` | Progression config (`progression.json`) issue — malformed thresholds (not strictly increasing), `pointsPerLevel`/`maxSkill` < 1 (error), a starting skill already at the ceiling, or the **soft-cap sanity** warning (authored XP grants enough points to max every skill). |
 | `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only — silent in a project with no quests). |
+| `ENGINE` | `engine` effect issue. A command name that is not lowercase snake_case is an error. Once `rules.engine.commands` declares the project's commands, a command outside that set (a typo is otherwise a silent no-op in the game) or a call with the wrong number of args is a warning. |
 | `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some `offer.when` reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
 
 Spelling is deliberately **not** in this table. Prose findings carry the code
@@ -929,7 +990,9 @@ a project conforms to the format, so it is not part of the published contract an
 the reference validator (`tooling/validate.py`) does not implement it.
 The lore findings are the same kind of thing: `LORE_LINK` (a `parlance:` link
 in lore that names nothing) and `LORE_MENTION` (a name that could be a link)
-live in **Reports → Prose** too, and never here — lore never ships.
+live in **Reports → Prose** too, and never here — lore never ships. So does
+`CODEX_MENTION` (a codex entry's name used in play text), an information note
+of the same pass.
 
 The **Reports** row (sidebar footer) also shows the total issue count,
 coloured red for errors or yellow for warnings.
@@ -940,8 +1003,9 @@ coloured red for errors or yellow for warnings.
 
 Click **Reports** (pinned to the sidebar footer) to open the Reports panel.
 
-The panel has three tabs — **Issues**, **Prose** and **Find usages** — plus
-**Search text**, which opens the shared full-text overlay (⌘⇧F).
+The panel has six tabs — **Issues**, **Prose**, **Explore**, **Find usages**,
+**Flag flow** and **Speakers** — plus **Search text**, which opens the shared full-text
+overlay (⌘⇧F).
 
 The **Issues** tab has two columns:
 
@@ -1071,6 +1135,96 @@ typos so the names can be accepted in one click. It uses the API key configured 
 The model only *classifies* words that were already found; it never edits your
 prose, and typos are never added to the dictionary. Nothing is written until you
 accept the result.
+
+### Codex mentions — terms the player could look up
+
+Below the prose findings, **Codex mentions** lists every place a codex entry's
+name appears as plain text in dialogue (node and choice lines), quest journal
+text (journal title, stage, objective and outcome descriptions) or a location
+description, grouped by the entry. It is the glossary report: the terms your
+codex explains, and where the player meets them — worth a look when deciding
+which entries to unlock early, or which lines could carry a hover definition
+in your engine.
+
+Rows open the entity that owns the line. The matching follows the lore
+mention rules exactly: whole names on word boundaries, case-insensitive, the
+longest name winning, and a single-word name that is also an ordinary English
+word (an entry called "Order") is never matched. Codex bodies, entry names and
+ending text are not searched — an entry naming itself is not a term to
+explain.
+
+Code `CODEX_MENTION`. Like `LORE_MENTION` it is an information *note*, never a
+finding: it is not produced by validation, never fails `npm run prose --
+--check`, and is not part of the published format's rule set.
+
+### Speakers — lines & words per character
+
+The **Speakers** tab is the casting and budgeting table: one row per resolved
+speaker with its **lines**, **words**, the number of **dialogues** it appears
+in, and its **voiceable** lines. Rows are sorted most words first; click a
+character or skill to open it. **⇩ CSV** downloads the table.
+
+Speakers resolve the way the transcript and the Word/Excel exports resolve
+them — a node's own speaker, else the dialogue's default, else *Narration* —
+so the table agrees with the line sheet row for row. Two attributions are
+worth knowing:
+
+- A **check choice** is a skill-voiced line, so its words count for the
+  skill (*Empathy*, *Observation*…), not the player. Plain choices count
+  for **Player**.
+- **Voiceable** counts spoken node lines only, the same rule the Localization
+  panel's VO coverage uses. Choice text is selection UI and is never
+  voiceable, so *Player* always shows 0 there and a skill's voiceable count
+  covers only the nodes it narrates.
+
+The words column sums to the project word count in the stats bar above.
+
+### Explore — playthrough explorer & route coverage
+
+The **Explore** tab plays the project instead of reading it. Every other check is
+static — `REACH` walks the node graph, the `FLOW` "all choices have showIf — may be
+stuck" warning reasons about the data — so none of them knows which states a player
+can actually reach. Explore does: press **Run** and the editor plays N seeded random
+runs, then (with **exhaustive** on) every reachable state, forking at every visible
+choice, at *both* outcomes of every active check, at every continuation and cutscene
+chain, with a cache of visited states so loops terminate. It starts from every
+dialogue's entry, from the project defaults — and, with **from snapshots too**, from
+each snapshot in `tests/snapshots`.
+
+The banner above the results is the part to read first. **Complete** means every
+reachable state was visited, so "unreached" below means no path exists from any
+start. **Bounded** names what stopped the search (states, depth, random-run steps)
+and means an unreached node may still be reachable — raise **max states** and run
+again. The report never calls a node unreachable when it only ran out of budget.
+
+| List | What it means |
+|------|---------------|
+| **Dead ends** | States the engine reported a problem in: a node with choices none of which were visible and no `next` (`stuck` — the FLOW warning confirmed, with the exact state), a `goto` or `next` to a missing node, a check whose taken branch has no target. **Load into Play** saves that state as a snapshot and opens the Play panel on it; **Copy state JSON** copies it. |
+| **Unreached nodes / choices** | Never shown on any explored path. Click a row to land on the node with the inspector open. |
+| **Never ends** | Dialogues entered on some path but never seen ending — meaningful only when the search was complete. |
+
+Two things the explorer does not model, on purpose. Rolls: every check is taken both
+ways, so a node behind a check is reachable regardless of luck. Re-entry by the host:
+scenes are entered the way the feed model enters them (offers, `set_active_dialogue`,
+cutscene chains) and once as a start; a node that needs a *second* visit to an object
+dialogue opened from a location interactable reads as unreached.
+
+**Route coverage**, below the explorer, replays every route in `tests/routes` and
+lists, per dialogue, how many of its nodes some passing route stands on and which
+routes they are — and the dialogues no route touches at all. A route that fails to
+replay covers nothing and is listed as failing. **Show on map** opens the dialogue
+flow map with every covered scene marked, using the same trail the Play panel draws
+for a loaded route.
+
+The same two reports run headlessly:
+
+```bash
+parlance explore [--runs N] [--seed S] [--max-states N] [--from-snapshots] [--json]
+parlance route --all --coverage
+```
+
+`parlance explore` exits 1 when it finds a dead end, so it can gate CI beside
+`parlance ci-check`; `--json` prints the whole report.
 
 ### Export — Word screenplay & Excel line sheet
 
@@ -1330,6 +1484,28 @@ the route visits twice shows both positions). A jump between two scenes that the
 map has no edge for — a scene reached because its offer became available, which
 no effect names — is drawn as a dotted *discovered* edge. **Clear route** in the
 map's toolbar removes the trail.
+
+### Find a path here — the witness solver
+
+Select a node and the inspector offers **Find a path here**. The editor searches the
+same state graph the Explore report walks — breadth-first, so the first path found is a
+shortest one — for a way from the project's start to that node, and shows the moves:
+choices (with the check outcome they force), continuations into other scenes, cutscenes,
+Continue runs. Tick **from this dialogue's entry only** to search from the current scene
+rather than from every dialogue.
+
+A found path can be kept three ways:
+
+| Button | What it writes |
+|--------|----------------|
+| **Save as snapshot** | `tests/snapshots/snap_witness_<node>.json` — the state *on arrival* at the node, after its `onEnter` effects, with the seen set |
+| **Save as route** | `tests/routes/rt_witness_<node>.json` — a route that replays from the project defaults (recorded as its `startState`) to the node; only offered when the walker has verified it ends there |
+| **Load into Play** | saves the snapshot and opens the Play panel loaded on it, so playing a late branch no longer means playing to it by hand |
+
+"No path found" with *the search was complete* means no start reaches the node under
+the engine's rules; with *bounded* it means the budget ran out first. From the command
+line, `parlance witness <dialogueId> <nodeId> [--save-snapshot <id>] [--save-route <id>]`
+does the same and exits 1 when nothing is found.
 
 ### What playtest does NOT change
 
