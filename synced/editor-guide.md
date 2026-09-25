@@ -173,6 +173,118 @@ validation-bar collapsed state, Text Size, and both resizable panel widths.
 All types share a stable string `id` used as the cross-reference key everywhere.
 The sidebar row for each type shows a live count of how many entities it holds.
 
+### Custom types — the grid
+
+A project can declare its own types in `data/types.json` — weapons, loot
+tables, recipes, anything a designer would otherwise keep in a spreadsheet beside
+the repo. Each field has a type (`string`, `number`, `boolean`, `enum`,
+`reference`, `array`), and both validators check every row against it, including
+that a `reference` names an entity that exists. The demo declares two: open
+`examples/mistfall-inn` and look under **Custom** in the sidebar. **Drink** keeps its
+rows in one file, `data/drinks.json`. **Supplier** keeps one file per row in
+`data/suppliers/`, and its `stocks` field is a list of references to drinks.
+
+```json
+{
+  "drink": {
+    "name": "Drink",
+    "plural": "drinks",
+    "fields": {
+      "price": { "type": "number", "required": true },
+      "strength": { "type": "enum", "options": ["small", "house", "strong"], "default": "house" },
+      "servedBy": { "type": "reference", "target": "character" }
+    }
+  }
+}
+```
+
+Rows live in `data/<plural>.json` (`{ "drinks": [ … ] }`) or one file per row in
+`data/<plural>/`. The single file is the safer choice for a table edited in bulk:
+a grid save rewrites it in one step, all rows or none. With one file per row, each
+row is written whole, but if the editor is killed mid-save some rows can land and
+others not. Reopen the grid to see exactly what was saved, and save again.
+
+**Declaring a type.** Click **+** beside **Custom** in the sidebar. Give it a name.
+The id (what references use) and the file it's stored in follow from the name until
+you edit them. The new type opens as an empty grid with its **Fields** panel open.
+
+**Fields.** The **Fields** button on any grid opens the type's declaration:
+
+- add a field, pick its type, and mark it required;
+- enums take comma-separated options; a reference, or a list of references, needs a
+  target type (a built-in type or another custom type);
+- a default applies to new rows.
+
+**Renaming a field renames it in every row**, so its values go with it. **Removing
+a field deletes its values from every row**, and the panel says so before you save.
+Save the declaration and the rows together. The editor refuses a declaration that
+would misbehave: an id that shadows a built-in type, a file name another type or a
+built-in folder already uses, or a reference to a type that doesn't exist. **Delete
+type** is available once a type has no rows and no other type references it. The
+panel is locked while the grid has unsaved cell edits. Editing `types.json` by hand
+still works, and the editor picks it up as soon as the file is saved.
+
+A custom type opens as a **grid**: one row per entity, one column per field,
+`id` first.
+
+- **Edit** a cell by double-clicking it, pressing Enter, or just typing. Enter
+  moves down, Tab moves right, Esc cancels. Enum and true/false fields open a
+  picker. Array fields take comma-separated values. Put an item that contains a
+  comma in double quotes (`"salt, coarse", water`); the grid quotes such items
+  itself when it shows them. Clearing a cell removes the
+  field, so a required one shows up as a validation error rather than an empty
+  value. A value that doesn't fit the field (letters in a number) stays in the
+  cell, outlined, until you fix it.
+- **Select** with a click and extend with Shift+click or Shift+arrows.
+  **Copy** and **paste** work as they do in a spreadsheet: paste a block copied
+  from Excel, Sheets or Numbers at the selected cell. Cells that don't fit their
+  field are skipped and listed.
+- **Reference cells** suggest the ids of their target type as you type, matching
+  the id or the name. Arrow keys and Enter pick one. In a list of references
+  the suggestions complete the last item and skip ids already listed.
+- **Sort** by clicking a column heading (again to reverse, a third time to
+  clear). **Filter** with the search box: a bare word matches any cell, and
+  `column:value` matches one column (`strength:strong`).
+- **Add row** takes a new id. **×** on a row marks it for deletion (↺ keeps it).
+- Changed cells are highlighted, and nothing is written until **Save**, which
+  writes every changed row at once (Cmd/Ctrl+S works too). You can keep editing
+  while a save runs. **Cmd/Ctrl+Z** steps back through your unsaved edits
+  (Shift+Cmd/Ctrl+Z or Ctrl+Y steps forward) and never touches other entities.
+  **Revert** drops all unsaved changes. **Undo save** puts back the rows the last
+  save changed.
+- Validation problems underline the cell they belong to. Hover it for the message.
+- Large tables stay fast: only the rows on screen are drawn, so a table of tens of
+  thousands of rows scrolls like a short one. Saving revalidates only custom rows,
+  not the whole project.
+
+**Everywhere else in the editor.** Custom rows are first-class outside the grid too:
+
+- **Search** (Cmd/Ctrl+Shift+F) matches row names and text fields (and lists of
+  text), grouped under the type's name. Enum values and reference ids are not
+  searched, as ids are not for built-in types.
+- **Validation problems**, search hits and **Open** in a review diff jump to the
+  grid, select the row and put the cursor on the field. A problem with a
+  declaration in `types.json` opens that type's grid.
+- **Review and drafts** list changed rows as `custom:<type>` and changed
+  declarations as `types`, field by field.
+- **Find usages and renaming** already covered references to and from custom rows.
+- **Prose** treats row names as canon. A line that mentions `Emberwine` is spelled
+  right if a drink is called that.
+- **Agents** read and write custom rows and declarations through the MCP server's
+  `list_custom_types`, `get_custom_rows`, `save_custom_rows` and
+  `declare_custom_type` tools. They go through the same locks and hash checks as
+  the grid, so an agent can't overwrite a row you just saved.
+- **⇩ .csv / .json** on the grid toolbar downloads the saved rows (see
+  [Export](#export--word-screenplay--excel-line-sheet)).
+
+If a row changed on disk while you were editing it (a teammate's pull, an agent,
+a text editor), the grid re-reads it and keeps your edits on top of the new
+version. If the save gets there first, nothing is written and a notice lists the
+rows. Your edits are still there, applied over the new versions. Check them and
+save again. If someone else created a row with the same id as one you added, your
+row is not saved over theirs: remove yours or add it under another id. A save
+never quietly overwrites someone else's change.
+
 ---
 
 ## 4. Entity list & search
@@ -1257,6 +1369,24 @@ parlance export --format xlsx --out lines.xlsx --dialogue dlg_arrival
 ```
 
 Exit codes: `0` written, `1` unknown dialogue, `2` bad usage or not a project.
+
+#### Custom-type tables
+
+A custom type exports as a table: **⇩ .csv / .json** on its grid toolbar, or
+
+```bash
+parlance export --format csv --type drink --out drinks.csv
+parlance export --format json --type drink --out drinks.json
+```
+
+(exit `1` for a type `types.json` does not declare). The CSV has a header row
+(`id`, `name`, the declared fields in the order `types.json` lists them, then any fields rows carry that the
+type does not declare), one row per entity in id order. List cells are written
+the way the grid shows them, so a column copied from the export pastes back into
+the grid. Text that a spreadsheet would run as a formula (starting with `=`, `+`,
+`-` or `@`) gets a leading `'`, so opening a file from someone else's project
+can't run anything. JSON is the lossless form: the type's declaration and every
+row as stored. Unsaved grid edits are not included.
 
 Export is **one-way**. Nothing reads a .docx or .xlsx back into the project;
 edits made in Word or Excel have to be carried back by hand (or through a
