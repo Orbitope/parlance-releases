@@ -26,12 +26,13 @@ forgotten verb). `parlance --help` prints the same usage and exits `0`, and
 ## parlance init
 
 ```bash
-parlance init [dir] [--template blank|first-conversation]
+parlance init [dir] [--template blank|first-conversation] [--force]
 ```
 
 Scaffolds a new project in `dir` (default: the current directory): the
 [standard directory tree](/docs/reference/config/#project-layout), ready for the
-editor. `--template` picks the starting content:
+editor. `dir` may be a new folder (it is created) or an existing empty one.
+`--template` picks the starting content:
 
 | Template | What you get |
 |---|---|
@@ -39,12 +40,29 @@ editor. `--template` picks the starting content:
 | `first-conversation` | A tiny working project: one character and a branching dialogue that remembers a choice |
 
 These are the same two templates as **File ▸ New Project…** in the desktop app.
-An unknown template id fails with the list of known ones.
 
-`init` doesn't check whether `dir` is already a project, so run it on an empty
-or new folder. With `blank` it only creates files that are missing; with
-`first-conversation` it copies the starter's files over any existing files with
-the same names.
+On success it prints the next steps: open the folder in the desktop app
+(**File ▸ Open Project…**), or check it from the command line:
+
+```bash
+cd my-game && parlance ci-check
+```
+
+`init` never writes over existing work. It refuses, changes nothing, and exits
+`2` when:
+
+- `dir` already holds a Parlance project (a `parlance.config.json`, `data/` or
+  `schema/`). This applies even with `--force`.
+- `dir` holds other files. The message names them. A folder holding only
+  `.git` (so `git init && parlance init` works) or `.DS_Store`, `Thumbs.db` or
+  `desktop.ini` counts as empty.
+- `--template` names a template that doesn't exist. The message lists the valid
+  ones.
+
+`--force` lets `init` add a project to a folder that already holds other files.
+It still never overwrites or deletes anything. If the folder already has a file
+that `init` would write, such as `.gitignore` or `lore/placeholder.md`, that
+file is kept as it is, and the success message lists it.
 
 ## parlance ci-check
 
@@ -63,6 +81,33 @@ grouped by [check family](/docs/reference/validation-checks/).
 | `0` | clean |
 | `1` | validation failed |
 | `2` | not a Parlance project |
+
+**GitHub Actions annotations.** Under GitHub Actions (`GITHUB_ACTIONS=true`),
+`ci-check` also prints each issue as a workflow command after the normal
+report, so a failing pull-request check points at the data file and line:
+
+```text
+::error file=data/dialogues/dlg_intro.json,line=19,title=REF::dialogue 'dlg_intro' node 'n1' choice 'c2': goto 'n_missing' is not a node
+```
+
+The path is relative to the repository root (`GITHUB_WORKSPACE`), so a project
+in a subfolder still resolves. The line is the entity's `"id"` line, or the
+node, choice, stage, registry entry or custom-type row the issue names; a file
+that is not valid JSON points at its syntax error. When no line can be found,
+the annotation names the file only.
+
+| Flag | Effect |
+|---|---|
+| `--annotations auto` | Default. Annotate only when `GITHUB_ACTIONS=true`. |
+| `--annotations github` | Always annotate (for example, to preview locally). |
+| `--annotations none` | Never annotate. |
+
+GitHub shows at most 10 error and 10 warning annotations per step; the rest
+are in the log. `ci-check` emits up to 50 of each, then one notice saying how
+many it left out. The full list is always in the normal report above them.
+Exit codes do not change. `parlance route` takes the same flag and annotates a
+failing route at the step that broke, and the Python validator takes it too
+(`python tooling/validate.py --annotations github`).
 
 The [CI tutorial](/docs/get-started/validate-in-ci/) shows the GitHub Actions
 wiring.

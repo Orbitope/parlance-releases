@@ -16,39 +16,56 @@ editor reports them, but don't block the write.
 
 ## Get the server
 
-The MCP server is **not** included in the desktop app, and it isn't published
-to npm. Today it is only available from a checkout of the Parlance source
-repository, which requires access to that repository. Install the editor's
-dependencies once, from the checkout's `editor/` directory:
+The MCP server **ships inside the desktop app** — there is nothing else to
+install, and no separate Node.js: it runs on the app's own runtime. (It is not
+published to npm.)
 
-```bash
-npm ci
-```
+With a project open, choose **Help ▸ Connect an AI Agent…**. The dialog shows the
+configuration for *this* install and *this* project, ready to paste, with buttons
+that copy it:
 
-The server then runs from source with `tsx`, which that install provides. Use
-`editor/node_modules/.bin/tsx` as the command and `editor/mcp/src/index.ts` as
-its argument, as in the config below.
+- **Copy .mcp.json** — a project-scoped `.mcp.json` for Claude Code. Save it at
+  the root of the folder you run Claude Code in.
+- **Copy claude mcp add** — the same thing as one `claude mcp add` command.
+- **Copy for Other Clients** — command, arguments and environment, for any MCP
+  client that launches a stdio server. Clients that read an `mcpServers` block
+  (Claude Desktop, Cursor and most others) take the `.mcp.json` entry as-is.
+
+If no project is open, the dialog still works, and says that `PARLANCE_ROOT` is a
+placeholder for you to fill in.
 
 ## Setup
 
-For Claude Code, add a project-scoped `.mcp.json` at the root of the folder you
-run Claude Code in (or run `claude mcp add --scope project`, which writes the
-same file). Other MCP clients take the same `command` / `args` / `env` entry in
-their own config file.
+The config the dialog gives you has this shape — the app's own executable run as
+Node (`ELECTRON_RUN_AS_NODE=1`), with the bundled server as its argument:
 
 ```json
 {
   "mcpServers": {
     "parlance": {
-      "command": "/path/to/parlance/editor/node_modules/.bin/tsx",
-      "args": ["/path/to/parlance/editor/mcp/src/index.ts"],
+      "command": "/Applications/Parlance.app/Contents/MacOS/Parlance",
+      "args": ["/Applications/Parlance.app/Contents/Resources/mcp/parlance-mcp.mjs"],
       "env": {
+        "ELECTRON_RUN_AS_NODE": "1",
         "PARLANCE_ROOT": "/path/to/your/project"
       }
     }
   }
 }
 ```
+
+On Windows the command is `Parlance.exe` and the server is under its
+`resources\mcp\` folder; on Linux, `/opt/Parlance/parlance-desktop` and
+`/opt/Parlance/resources/mcp/` for the `.deb`. Copy the paths from the dialog
+rather than typing them: they are exact for your install. If you run the
+AppImage, the command is the `.AppImage` file itself and the server is copied to
+Parlance's settings folder, because the AppImage's own files only exist while it
+is running. The paths point into the app, so after moving or reinstalling
+Parlance, copy the config again.
+
+The paths are specific to one machine, so a `.mcp.json` with them is a poor fit
+for committing to a shared repository; each writer takes theirs from their own
+dialog.
 
 `PARLANCE_ROOT` is the project root: the directory that holds `data/` or
 `parlance.config.json` ([root resolution](/docs/reference/config/)). Without it

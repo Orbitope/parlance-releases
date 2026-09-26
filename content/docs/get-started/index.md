@@ -11,9 +11,9 @@ gatekeeper you create in the first one carries through the rest. The demo
 mystery, *The Mistfall Inn*, shows the finished patterns along the way.
 
 > New here? [Download Parlance](/download/) first — it's free. Prefer to try
-> before installing? The [playable demo](/demo/) runs in your browser. (The
-> demo's project files aren't bundled with the app;
-> [Install & run](/docs/install/) says where to get a copy.)
+> before installing? The [playable demo](/demo/) runs in your browser. Once
+> you have the app, **File ▸ Open the Demo** opens the same project in the
+> editor.
 
 | Tutorial | You'll learn | Time |
 |---|---|---|

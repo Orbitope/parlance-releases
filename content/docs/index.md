@@ -12,7 +12,8 @@ Three steps to a working editor with a real project open — under five minutes:
 1. **Launch Parlance** and point it at a project folder.
    ([Install & run](/docs/install/))
 2. **Open the demo project.** *The Mistfall Inn* is a complete, tiny mystery
-   with every feature in play.
+   with every feature in play, and it ships with the app: **File ▸ Open the
+   Demo**.
    ([Your first project](/docs/get-started/first-project/) walks through it.)
 3. **Play a scene.** Open the `dlg_examine_body` dialogue and hit **▶ Play** —
    seeded dice, a rewindable transcript, and a live state inspector.

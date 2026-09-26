@@ -95,8 +95,8 @@ gets to hide.
 
 An empty project teaches layout; a real one teaches craft. Open
 **The Mistfall Inn** — the demo mystery behind the [playable demo](/demo/) on
-this site — and poke around. (Its project files aren't bundled with the app;
-[Install & run](/docs/install/) says where to get a copy.) Three characters with
+this site — with **File ▸ Open the Demo**, and poke around. It opens a copy in
+`Documents/Parlance`, so nothing you change there can break the original. Three characters with
 [offers](/docs/concepts/dialogue-laddering/), a quest with three outcomes,
 route fixtures, zero validation issues under `--strict`.
 

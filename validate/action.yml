@@ -13,6 +13,13 @@ inputs:
     description: "Also fail on warnings, not just errors (\"true\"/\"false\")."
     required: false
     default: "false"
+  annotations:
+    description: >-
+      Mark each issue on the file and line that caused it, as GitHub Actions
+      error/warning annotations ("true"/"false"). CLI versions from before
+      annotations existed ignore this input.
+    required: false
+    default: "true"
   version:
     description: >-
       CLI version to run (e.g. 0.15.0). Defaults to the version matching the tag
@@ -42,6 +49,11 @@ runs:
         ARGS=(ci-check "${{ inputs.project-dir }}")
         if [ "${{ inputs.strict }}" = "true" ]; then
           ARGS+=(--strict)
+        fi
+        # Annotations are on by default under Actions (the CLI reads
+        # GITHUB_ACTIONS itself); only opting out needs a flag.
+        if [ "${{ inputs.annotations }}" = "false" ]; then
+          ARGS+=(--annotations none)
         fi
 
         echo "Running @orbitope/parlance-cli@${VERSION} ${ARGS[*]}"

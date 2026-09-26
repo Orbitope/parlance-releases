@@ -31,7 +31,16 @@ the release you pinned.
 |-------|---------|-------------|
 | `project-dir` | `.` | Directory with `data/` or `parlance.config.json`. |
 | `strict` | `"false"` | `"true"` also fails on warnings, not just errors. |
+| `annotations` | `"true"` | Mark each issue on its file and line in the pull request. `"false"` turns it off. |
 | `version` | (tag) | Override the CLI version (e.g. `0.15.0`). Defaults to the tag the action was referenced at. |
+
+## Annotations
+
+Each issue is also reported as a GitHub annotation on the data file (and line,
+where it can be found) that caused it, so a failing check shows up in the pull
+request's **Files changed** tab. GitHub displays at most 10 error and 10
+warning annotations per step; the CLI emits up to 50 of each plus a notice
+counting the rest, and the full list is always in the step's log.
 
 ## Requirements
 

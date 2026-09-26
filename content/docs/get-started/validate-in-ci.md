@@ -105,6 +105,18 @@ same issues, enforced by a parity test.
 
 ## 4. Read failures fast
 
+On GitHub Actions you usually don't need the log. `ci-check` (and the
+reusable action) marks each issue on the file and line that caused it, so the
+pull request's **Files changed** tab shows the error on the choice, node or
+registry entry itself, titled with the check code (`REF`, `SCHEMA`, ...) and
+carrying the same message as the log.
+
+This turns on by itself when `GITHUB_ACTIONS=true`, so no setup is needed.
+GitHub shows at most 10 errors and 10 warnings per step; the complete list is
+in the step's log. To turn it off, pass `--annotations none`, or set
+`annotations: "false"` on the action
+([details](/docs/reference/cli/#parlance-ci-check)).
+
 When CI goes red, the [validation checks reference](/docs/reference/validation-checks/)
 is the decoder ring — every family, what it scans, and how to fix it. In the
 editor, the same issues are clickable rows that navigate straight to the

@@ -150,8 +150,9 @@ tools, including id rename and custom game data, with `dry_run` support. Every
 write is validated before it lands, a write that would give an entity a schema
 error is refused, and every result carries the project's validation issues.
 Agent output lands as canonical JSON in git — one reviewable diff. The server
-isn't part of the desktop app; today it runs from a checkout of the Parlance
-source repository ([how](/docs/reference/mcp/#get-the-server)).
+ships inside the desktop app and runs on the app's own runtime: **Help ▸
+Connect an AI Agent…** shows the ready-to-paste config for your install and
+project ([how](/docs/reference/mcp/#get-the-server)).
 
 ## AI drafting
 

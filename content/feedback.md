@@ -44,7 +44,8 @@ tracker is the wrong room:
 - **Steps, in order, from a state we can reach.** "Open a dialogue, add a choice,
   undo twice" beats "undo is broken."
 - **Whether it reproduces on the demo project.** [Mistfall Inn](/demo/) is CC0
-  and ships with the editor, so a repro there is one anybody can run — and one
+  and ships with the editor (**File ▸ Open the Demo**), so a repro there is one
+  anybody can run — and one
   you can paste in full without revealing a word of your own game. If a bug
   reproduces on the demo, say so; those get fixed first, because nothing about
   them has to be guessed.

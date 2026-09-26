@@ -42,7 +42,10 @@ Every feature in the demo is doing a job:
 
 The whole project is ~40 human-readable JSON files, released **CC0** — data,
 route fixtures, and the lore doc with the actual solution. It ships with the
-app, so it's the first thing you can open.
+app, so it's the first thing you can open: **File ▸ Open the Demo**, or **Open
+the demo** on the welcome screen. Parlance opens a copy in
+`Documents/Parlance/The Mistfall Inn`, so you can change anything without
+breaking the original.
 
 - [Open it in the editor](/docs/get-started/first-project/) and see the same
   scenes as node graphs, offers, and quest stages.

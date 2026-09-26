@@ -53,10 +53,14 @@ reads it.
   branching dialogue. **Blank** gives you the empty layout instead.
   (`parlance init my-story --template first-conversation` does the same from
   the [command line](/docs/reference/cli/#parlance-init).)
-- **Want to see a finished project?** The demo mystery, *The Mistfall Inn*, is
-  [playable in your browser](/demo/). Its project files are not included in the
-  app or offered as a download at the moment, so the tutorials that open it in
-  the editor need a copy of it from the Parlance source repository.
+- **Want to see a finished project?** The demo mystery, *The Mistfall Inn*,
+  ships with the app. Choose **File ▸ Open the Demo** (or **Open the demo** on
+  the welcome screen): the first time, Parlance copies it to
+  `Documents/Parlance/The Mistfall Inn` and opens the copy, which is yours to
+  edit. Later, the same command reopens that copy with your changes — it never
+  overwrites it. To start fresh, delete or rename the folder and choose it
+  again. (On Linux, the copy goes to your XDG Documents folder, or your home
+  folder if none is set.) You can also [play it in your browser](/demo/).
 - **Existing project?** Use **File ▸ Open Project…** and pick the project root.
   If it has a `data/` directory, a `parlance.config.json` or a `schema/`
   directory, Parlance recognizes it. Any other folder is refused with *"Not a
