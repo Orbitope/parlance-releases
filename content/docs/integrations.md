@@ -30,8 +30,8 @@ The [parlance-unity](https://github.com/Orbitope/parlance-unity) package provide
 pure C# `.NET` runtime for Unity projects:
 
 - **Install**: Add the git repository URL via the Unity Package Manager (UPM). It is a framework-agnostic C# library without `MonoBehaviour` singletons.
-- **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
-- **Conformance-verified**: an NUnit suite runs the v0.15.0 vectors headless — all 207 passing, every family ported, including quest resolution, progression and `nextContinuations`.
+- **Plain-dictionary API**: the project, dialogues and every result are `Dictionary<string, object>`; state is a `State` class of `Dictionary` and `HashSet` fields, deep-copied on every change. The package ships no loader or JSON parser: read `data/` with your own (for example Unity's Newtonsoft package) into plain dictionaries and lists.
+- **Conformance-verified**: an NUnit suite runs the v0.15.0 vectors headless with `dotnet test`, outside Unity — all 207 passing, every family ported, including quest resolution, progression and `nextContinuations`.
 
 ## Unreal Engine (C++) — parked at v0.9.0
 
@@ -88,7 +88,8 @@ Only the Python [reference validator](/docs/reference/cli/#the-python-reference-
 checks them, as `BIND` warnings for an asset that's used but unbound or bound but
 missing. The editor and `parlance ci-check` don't read `data/bindings/`, so run
 `validate.py` in CI if you rely on bindings. Whether an engine port loads a
-binding profile for you is up to that port; check its own README.
+binding profile for you is up to that port; check its own README. Neither the Godot
+nor the Unity port does today.
 
 ## Coming from another tool
 
