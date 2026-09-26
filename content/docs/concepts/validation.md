@@ -38,7 +38,7 @@ The same rule set runs in three places, and they are kept in agreement:
 
 ## What gets checked
 
-[Eighteen check families](/docs/reference/validation-checks/), spanning shape
+[Thirty check families](/docs/reference/validation-checks/), spanning shape
 (`SCHEMA`), wiring (`REF`, `DUP`), flow (`FLOW`, `REACH`, `GATE`), state
 (`FLAG`, `REP`), structure (`QUEST`, `ENDING`, `COVERAGE`, `LOC`, `CUT`,
 [`OFFER`](/docs/concepts/dialogue-laddering/)), content (`LORE`), and

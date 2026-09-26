@@ -28,7 +28,7 @@ downloaded, and notes describing what changed. Just want the current build?
 |---|---|---|
 | **macOS** | `.dmg` | Apple Silicon (M-series). No Intel build yet |
 | **Windows** | `.exe` | Installer, x64 |
-| **Linux** | `.AppImage` or `.deb` | AppImage runs anywhere; `.deb` for Debian and Ubuntu |
+| **Linux** | `.AppImage` or `.deb` | AppImage for most distributions; `.deb` for Debian and Ubuntu — see the [Linux notes](/docs/install/#linux) |
 | Any | `.sha256` | Checksum for the file of the same name |
 
 Verify a download by comparing hashes — on macOS or Linux:
@@ -41,10 +41,11 @@ shasum -a 256 -c Parlance-1.0.0.dmg.sha256
 
 Parlance follows semantic versioning, and the **data contract carries its own
 version** independently of the app — see
-[the open spec](/docs/spec/) for what that guarantees. In short: a project
-authored today keeps working, and a contract change that would alter what your
-files mean is a breaking change with a deprecation window, never a silent
-update.
+[the open spec](/docs/spec/) for what that guarantees. Parlance is pre-1.0, and
+until 1.0 a breaking contract change may land in any minor release. There is no
+deprecation window and there are no backports: a wrong default gets fixed, not
+carried. Every breaking change ships with a migration note in its release, so a
+contract change is never a silent update.
 
 Terms attach to the version you have and never change retroactively
 ([licensing](/license/)).

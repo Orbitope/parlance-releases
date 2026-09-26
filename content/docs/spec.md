@@ -27,7 +27,7 @@ pipeline tool can be, in any license, commercial included.
 
 > **Status: published.** The repository is live and MIT, filled by a one-way
 > sync from the upstream repo on every release tag — currently through
-> **v0.14.0**. Contents track the tags exactly, because a spec repo pinned to an
+> **v0.15.0**. Contents track the tags exactly, because a spec repo pinned to an
 > untagged version would give a port nothing to pin to, which is the whole point
 > of publishing.
 >

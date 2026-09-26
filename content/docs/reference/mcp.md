@@ -1,6 +1,6 @@
 ---
 title: MCP server
-description: The Parlance MCP server — seven tools that let LLM agents read, create, and update narrative entities through the same validated path as the editor.
+description: The Parlance MCP server — twelve tools that let LLM agents read, create, update and rename narrative entities, and edit custom game data, through the same validated path as the editor.
 ---
 
 # MCP server
@@ -43,6 +43,11 @@ The server ships with Parlance; the exact path is listed in the app's settings.
 | `validate_project` | Run the full validator, return every issue |
 | `create_entity` | Write a new entity (id generated from `name` if omitted); supports `dry_run` |
 | `update_entity` | Non-destructive merge patch on an existing entity; supports `dry_run` |
+| `rename_entity` | Change an entity's id and rewrite every reference to it, as the editor's **Rename id** does. `dry_run` returns the plan and a `plan_hash`; applying with that hash is refused if the project changed in between |
+| `list_custom_types` | The project's [custom types](/docs/editor-guide/#custom-types--the-grid): fields, storage and row counts |
+| `get_custom_rows` | A custom type's rows, each with the hash needed to change it; pages through large tables |
+| `save_custom_rows` | Create, replace or delete custom rows in one write — all land or none do, and a row changed on disk since it was read is refused |
+| `declare_custom_type` | Declare, redefine or delete a custom type, checked as the editor's Fields panel checks it; renaming a field rewrites every row |
 
 Two behaviors are the safety story:
 
