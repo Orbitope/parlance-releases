@@ -31,7 +31,7 @@ the release you pinned.
 |-------|---------|-------------|
 | `project-dir` | `.` | Directory with `data/` or `parlance.config.json`. |
 | `strict` | `"false"` | `"true"` also fails on warnings, not just errors. |
-| `version` | (tag) | Override the CLI version (e.g. `0.12.0`). Defaults to the tag the action was referenced at. |
+| `version` | (tag) | Override the CLI version (e.g. `0.15.0`). Defaults to the tag the action was referenced at. |
 
 ## Requirements
 

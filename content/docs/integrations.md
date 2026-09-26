@@ -33,14 +33,16 @@ pure C# `.NET` runtime for Unity projects:
 - **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
 - **Conformance-verified**: an NUnit suite runs the v0.15.0 vectors headless — all 207 passing, every family ported, including quest resolution, progression and `nextContinuations`.
 
-## Unreal Engine (C++) — official port
+## Unreal Engine (C++) — parked at v0.9.0
 
 The [parlance-unreal](https://github.com/Orbitope/parlance-unreal) plugin integrates Parlance 
 natively into Unreal Engine using Core C++ types:
 
 - **Install**: Drop the plugin into your project's `Plugins/` folder and rebuild. 
 - **Blueprints First**: The core runtime logic is exposed via `UBlueprintFunctionLibrary` wrappers. You can drive your entire narrative system visually without writing C++.
-- **Conformance-verified**: Uses the native Unreal Automation Testing framework (`BEGIN_DEFINE_SPEC`) to run JSON vectors natively against the C++ code. 136 vectors passing, 0 failing — **against v0.9.0**. It has not moved to 0.14 yet, so it still resolves character ladders rather than dialogue offers and does not apply check modifiers.
+- **Conformance-verified against v0.9.0 only**: Uses the native Unreal Automation Testing framework (`BEGIN_DEFINE_SPEC`) to run JSON vectors natively against the C++ code. 136 of the v0.9.0 vectors pass, 0 fail; quest resolution and progression were never ported.
+
+**Parked.** This port is not being moved forward for now: running Unreal in CI costs more than it is worth at present. It resolves the pre-0.14 character ladders rather than dialogue offers, does not apply check modifiers, and lacks the 0.15 dialogue shapes (line-only gates, fallback and locked choices, the `engine` effect). Use it as a starting point, not as a conforming runtime, or use the GDScript or Unity port.
 
 ## TypeScript — the reference runtime
 
