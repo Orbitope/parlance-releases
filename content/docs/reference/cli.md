@@ -5,29 +5,46 @@ description: The parlance command reference — init, ci-check, route, explore, 
 
 # CLI reference
 
-The `parlance` command ships with the host package. Every subcommand resolves
-the project root the same way: explicit path argument → `PARLANCE_ROOT` env
-var → current directory ([details](/docs/reference/config/)).
+The `parlance` command is published as a standalone npm package,
+**`@orbitope/parlance-cli`**, for CI and other headless use. It needs no editor
+and no install: run any subcommand with `npx @orbitope/parlance-cli <command>`.
+Examples below use the short `parlance` form, which assumes the package is
+installed and on your `PATH`.
 
-For CI and other headless use without the editor, the same commands are published
-as a standalone npm package, **`@orbitope/parlance-cli`** — run any subcommand with
-`npx @orbitope/parlance-cli <command>` (no install, no editor). Examples below use
-the short `parlance` form, which assumes it's on your `PATH`.
+**Which project it acts on.** `ci-check` and `migrate` take an optional project
+directory as their first argument. Every other subcommand (`route`, `explore`,
+`witness`, `rename`, `export`, `save import`) acts on the **current directory**
+and has no project argument, so `cd` into the project first (or set
+`working-directory` on the CI step). `init` takes the directory to create.
 
-Running `parlance` with no subcommand starts the editor host itself; if the
-target directory isn't a Parlance project, it says so and suggests
-`parlance init` rather than scaffolding on its own.
+The CLI doesn't start the editor. Running `parlance` with no subcommand prints
+the usage and exits `2` (a bare `parlance` in a CI step is almost always a
+forgotten verb). `parlance --help` prints the same usage and exits `0`, and
+`parlance --version` prints the package version. Editing happens in the
+[desktop app](/docs/install/).
 
 ## parlance init
 
 ```bash
-parlance init [dir]
+parlance init [dir] [--template blank|first-conversation]
 ```
 
-Scaffolds a new project: the [standard directory tree](/docs/reference/config/#project-layout),
-ready for the editor. Guarded by the project marker — it won't scaffold over a
-directory that already is a project, and the editor won't silently seed a
-random folder.
+Scaffolds a new project in `dir` (default: the current directory): the
+[standard directory tree](/docs/reference/config/#project-layout), ready for the
+editor. `--template` picks the starting content:
+
+| Template | What you get |
+|---|---|
+| `blank` (default) | Empty folders and registries, a `parlance.config.json`, a lore placeholder |
+| `first-conversation` | A tiny working project: one character and a branching dialogue that remembers a choice |
+
+These are the same two templates as **File ▸ New Project…** in the desktop app.
+An unknown template id fails with the list of known ones.
+
+`init` doesn't check whether `dir` is already a project, so run it on an empty
+or new folder. With `blank` it only creates files that are missing; with
+`first-conversation` it copies the starter's files over any existing files with
+the same names.
 
 ## parlance ci-check
 
@@ -53,10 +70,15 @@ wiring.
 ## parlance route
 
 ```bash
-parlance route [project-dir] [route-id]    # one fixture
-parlance route [project-dir] --all         # every fixture
-parlance route ... --strict
+parlance route <route-id>        # one fixture
+parlance route --all             # every fixture
+parlance route --all --strict
+parlance route --all --coverage
 ```
+
+`route` runs against the project in the current directory. Its first
+positional argument is always the route id, so `parlance route . rt_x` looks
+for a route named `.`.
 
 Replays route fixtures — scripted playthroughs with assertions from
 `tests/routes/rt_*.json` — and exits non-zero when a walk diverges or an
@@ -65,6 +87,17 @@ assertion fails. Deterministic play is what makes the replay exact; see the
 
 `--coverage` adds route coverage: per dialogue, how many of its nodes some passing
 route stands on, and which dialogues no route touches at all.
+
+## parlance migrate
+
+```bash
+parlance migrate [project-dir]           # rewrite character ladders as dialogue offers
+parlance migrate [project-dir] --check   # report only; exit 1 if anything needs migrating
+```
+
+The one-time 0.13 → 0.14 migration from character dialogue ladders to
+[dialogue offers](/docs/concepts/dialogue-laddering/). Without `--check` it
+rewrites the files and exits `0`.
 
 ## parlance explore
 
@@ -126,7 +159,7 @@ second writes one custom type's rows. Office export is one-way: nothing reads a
 ## parlance save import
 
 ```bash
-parlance save import <file> [--id <id>]
+parlance save import <file> [--id <id>] [--name "..."] [--force]
 ```
 
 Imports an **engine save file** as a playtest snapshot — so a save the game itself
@@ -134,6 +167,12 @@ wrote (the file proving a bug a tester hit) can be opened and replayed in the
 editor instead of reproduced by hand. It shares one implementation with the
 editor's `POST /api/saves/import`, so the CLI and the editor can't disagree about
 what a save means.
+
+The snapshot id defaults to `snap_` plus the file name, snake_cased
+(`slot1.json` becomes `snap_slot1`); `--id` sets it instead. `--name` sets the
+snapshot's display name. An import that would replace an existing snapshot is
+refused unless you pass `--force`. A save that names content the project doesn't
+have is refused.
 
 ## The Python reference validator
 
@@ -155,7 +194,8 @@ validator, so the two can't drift silently.
 
 ## Environment
 
-| Variable | Effect |
-|---|---|
-| `PARLANCE_ROOT` | Project root when no path argument is given |
-| `PORT` | Host port (the config file's `port` wins) |
+The npm CLI reads no environment variable for the project root. It sets
+`PARLANCE_ROOT` itself, from the project argument or the current directory,
+before every subcommand, so a `PARLANCE_ROOT` you export has no effect on it.
+To point it at another project, pass the path (`ci-check`, `migrate`) or `cd`
+there first.

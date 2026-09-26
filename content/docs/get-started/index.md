@@ -5,13 +5,15 @@ description: Short, hands-on Parlance tutorials — one feature each, ten minute
 
 # Get started
 
-Six short tutorials, one feature each. They build on each other but stand
-alone; every step is reproducible against a fresh `parlance init` project or
-the demo mystery, *The Mistfall Inn*, which ships with the app.
+Six short tutorials, one feature each. They build on each other, starting
+from a fresh Blank project (**File ▸ New Project…**, or `parlance init`): the
+gatekeeper you create in the first one carries through the rest. The demo
+mystery, *The Mistfall Inn*, shows the finished patterns along the way.
 
-> New here? [Download Parlance](/download/) first — it's free, and the demo
-> project these tutorials use ships with it. Prefer to try before installing?
-> The [playable demo](/demo/) runs in your browser.
+> New here? [Download Parlance](/download/) first — it's free. Prefer to try
+> before installing? The [playable demo](/demo/) runs in your browser. (The
+> demo's project files aren't bundled with the app;
+> [Install & run](/docs/install/) says where to get a copy.)
 
 | Tutorial | You'll learn | Time |
 |---|---|---|

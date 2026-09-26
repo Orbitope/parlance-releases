@@ -42,7 +42,7 @@ about where you end up:
   "id": "rt_talk_past",
   "description": "Talking past the gatekeeper marks you as known at the gate.",
   "dialogueId": "dlg_gate_first",
-  "steps": [{ "choiceId": "c_talk", "forced": "pass" }],
+  "steps": [{ "choiceId": "ch_1", "forced": "pass" }],
   "assertEnd": { "flags": { "talked_past_gate": true } }
 }
 ```
@@ -55,9 +55,11 @@ parlance route --all --strict
 
 Because play is [deterministic](/docs/concepts/playtest-determinism/), the
 replay is exact every run. When next month's edit
-accidentally gates your only route to `node_pass`, this fixture fails with the
-step where the walk diverged. The demo ships four of these, including one
-asserting the *failure* branch still works.
+accidentally gates your only route to the success node, this fixture fails
+with the step where the walk diverged. (`ch_1` is the choice id from the
+[branching tutorial](/docs/get-started/branching-dialogue/); use your own if
+you renamed it.) The demo ships five of these, including one asserting the
+*failure* branch still works.
 
 Routes live in `tests/`, not `data/`, deliberately: a shipping game never
 loads them ([layout reference](/docs/reference/config/#project-layout)).

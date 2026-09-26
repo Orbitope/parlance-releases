@@ -18,9 +18,15 @@ is the explanation.
 | <kbd>Shift+Cmd/Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd> | Redo |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Navigation history — back/forward through *what you were viewing*, like a browser |
 | <kbd>Cmd/Ctrl+[</kbd> / <kbd>Cmd/Ctrl+]</kbd> | Same, in the Xcode / VS Code "Go Back" convention |
+| <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> (dialogue canvas) | Select the nearest node in that direction. With nothing selected, selects the start node |
+| <kbd>N</kbd> (dialogue canvas) | Branch from the selected node: adds a choice on it pointing at a new node, and selects the new node. With nothing selected, adds an unconnected node |
+| <kbd>Esc</kbd> (dialogue canvas) | Deselect the node |
 | <kbd>Delete</kbd> (edge selected) | Remove a canvas connection |
 | <kbd>←</kbd>/<kbd>→</kbd> on a panel divider | Resize the focused side panel (<kbd>Shift</kbd> = bigger steps, <kbd>Home</kbd> = reset) |
 | <kbd>Enter</kbd> in the + New sheet | Create the entity |
+
+The dialogue-canvas keys work in Graph view, and only while no text field has
+focus: typed into an inspector field, they are just text.
 
 Two histories, worth keeping straight: **undo/redo** replays *saves* (your
 data); **back/forward** replays *selection* (your view). Canvas node drags are

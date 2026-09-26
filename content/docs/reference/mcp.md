@@ -1,62 +1,90 @@
 ---
 title: MCP server
-description: The Parlance MCP server — twelve tools that let LLM agents read, create, update and rename narrative entities, and edit custom game data, through the same validated path as the editor.
+description: The Parlance MCP server — twelve tools that let LLM agents read, create, update and rename narrative entities, and edit custom game data, with every write validated before it lands.
 ---
 
 # MCP server
 
 `@parlance/mcp` exposes a Parlance project to LLM agents over the
 [Model Context Protocol](https://modelcontextprotocol.io) — a stdio process, no
-web server, no accounts. Agents work through the **same validated write path
-as the editor**: schema-checked, canonically serialized, re-validated after
-every write. An agent can draft a faction's worth of characters; it cannot
-write malformed data.
+web server, no accounts. Agents write through the **same storage path as the
+editor**: canonically serialized JSON, with locked writes to the shared
+registry files. Every write is validated before anything touches disk. A write
+that would give the entity a schema error is refused and nothing is written;
+reference and other cross-entity issues are reported with the result, as the
+editor reports them, but don't block the write.
+
+## Get the server
+
+The MCP server is **not** included in the desktop app, and it isn't published
+to npm. Today it is only available from a checkout of the Parlance source
+repository, which requires access to that repository. Install the editor's
+dependencies once, from the checkout's `editor/` directory:
+
+```bash
+npm ci
+```
+
+The server then runs from source with `tsx`, which that install provides. Use
+`editor/node_modules/.bin/tsx` as the command and `editor/mcp/src/index.ts` as
+its argument, as in the config below.
 
 ## Setup
 
-Add to your MCP client config (for Claude Code, `.claude/mcp_servers.json`):
+For Claude Code, add a project-scoped `.mcp.json` at the root of the folder you
+run Claude Code in (or run `claude mcp add --scope project`, which writes the
+same file). Other MCP clients take the same `command` / `args` / `env` entry in
+their own config file.
 
 ```json
 {
-  "parlance": {
-    "command": "node",
-    "args": ["<path to the Parlance MCP server>"],
-    "env": {
-      "PARLANCE_ROOT": "/path/to/your/project"
+  "mcpServers": {
+    "parlance": {
+      "command": "/path/to/parlance/editor/node_modules/.bin/tsx",
+      "args": ["/path/to/parlance/editor/mcp/src/index.ts"],
+      "env": {
+        "PARLANCE_ROOT": "/path/to/your/project"
+      }
     }
   }
 }
 ```
 
-The server ships with Parlance; the exact path is listed in the app's settings.
-`PARLANCE_ROOT` must point at the directory containing `data/`
-([root resolution](/docs/reference/config/)).
+`PARLANCE_ROOT` is the project root: the directory that holds `data/` or
+`parlance.config.json` ([root resolution](/docs/reference/config/)). Without it
+the server uses the directory it was started in. The root is read once, when the
+server starts.
 
 ## Tools
 
 | Tool | What it does |
 |---|---|
-| `list_entities` | List all entities of a type (characters, dialogues, quests, factions, locations, skills, variables, endings, codex) |
+| `list_entities` | List all entities of a type (skills, variables, factions, characters, dialogues, quests, locations, endings, codex, items, portraits, cutscenes, routes, snapshots) |
 | `get_entity` | Full JSON for one entity by type + id |
 | `entity_exists` | Existence check — decide create vs. update before writing |
 | `generate_id` | Convert a human-readable name to a canonical id per the naming standards (with optional collision checking) |
 | `validate_project` | Run the full validator, return every issue |
-| `create_entity` | Write a new entity (id generated from `name` if omitted); supports `dry_run` |
-| `update_entity` | Non-destructive merge patch on an existing entity; supports `dry_run` |
+| `create_entity` | Write a new entity (id generated from `name` if omitted); refused if the entity fails its schema; supports `dry_run` |
+| `update_entity` | Shallow merge patch on an existing entity (each top-level field in the patch replaces that field); refused if the result fails its schema, or if `base_hash` is stale; supports `dry_run` |
 | `rename_entity` | Change an entity's id and rewrite every reference to it, as the editor's **Rename id** does. `dry_run` returns the plan and a `plan_hash`; applying with that hash is refused if the project changed in between |
 | `list_custom_types` | The project's [custom types](/docs/editor-guide/#custom-types--the-grid): fields, storage and row counts |
 | `get_custom_rows` | A custom type's rows, each with the hash needed to change it; pages through large tables |
-| `save_custom_rows` | Create, replace or delete custom rows in one write — all land or none do, and a row changed on disk since it was read is refused |
+| `save_custom_rows` | Create, replace or delete custom rows in one write — all land or none do. A row changed on disk since it was read, or a row that fails its type's fields, refuses the whole batch; supports `dry_run` |
 | `declare_custom_type` | Declare, redefine or delete a custom type, checked as the editor's Fields panel checks it; renaming a field rewrites every row |
 
-Two behaviors are the safety story:
+Three behaviors are the safety story:
 
-- **`dry_run`** on both write tools reports what *would* happen — including
-  validation results — without touching disk.
-- **Writes always re-validate.** `create_entity` and `update_entity` run the
-  project validator after writing and return any new issues, so the agent
-  sees the consequences of its edit in the same turn and can fix its own
-  `REF` errors.
+- **`dry_run`** on `create_entity`, `update_entity`, `save_custom_rows` and
+  `rename_entity` reports what *would* happen — including validation results —
+  without touching disk.
+- **Schema errors are refused.** `create_entity`, `update_entity` and
+  `save_custom_rows` validate the result in memory first. If what is being
+  written has a `SCHEMA` error of its own, the tool returns `written: false`
+  with the issues and nothing on disk changes. Other issues, such as a `REF` to
+  an id that doesn't exist yet, don't block the write.
+- **Every result carries the project's issues.** After a write the tools re-run
+  the project validator and return the issues, so the agent sees the
+  consequences of its edit in the same turn and can fix its own `REF` errors.
 
 ## A typical agent loop
 
@@ -65,7 +93,8 @@ anywhere):
 
 1. `generate_id` for each name, with collision checking on.
 2. `entity_exists` → decide create vs. update.
-3. `create_entity` / `update_entity` with the mapped fields.
+3. `create_entity` / `update_entity` with the mapped fields, `dry_run` first if
+   the mapping is new.
 4. One final `validate_project` to confirm a clean state.
 
 Because everything lands as [canonical JSON in git](/docs/concepts/git-native/),

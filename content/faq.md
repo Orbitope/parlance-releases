@@ -56,14 +56,23 @@ are worth it to a team of ten writers. The local editor isn't one of them.
 
 Parlance is local-first: no cloud service, no accounts, no telemetry. Your
 files never leave your machine unless you push them somewhere. The optional
-[AI drafting](/docs/integrations/#ai-drafting) feature only sends what you ask
-it to draft, to the provider you configure, with your API key.
+[AI drafting](/docs/integrations/#ai-drafting) feature sends a request only when
+you press Draft or Regenerate, only to the provider you configure, with your API
+key — and it sends only the node you're drafting at (its speaker, its line and
+its existing choices) plus lists of up to 50 of your skill, flag, faction and
+character ids, so the model can reference only ids that exist. No other
+dialogue, lore or character description goes with it. Two other opt-in features
+use your providers the same way: the prose check's **Sort these with AI** sends
+the unknown words it found, each with a short sample of the line it came from,
+and [placeholder voice](/docs/editor-guide/#placeholder-voice-tts) sends a line's
+text to your text-to-speech provider when you generate it.
 
 ## Does it handle localization and voice-over?
 
 Yes — every player-facing string is extracted with a stable key; translators get
-flat JSON templates; coverage and stale keys are tracked per language, and VO
-maps voiceable lines to engine audio keys the same way. See the
+flat JSON templates; coverage and stale keys (a key whose line was renamed or
+removed) are tracked per language, and VO maps voiceable lines — every spoken
+node line, never the player's choice text — to engine audio keys the same way. See the
 [editor guide](/docs/editor-guide/#15-localization--vo).
 
 ## What are "dialogue offers"?

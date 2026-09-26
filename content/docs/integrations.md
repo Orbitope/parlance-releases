@@ -64,8 +64,9 @@ The path every port follows:
    contract defines each function —
    `evaluate`, `applyEffect`, `resolveCheck`, `stepDialogue`,
    [`resolveCharacterDialogue`](/docs/concepts/dialogue-laddering/),
-   `resolveQuests` — including RNG (`mulberry32`), clamping rules, and the
-   edge cases where ports usually drift.
+   `resolveQuests` — including how dice consume the injected `rng()` (one call
+   per die, in order), clamping rules, and the edge cases where ports usually
+   drift. The contract doesn't fix an RNG algorithm; you inject your own.
 3. **Run the conformance vectors.** Machine-readable given-state/expect-output
    cases per function. Green vectors = correct port; the scoreboard is your
    integration test forever after.
@@ -76,14 +77,28 @@ The path every port follows:
 Contract, vectors, and schemas are all [MIT-licensed](/docs/spec/), so a port
 of any license — including closed-source commercial — is fine.
 
+## Asset bindings
+
+An optional `data/bindings/<profile>.json` per engine or build target maps
+portrait ids, VO keys and cutscene ids to asset paths (the format is
+`schema/binding.schema.json` in the [spec](/docs/spec/)). No runtime function
+reads bindings: your own game code or build pipeline looks the ids up.
+
+Only the Python [reference validator](/docs/reference/cli/#the-python-reference-validator)
+checks them, as `BIND` warnings for an asset that's used but unbound or bound but
+missing. The editor and `parlance ci-check` don't read `data/bindings/`, so run
+`validate.py` in CI if you rely on bindings. Whether an engine port loads a
+binding profile for you is up to that port; check its own README.
+
 ## Coming from another tool
 
-Importers ship as MIT [AI skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers)
-(for Claude Code or Antigravity), separate from the editor. There are seven: Yarn
+Importers ship as MIT [skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers),
+separate from the editor: each is a Claude Code skill that drives a plain Python
+parser and a Python check script, which you can also run yourself. There are seven: Yarn
 Spinner, ink, Twine (Harlowe), Twine (SugarCube), ChoiceScript, Arcweave and Ren'Py.
 
 To run a migration:
-1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory.
+1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory, together with the shared `importers/lib/` folder its commands run (`lib/parse_<format>.py`, `lib/check.py`).
 2. Instruct your agent to run the import against your source files.
 3. The agent reads your script, emits Parlance JSON, and then **checks every string in the output against the source, byte for byte**.
 
@@ -129,11 +144,13 @@ judge without inventing the intent stops and asks you for it.
 
 ## MCP server — for LLM agents
 
-The [MCP server](/docs/reference/mcp/) exposes a project to AI agents through
-the same validated write path as the editor: twelve tools, including id rename and
-custom game data, `dry_run` support,
-automatic re-validation after every write. Agent output lands as canonical
-JSON in git — one reviewable diff.
+The [MCP server](/docs/reference/mcp/) exposes a project to AI agents: twelve
+tools, including id rename and custom game data, with `dry_run` support. Every
+write is validated before it lands, a write that would give an entity a schema
+error is refused, and every result carries the project's validation issues.
+Agent output lands as canonical JSON in git — one reviewable diff. The server
+isn't part of the desktop app; today it runs from a checkout of the Parlance
+source repository ([how](/docs/reference/mcp/#get-the-server)).
 
 ## AI drafting
 
