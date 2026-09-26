@@ -44,15 +44,15 @@ its conformance scoreboard in the README:
 
 ```
 PASS  evaluate                    53 vectors
-PASS  applyEffect                 27 vectors
+PASS  applyEffect                 29 vectors
 PASS  resolveCheck                24 vectors
-PASS  stepDialogue                11 vectors
+PASS  stepDialogue                24 vectors
 PASS  resolveCharacterDialogue    16 vectors
 PASS  nextContinuations            4 vectors
-PASS  resolveQuests                6 vectors
+PASS  resolveQuests                7 vectors
 PASS  progression                 13 vectors
 ...
-182 passed, 0 failed, 0 skipped (not yet ported)
+207 passed, 0 failed, 0 skipped (not yet ported)
 ```
 
 Every family passes. A port that is not there yet reports each unported
