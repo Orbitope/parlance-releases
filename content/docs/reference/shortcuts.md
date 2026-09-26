@@ -22,6 +22,7 @@ is the explanation.
 | <kbd>N</kbd> (dialogue canvas) | Branch from the selected node: adds a choice on it pointing at a new node, and selects the new node. With nothing selected, adds an unconnected node |
 | <kbd>Esc</kbd> (dialogue canvas) | Deselect the node |
 | <kbd>Delete</kbd> (edge selected) | Remove a canvas connection |
+| <kbd>Alt+↑</kbd> / <kbd>Alt+↓</kbd> (a choice focused in the node inspector's **Choices** list) | Move that choice up / down, which changes the order the player sees. The **↑** / **↓** buttons beside each choice do the same |
 | <kbd>←</kbd>/<kbd>→</kbd> on a panel divider | Resize the focused side panel (<kbd>Shift</kbd> = bigger steps, <kbd>Home</kbd> = reset) |
 | <kbd>Enter</kbd> in the + New sheet | Create the entity |
 
