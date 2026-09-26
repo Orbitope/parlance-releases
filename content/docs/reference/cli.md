@@ -158,6 +158,13 @@ says whether the search was complete or bounded — a bounded search never calls
 node unreachable. The same engine as **Reports → Explore** in the editor
 ([details](/docs/editor-guide/#explore--playthrough-explorer--route-coverage)).
 
+With `--json`, stdout is the report and nothing else, so it pipes straight into
+`jq`; the one-line verdict ("OK — no dead ends." or "FAIL — …") goes to stderr.
+
+```bash
+parlance explore --json | jq '.unreached | length'
+```
+
 | Exit | Meaning |
 |---|---|
 | `0` | no dead ends |
@@ -174,7 +181,9 @@ parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N]
 Finds a shortest path from the project's start to one node and prints the moves,
 optionally saving it as a snapshot or a route. The headless form of
 [**Find a path here**](/docs/editor-guide/#find-a-path-here--the-witness-solver).
-Exits `0` when a path is found, `1` when none is, `2` on a usage error.
+Exits `0` when a path is found, `1` when none is, `2` on a usage error. With
+`--json`, stdout is the result alone; status lines such as "wrote tests/…" from
+`--save-snapshot` / `--save-route` go to stderr.
 
 ## parlance rename
 
