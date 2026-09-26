@@ -15,8 +15,8 @@ inputs:
     default: "false"
   version:
     description: >-
-      CLI version to run (e.g. 0.12.0). Defaults to the version matching the tag
-      this action was referenced at, so `@v0.12.0` runs @orbitope/parlance-cli@0.12.0.
+      CLI version to run (e.g. 0.15.0). Defaults to the version matching the tag
+      this action was referenced at, so `@v0.15.0` runs @orbitope/parlance-cli@0.15.0.
     required: false
     default: ""
 
@@ -28,7 +28,7 @@ runs:
         set -euo pipefail
 
         # Version resolution: an explicit input wins; otherwise pin to the tag
-        # this action was used at (GITHUB_ACTION_REF is that ref, e.g. "v0.12.0").
+        # this action was used at (GITHUB_ACTION_REF is that ref, e.g. "v0.15.0").
         # A non-version ref (a branch, or an untagged local `uses:`) falls back to
         # "latest" — pin a tag in production, as the versioning policy advises.
         VERSION="${{ inputs.version }}"
