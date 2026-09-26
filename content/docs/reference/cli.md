@@ -49,15 +49,22 @@ cd my-game && parlance ci-check
 ```
 
 `init` never writes over existing work. It refuses, changes nothing, and exits
-`2` when:
+`1` when:
 
 - `dir` already holds a Parlance project (a `parlance.config.json`, `data/` or
   `schema/`). This applies even with `--force`.
 - `dir` holds other files. The message names them. A folder holding only
   `.git` (so `git init && parlance init` works) or `.DS_Store`, `Thumbs.db` or
   `desktop.ini` counts as empty.
-- `--template` names a template that doesn't exist. The message lists the valid
-  ones.
+
+A usage mistake exits `2` instead: a `--template` that doesn't exist (the
+message lists the valid ones), an unknown flag, or two directories.
+
+| Exit | Meaning |
+|---|---|
+| `0` | project created |
+| `1` | refused: the folder already holds a project or other files |
+| `2` | usage error |
 
 `--force` lets `init` add a project to a folder that already holds other files.
 It still never overwrites or deletes anything. If the folder already has a file
