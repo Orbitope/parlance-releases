@@ -295,7 +295,12 @@ when you're stronger").
 **Recipe.** Same condition, two placements.
 - **Hard / invisible:** put the condition on `choice.showIf`. Fails → the option doesn't
   render at all.
-- **Soft / visible-locked:** *always* show a choice, route it to a node that re-tests the
+- **Soft / visible-locked:** the same `choice.showIf`, plus `"whenLocked": "show"` (0.15).
+  When the gate fails, `stepDialogue` returns the choice in `lockedChoices` instead of
+  dropping it, and the engine draws it greyed out and unselectable, with `lockedText`
+  (`"[Requires standing with the Order]"`) in place of its text if you set one. Set
+  `rules.choices.whenLockedDefault: "show"` to make that the project default. Older
+  alternatives still work: *always* show a choice and route it to a node that re-tests the
   condition and turns the player away when unmet — or use a **passive check** (recipe 16)
   which reveals the option but marks it as needing the stat.
 
@@ -310,9 +315,24 @@ when you're stronger").
   "text": "Show the badge and step into the vault.",
   "goto": "node_vault"
 }
+
+// soft gate — same condition, shown locked when it fails
+{
+  "id": "ch_enter_vault",
+  "showIf": { "type": "item", "item": "order_badge", "has": true },
+  "whenLocked": "show",
+  "lockedText": "[Requires the Order's badge]",
+  "text": "Show the badge and step into the vault.",
+  "goto": "node_vault"
+}
 ```
 
 **Pitfalls.**
+- `whenLocked` and `lockedText` do nothing without a `showIf` (a `FLOW` warning says so).
+  A locked choice is never selectable: `chooseChoice` throws on one, so an engine must
+  not let the player pick it.
+- The locked list is opt-in for the engine too. One that ignores `lockedChoices` shows
+  nothing, exactly as a hard gate would, so check your port renders them.
 - Compose with `all` / `any` / `not` rather than inventing one mega-flag. The condition
   tree is readable and the reference index can find each part.
 - A `choice.showIf` gates a line *within* a scene; an `offer.when` chooses *which* scene.
@@ -800,7 +820,10 @@ vocabulary above.
   is either duplicated or modeled as its own queued dialogue.
 - **One-of-N state has no enum type.** Ink's `LIST` gives a single variable a fixed domain
   of states. In Parlance, model a state machine as **quest stages** (recipe 10, ordered and
-  comparable) or as a set of mutually exclusive flags you're careful to keep exclusive.
+  comparable) or as a set of mutually exclusive flags. List each set in
+  `rules.flag.exclusiveGroups` and both validators report a `FLAG` error when one effect
+  list sets two flags of a group to `true` — clearing the old flag when you set the new
+  one is still on you.
 
 ## Choosing between the recipes — a cheat sheet
 
@@ -812,7 +835,7 @@ vocabulary above.
 | Unlock a topic once the player *learns* it | knowledge flag on a `choice.showIf` | 4 |
 | Offer something exactly once | choice that sets a flag and hides on it | 5 |
 | A returnable topic menu | hub node + `next`-back spokes + exhaustion flags | 6 |
-| Require a prerequisite (hidden or signposted) | condition on `choice.showIf` (hard) vs. re-test node / passive check (soft) | 7, 16 |
+| Require a prerequisite (hidden or signposted) | condition on `choice.showIf` (hard) vs. the same plus `whenLocked: "show"` + `lockedText` (soft; or a re-test node / passive check) | 7, 16 |
 | Shift tone by standing | one offer per band on `reputation` / `relationship` | 8, 9 |
 | Track a multi-stage quest | `advance_quest` + `quest` (stage-order) conditions | 10 |
 | Count things / "asked enough" | `adjust_counter` + `counter` condition | 11 |

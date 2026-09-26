@@ -97,10 +97,11 @@ same validator, the same files on disk.
 │ label +    │ group, +New, │ Entity detail form                   │
 │ count per  │ entities     │   — or —                             │
 │ type;      │              │ Dialogue canvas                      │
-│ Reports    │              │   — or —                             │
-│ pinned to  │              │ Quest canvas / dependency graph      │
-│ the        │              │   — or —                             │
-│ footer)    │              │ Location map / Reports panel         │
+│ Custom     │              │   — or —                             │
+│ types;     │              │ Quest canvas / dependency graph      │
+│ Reports,   │              │   — or —                             │
+│ Lore … in  │              │ Location map / custom-type grid /    │
+│ the footer)│              │ Reports / Lore / other surfaces      │
 ├────────────┴──────────────┴──────────────────────────────────────┤
 │ Validation bar (collapsed to a status row by default; click to expand) │
 └────────────────────────────────────────────────────────────────────────┘
@@ -108,10 +109,18 @@ same validator, the same files on disk.
 
 The left side is a fixed **type sidebar** — one row per entity type, each
 with an icon, label, and a live entity count, always in the same place (it
-never reflows). **Reports** is pinned to the sidebar's footer, showing the
-total error/warning count once the project has any. Click a row to load that
+never reflows). Below the built-in types, a **Custom** heading lists the
+project's own types from `data/types.json`, each opening as a grid; its **+**
+declares a new one (§3, *Custom types — the grid*). Click a row to load that
 type's list in the pane beside it (search, group, create, and the entities
-themselves). The **«** button collapses the whole panel — sidebar and list —
+themselves).
+
+The sidebar's footer holds the surfaces that are not entity types:
+**Reports** (§11), showing the total error/warning count once the project has
+any; **Localization** (§15); **Lore**, the project's Markdown canon under
+`lore/`, which you read and edit there (§5, *Lore — linked Markdown
+documents*); **Drafts**, your own draft branches; and **Review** (§16), with
+a badge counting reviews waiting for you. The **«** button collapses the whole panel — sidebar and list —
 to a thin 32px rail to maximise canvas width; **»** expands it again. The
 collapsed/expanded choice is remembered across sessions.
 
@@ -380,6 +389,27 @@ or effect picker (a flag / counter / item field), type a name that doesn't
 exist yet and choose the **＋ New flag "…"** row that appears. The name is
 slugified to a valid id, the variable is created immediately, and the field is
 set to it — no trip to the Variables list. Fill in its description later.
+
+### Exclusive flag groups
+
+Some flags describe one choice among several: the player sided with the guard,
+*or* the thief, *or* neither. Nothing in the format stops a single effect list
+from setting two of them, and a game that later tests one of them reads a state
+the story never meant to allow. Declare such sets in `data/rules.json`:
+
+```json
+{ "flag": { "exclusiveGroups": [["sided_guard", "sided_thief", "sided_neither"]] } }
+```
+
+Each group lists at least two flag ids. When one effect list — a node's
+`onEnter`, a choice's effects, a quest stage's `onComplete`, a quest outcome's
+effects, or a cutscene's `effectsOnComplete` — sets two flags of the same group
+to `true`, validation reports a `FLAG` error naming them. The check is per
+effect list: it does not follow the player across nodes, so clearing the old
+flag before setting the new one elsewhere in the story is still your job.
+There is no form for `rules.json` in the editor; edit the file directly, and
+the next validation pass picks it up. Renaming a flag (§5) rewrites its
+entries in these groups too.
 
 ### Lore — linked Markdown documents
 
@@ -1076,15 +1106,24 @@ Common codes:
 | `REF` | References an id that doesn't exist |
 | `DUP` | Duplicate id detected (entity ids, dialogue nodes/choices, or a location's spawns/exits/interactables) |
 | `COND` | A node's `showIf` breaks a conditional-narration rule — a gated narration node (no choices, not an end) must have `next`, a gate needs a line to hide, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Also warns when a skippable gated node carries `onEnter`, since those effects do not fire when it is skipped |
-| `FLOW` | Dialogue has an unreachable node or dead-end choice |
+| `FLOW` | A dialogue's flow is broken or suspicious. Errors: a dead-end choice (no `goto`, no check, not `isEnd`), a node with no choices, no `next` and not `isEnd` (the player is stuck), a node with **no text and no choices**, `next` together with `choices` or `isEnd`, a `next` cycle, and a node named `end` (reserved). Warnings: every choice on a node has `showIf` and none is a fallback (the player may be stuck), **more than one fallback** choice on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), and **`whenLocked`/`lockedText` on a choice with no `showIf`** (it can never be locked) |
 | `GATE` | Active check missing onSuccess / onFailure destination |
 | `QUEST` | Quest stage issue — including stage/outcome effects with no `completeWhen`/`reachedWhen` (they can never fire; quest resolution only fires condition-gated items) |
-| `FLAG` | Flag written but never read, or read but never written |
-| `REP` | Reputation reference to unknown faction |
+| `FLAG` | Flag written but never read, read but never written, or declared but never used (warnings). An error when one effect list sets two flags of the same `rules.flag.exclusiveGroups` group to `true` — see [Exclusive flag groups](#exclusive-flag-groups) |
+| `REP` | A faction's reputation is checked but never adjusted |
+| `REL` | A character's relationship is checked but never adjusted |
 | `ENDING` | Ending is unreachable |
+| `CODEX` | A codex entry's `unlockedBy` needs a flag nothing sets, so it may never unlock |
+| `LOGIC` | A faction lists itself in `opposes` |
 | `COVERAGE` | Character has no dialogue |
 | `REACH` | Dialogue node unreachable from `entry` |
 | `LORE` | `loreRef` points to a file that doesn't exist |
+| `PORT` | Portrait issue — a character or node names a portrait that is not in `portraits.json`, a portrait names an unknown character, or a registered portrait is never used (warning) |
+| `TEXT` | A `{placeholder}` in node text, choice text, a choice's `lockedText`, or a quest's journal name, stage description or objective text is not a registered `text` variable (error); or a `text` variable is declared but never referenced (warning) |
+| `OBJ` | Journal objective issue — a duplicate objective id within a stage (error); a stage with `completeWhen` but no objectives, or one whose every objective is gated by `showIf`, so the journal can show an empty stage (warnings) |
+| `RULES` | Malformed dice notation in `rules.check.dice` or in one check's `dice` |
+| `ROUTE` | A route in `tests/routes/` names an unknown snapshot, dialogue, choice, quest or ending, or its `startState` names an unregistered flag, counter or item |
+| `SNAP` | A snapshot in `tests/snapshots/` names an unknown quest, stage, outcome, cutscene or dialogue in its state |
 | `LOC` | Location graph issue — bad exit spawn, a spawn nothing arrives at, more than one default spawn, gate/gateType mismatch, unreachable location, npc interactable missing its character |
 | `CUT` | Cutscene issue — unknown `entersDialogue`, never-triggered cutscene, or ambiguous ordering (two `play_cutscene` effects on one node) |
 | `OFFER` | Dialogue-offer selection issue — **no fallback** (a character has offers but none is unconditional, so resolution can return nothing — silent for a routing-only character whose every offer is forced through its `active_dialogue__` flag), **names no character** (an offer on a dialogue with neither a speaker nor `offer.character`, so nothing ever presents it), a **prioritized fallback** (an offer with `priority > 0` and no `when` shadows every lower tier forever and re-fires on re-entry), an **unbreakable tie** (two of one character's offers share priority and specificity and aren't provably exclusive, so the id decides — provable means opposite values of one flag or item, disjoint ranges of one counter/reputation/relationship/skill, each also under a `not`, or an OR whose every side is), an **offer-only stranded** speaker dialogue (nothing offers it and it has no world placement), a **`set_active_dialogue` target with no forced offer** (the named dialogue carries no offer for that character gated on `active_dialogue__<character>`, so the flag routes nothing), or a **forced offer that can be out-ranked** (an ordinary offer of the same character beats it while the flag is set, so routing plays the wrong scene — raise its tier). A dangling `offer.character`/`offer.when` ref is a `REF` error. All warning-level; none blocks a save. |
@@ -1142,6 +1181,22 @@ skill id, etc. to see:
 
 Each entry is clickable and navigates to the exact entity. This is the
 "find usages" feature — useful for safely renaming or removing a variable.
+
+### Flag flow
+
+The **Flag flow** tab answers one question about one flag: where is it set, and
+where is it tested? Type in the search box (it suggests the project's flags)
+and pick one. The tab lists it in two halves:
+
+- **Sets (Effects)** — every effect that writes the flag.
+- **Reads (Gates)** — every condition that reads it.
+
+Each row names the owning entity, its type and the JSON path. An empty half is
+the finding: "never explicitly set" is a gate that cannot open unless the game
+sets the flag itself, and "never used as a gate" is state nothing reads. The
+`FLAG` warnings report the same two cases project-wide; this tab is for
+following one flag through the story. The **Flow** panel on a variable's detail
+page (§5) shows the same split with clickable rows.
 
 ### Prose — spelling & canon names
 
@@ -1331,12 +1386,14 @@ for a loaded route.
 The same two reports run headlessly:
 
 ```bash
-parlance explore [--runs N] [--seed S] [--max-states N] [--from-snapshots] [--json]
+parlance explore [--runs N] [--seed S] [--exhaustive | --no-exhaustive] [--max-states N] [--max-depth N] [--from-snapshots] [--json]
 parlance route --all --coverage
 ```
 
 `parlance explore` exits 1 when it finds a dead end, so it can gate CI beside
-`parlance ci-check`; `--json` prints the whole report.
+`parlance ci-check`; `--json` prints the whole report. The exhaustive phase is on
+by default (`--exhaustive` says so explicitly); `--no-exhaustive` keeps only the
+random runs, and `--max-depth` caps how deep one path may go.
 
 ### Export — Word screenplay & Excel line sheet
 
@@ -1634,8 +1691,9 @@ A found path can be kept three ways:
 
 "No path found" with *the search was complete* means no start reaches the node under
 the engine's rules; with *bounded* it means the budget ran out first. From the command
-line, `parlance witness <dialogueId> <nodeId> [--save-snapshot <id>] [--save-route <id>]`
-does the same and exits 1 when nothing is found.
+line, `parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N] [--save-snapshot <id>] [--save-route <id>] [--json]`
+does the same and exits 1 when nothing is found; `--from` searches from one
+dialogue's entry, like the checkbox.
 
 ### What playtest does NOT change
 
@@ -2028,10 +2086,11 @@ without revealing anything about your own game.
 
 ## 18. Bringing in a story from another tool
 
-If your story is already written in **Yarn Spinner**, **Ink**, or **Twine**
-(Harlowe), you do not have to retype it. Three importers convert a story into a
-Parlance project, and they are published — with their source, their gate, and
-three worked migrations — at
+If your story is already written in **Yarn Spinner**, **Ink**, **Twine**
+(Harlowe or SugarCube), **ChoiceScript**, **Arcweave** or **Ren'Py**, you do not
+have to retype it. Seven importers convert a story into a Parlance project, and
+they are published — with their source, their gate, and five worked migrations of
+real stories (ChoiceScript and Arcweave have test fixtures only) — at
 [github.com/orbitope/parlance-spec](https://github.com/orbitope/parlance-spec)
 under `importers/`.
 
@@ -2063,8 +2122,10 @@ single condition the format cannot express, sitting on a link everyone passes
 through, cuts off everything behind it.
 
 So every report states **how many nodes a player can actually reach**, and that
-is the number to look at first. Of the three worked migrations, one reaches 81%
-of its story, one 70%, one 45% — all three having preserved every line.
+is the number to look at first. Of the five worked migrations, the Yarn one
+reaches 87% of its story, the Ink one 74% and the Harlowe one 48%, while the
+smaller Ren'Py and SugarCube stories reach all of theirs — every one of them
+having preserved every line.
 
 ### Before you start
 
