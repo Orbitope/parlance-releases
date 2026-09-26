@@ -24,6 +24,23 @@ or Linux (AppImage or `.deb`). On macOS, drag Parlance to Applications.
 > On Windows, SmartScreen may say *"Windows protected your PC"* — click
 > **More info → Run anyway**.
 
+### Linux
+
+**`.deb`** (Debian, Ubuntu): `sudo apt install ./parlance-desktop_*.deb`. On Ubuntu
+23.10 and later the package installs a small AppArmor profile so Chromium's sandbox
+can start; nothing else is needed.
+
+**AppImage**: `chmod +x Parlance-*.AppImage` and run it. Two things can stop it on
+Ubuntu:
+
+- On Ubuntu 23.10 and later an AppImage cannot use the sandbox (AppArmor blocks it,
+  and an AppImage cannot carry a profile). If it exits at once with *"The SUID
+  sandbox helper binary was found, but is not configured correctly"*, start it with
+  `--no-sandbox`, or use the `.deb` instead.
+- The AppImage needs FUSE 2, which Ubuntu 22.04 and later no longer install by
+  default. If it fails with *"dlopen(): error loading libfuse.so.2"*, run
+  `sudo apt install libfuse2` (`libfuse2t64` on 24.04).
+
 ## Open a project
 
 Launch Parlance and point it at a project folder. A project is just a directory
@@ -71,6 +88,8 @@ The same validator the app runs on every save is available headless for CI —
 | Symptom | Cause and fix |
 |---|---|
 | *"Parlance is damaged and can't be opened"* | Unsigned build — run the `xattr -cr` command above, once per download |
+| Linux AppImage exits at once: *"The SUID sandbox helper binary was found, but is not configured correctly"* | Ubuntu 23.10+ blocks an AppImage's sandbox. Start it with `--no-sandbox`, or install the `.deb`, which carries the AppArmor profile — see [Linux](#linux) |
+| Linux AppImage: *"dlopen(): error loading libfuse.so.2"* | Install FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04) |
 | *"File changed on disk — reload to see latest version"* | Another editor window, a script, or a `git checkout` changed the file since you loaded it. Reload to pull the latest, then re-save — your edit isn't lost, it's just not applied to a stale base |
 | The project opens empty | The folder isn't a Parlance project (no `data/`, no `parlance.config.json`), or `data` is pointed elsewhere in the config. See [configuration](/docs/reference/config/) |
 | Validation shows errors you don't understand | Every code is explained in the [validation checks reference](/docs/reference/validation-checks/) |

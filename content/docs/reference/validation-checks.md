@@ -16,28 +16,29 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 
 | Code | Severity | Fires when | Fix by |
 |---|---|---|---|
-| `SCHEMA` | error | A field fails JSON Schema validation — wrong type, missing required key, unknown enum | Correcting the field; the [schemas](/docs/concepts/schema-first/) are the format's ground truth |
-| `REF` | error | Any reference names an id that doesn't exist — a choice's `goto`, an offer's dialogue, a `factionId`, a condition's flag | Re-pointing or creating the target. The [reference index](/docs/editor-guide/#11-reports--coverage--reference-index) finds every usage of an id |
+| `SCHEMA` | error | A field fails JSON Schema validation — wrong type, missing required key, unknown enum. Also covers custom game data: a declaration in `data/types.json` that can't work (a type named after a built-in, a `plural` that isn't a plain name or is already taken, an unknown field type, an enum with no options, a reference with no or an unknown target), and a custom row missing a required field or holding a value of the wrong type | Correcting the field; the [schemas](/docs/concepts/schema-first/) are the format's ground truth. The editor's type editor refuses the broken declarations, so these usually come from hand-edited files |
+| `REF` | error | Any reference names an id that doesn't exist — a choice's `goto`, an offer's dialogue, a `factionId`, a condition's flag, a custom row's `reference` field (including one item of a list) | Re-pointing or creating the target. The [reference index](/docs/editor-guide/#11-reports--coverage--reference-index) finds every usage of an id |
 | `MIGRATE` | error | A project still carries the retired `character.dialogues` ladder (pre-0.14). Blocks loading until converted | The Validation panel's **Convert ladders to offers** button, `parlance migrate <project>`, or `migrate_ladders.py` — see [dialogue offers](/docs/concepts/dialogue-laddering/) |
-| `DUP` | error | Duplicate ids — entities, dialogue nodes/choices, or a location's spawns/exits/interactables | Renaming one of the twins |
+| `DUP` | error | Duplicate ids — entities, dialogue nodes/choices, or a location's spawns/exits/interactables. The reference validator also reports a row id repeated within one custom type | Renaming one of the twins |
 
 ## Dialogue flow
 
 | Code | Severity | Fires when | Fix by |
 |---|---|---|---|
-| `FLOW` | warning | A dialogue has an unreachable node or a dead-end choice | Wiring the node in, or marking an intended terminal **Is End** |
+| `FLOW` | error/warning | Errors: a dead-end choice (no `goto`, no check, not an end), a node with no choices, no `next` and not an end (the player is stuck), a node with **no text and no choices**, `next` together with choices or an end, a `next` cycle, a node named `end`. Warnings: every choice on a node is gated and none is a fallback (the player may be stuck), **more than one fallback** on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), and `whenLocked` / `lockedText` on a choice with no `showIf` (it can never be locked) | Wiring the missing destination, marking an intended terminal **Is End**, or adding a fallback choice |
 | `REACH` | warning | A node can't be reached from the dialogue's `entry` | Connecting it or deleting it — the Pacing panel spots these too |
 | `GATE` | error | An active check is missing its `onSuccess` / `onFailure` destination | Dragging both the green and red handles somewhere |
-| `COND` | error/warning | A node's **display gate** breaks a [conditional-narration](/docs/concepts/conditional-narration/) rule — a gated node needs `next` and must not carry choices or be an end node, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Warns when a gated node carries `onEnter`, since those effects don't fire when it's skipped | Giving the node a `next`, or ungating it. The inspector hides the control where a gate is illegal, so this usually only appears in hand-edited data |
+| `COND` | error/warning | A node's **display gate** breaks a [conditional-narration](/docs/concepts/conditional-narration/) rule — a gated narration node (no choices, not an end) needs `next`, a `next` chain must not end at a gated narration node, gated narration nodes must not form a ring, and a gate on any node needs a line to hide. Warns when a gated narration node carries `onEnter`, since those effects don't fire when it's skipped. Since v0.15.0 a gate on a node with choices, or on an end node, is legal: it hides only the line | Giving the node a `next`, or ungating it. The inspector hides the control where a gate is illegal, so this usually only appears in hand-edited data |
+| `ENGINE` | error/warning | An `engine` effect's command isn't lowercase snake_case (error). Once `rules.engine.commands` declares your commands, a command outside that list or a call with the wrong number of `args` is a warning — otherwise a typo is a silent no-op in the game | Fixing the command name or its arguments, or declaring it in `rules.engine.commands` ([line tags and engine commands](/docs/editor-guide/#line-tags-and-engine-commands)) |
 
 ## State
 
 | Code | Severity | Fires when | Fix by |
 |---|---|---|---|
-| `FLAG` | warning | A flag is written but never read, or read but never written | Deleting the orphan or wiring the missing half — the variable's [Flow panel](/docs/editor-guide/#flow-flags-counters-items) shows both directions |
+| `FLAG` | error/warning | A flag is written but never read, or read but never written (warnings). An error when one effect list sets two flags of the same `rules.flag.exclusiveGroups` group to `true` | Deleting the orphan or wiring the missing half — the variable's [Flow panel](/docs/editor-guide/#flow-flags-counters-items) shows both directions. For the error, setting the flags in separate places, or fixing the group |
 | `REP` | error | A reputation reference names an unknown faction | Fixing the faction id |
 | `REL` | warning | A character's relationship is checked but never adjusted, or adjusted but never checked | Wiring the missing half, same as `FLAG` |
-| `TEXT` | error/warning | A `{placeholder}` names something that isn't a registered `kind: "text"` variable, or names one of the wrong kind. Warns for a text variable nothing ever interpolates | Registering the variable, or fixing the name |
+| `TEXT` | error/warning | A `{placeholder}` — in node or choice text, a choice's `lockedText`, or quest journal text — names something that isn't a registered `kind: "text"` variable, or names one of the wrong kind. Warns for a text variable nothing ever interpolates | Registering the variable, or fixing the name |
 | `RULES` | error | `data/rules.json` is malformed — an unparseable dice expression, say | Correcting the field; see [configuration](/docs/reference/config/) |
 
 ## Structure
@@ -63,6 +64,7 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 | `PROG` | warning/error | Progression config problems — thresholds not strictly increasing, `pointsPerLevel`/`maxSkill` < 1 (errors), a starting skill already at the ceiling, or authored XP generous enough to max *every* skill (the soft-cap sanity warning) | Adjusting `progression.json` |
 | `XP` | warning | A `grant_xp` with a non-positive amount, or authored outside a quest outcome (advisory — the convention is XP from quests only) | Moving the grant, or granting something |
 | `CHECK` | warning | Priced-check discipline — a `priced` active check whose failure branch doesn't proceed, or a priced-gate failure that sets a flag some offer reads (the punishment-spiral advisory). `oneshot` checks are exempt | Giving failure somewhere to go — failure is content |
+| `BIND` | warning | **Reference validator only.** An asset binding file in `data/bindings/` leaves a used portrait, a voiceable line or a triggered cutscene unbound, or binds a portrait, cutscene or VO key that doesn't exist. A binding file that fails its schema is a `SCHEMA` error | Adding the missing binding, or removing the stale one. The editor doesn't load bindings, so these appear only from `validate.py` |
 
 ## Test fixtures
 
@@ -97,4 +99,7 @@ your pipeline can gate on ([tutorial](/docs/get-started/validate-in-ci/)).
 
 Two implementations produce this list — the TypeScript validator (editor + CI)
 and the [independent Python one](/docs/reference/cli/#the-python-reference-validator)
-— kept in enforced parity, so the list you read is the list, everywhere.
+— kept in enforced parity, so the list you read is the list, everywhere. Two checks
+are Python-only: the `BIND` family, because asset bindings are not part of the
+editor's project model, and a row id repeated within one custom type, because the
+editor loads custom rows keyed by id.

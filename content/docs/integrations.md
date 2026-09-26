@@ -74,9 +74,11 @@ The path every port follows:
 Contract, vectors, and schemas are all [MIT-licensed](/docs/spec/), so a port
 of any license — including closed-source commercial — is fine.
 
-## Coming from ink or Yarn Spinner
+## Coming from another tool
 
-Importers for both ship as MIT [AI skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers) (for Claude Code or Antigravity), separate from the editor. 
+Importers ship as MIT [AI skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers)
+(for Claude Code or Antigravity), separate from the editor. There are seven: Yarn
+Spinner, ink, Twine (Harlowe), Twine (SugarCube), ChoiceScript, Arcweave and Ren'Py.
 
 To run a migration:
 1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory.
@@ -91,24 +93,34 @@ its source line and the reason — never approximated, never quietly dropped. A 
 that reports three declared losses is a good outcome honestly stated; one that came out
 clean because the awkward lines were reworded is a failure wearing a success.
 
+Five real stories by other people have been migrated this way, each published with the
+author's original beside the result and a report of what was lost: *The Intercept* (ink),
+*Cyberharcèlement* (Yarn Spinner), *Not Weird. Queer* (Harlowe), *Aesthetics Over Plot*
+(SugarCube) and Ren'Py's sample game *The Question*.
+
 **Conditional text is the case worth knowing about.** `{ knows_poison: … }` in ink and
 `<<if $knows_poison>>` in Yarn are first-class idioms, and until v0.11.0 Parlance had no
-faithful target for them at all — every guarded line had to become an invented choice or a
-deletion. [Conditional narration](/docs/concepts/conditional-narration/) closed that gap in
-the format.
+faithful target for them at all. [Conditional narration](/docs/concepts/conditional-narration/)
+closed that gap in the format, and the importers map guards onto it — including the `else`
+branch, which needs the *negation* of its `if`'s guard. Mapped to the same guard, an
+`else` would show *both* lines whenever the guard holds, and no string comparison would
+notice, so the importers' check compares the conditions as well. A guard Parlance can't
+express exactly comes back as a declared loss rather than an approximation.
 
-The importers don't map guards onto it automatically **yet**, and they say so rather than
-approximating: each guarded line comes back as a declared loss for you to place by hand.
-The blocker is the `else` branch — an `else` written without restating its condition,
-mapped to the same guard as its `if`, would show *both* lines whenever the guard holds.
-Nothing is lost and nothing is invented, so no automated check could catch it. Silently
-wrong output is the one result worth refusing to risk.
+Since v0.15.0 the importers also carry three shapes they used to declare lost: a guarded
+line before a choice list, a guarded last line, and a choice list with no line of its own.
+A Yarn custom command such as `<<shakeCamera 0.5>>`, on its own line or on an option,
+becomes an [engine command](/docs/editor-guide/#line-tags-and-engine-commands); one
+written inline in a line of narration is still named as a loss.
+In the worked examples, declared loss fell from 120 to 67 units for *The Intercept*, from
+101 to 37 for *Cyberharcèlement*, and from 182 to 145 for *Not Weird. Queer*.
 
 ## Editorial audits
 
-Five review-only skills that read a project and report on it — how a character's offers
+Six review-only skills that read a project and report on it — how a character's offers
 resolve against their arc, whether a character sounds like themselves, whether a line can be reached
-in a state where it isn't true yet, journal coherence, state reachability.
+in a state where it isn't true yet, journal coherence, state reachability, and whether the
+project's use of the pattern cookbook's recipes falls into each recipe's documented pitfall.
 
 They never draft. Every command is a read; none writes to `data/`. An audit that can't
 judge without inventing the intent stops and asks you for it.
@@ -116,7 +128,8 @@ judge without inventing the intent stops and asks you for it.
 ## MCP server — for LLM agents
 
 The [MCP server](/docs/reference/mcp/) exposes a project to AI agents through
-the same validated write path as the editor: seven tools, `dry_run` support,
+the same validated write path as the editor: twelve tools, including id rename and
+custom game data, `dry_run` support,
 automatic re-validation after every write. Agent output lands as canonical
 JSON in git — one reviewable diff.
 

@@ -24,7 +24,7 @@ Every file ships with a **SHA-256 checksum** beside it. [All releases →](/rele
 |---|---|---|
 | **macOS** | `.dmg`, Apple Silicon | M-series Macs. No Intel build yet |
 | **Windows** | `.exe` installer, x64 | |
-| **Linux** | `.AppImage` or `.deb` | AppImage runs anywhere; `.deb` for Debian and Ubuntu |
+| **Linux** | `.AppImage` or `.deb` | AppImage for most distributions; `.deb` for Debian and Ubuntu — see the [Linux notes](/docs/install/#linux) |
 
 ## First launch
 

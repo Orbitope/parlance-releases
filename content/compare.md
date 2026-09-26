@@ -14,16 +14,16 @@ Parlance wins, and where one of the others is the better call.
 
 | | **Parlance** | **articy:draft** | **Twine** | **ink** | **Yarn Spinner** |
 |---|---|---|---|---|---|
-| Static validation & CI story | <span class="yes">✓</span> 18 check families on save + `ci-check` + independent reference validator | <span class="partial">◑</span> in-app checks | <span class="no">✗</span> | <span class="partial">◑</span> compiler errors | <span class="partial">◑</span> compiler errors |
+| Static validation & CI story | <span class="yes">✓</span> 30 check families on save + `ci-check` + independent reference validator | <span class="partial">◑</span> in-app checks | <span class="no">✗</span> | <span class="partial">◑</span> compiler errors | <span class="partial">◑</span> compiler errors |
 | State-aware dialogue selection | <span class="yes">✓</span> [dialogue offers](/docs/concepts/dialogue-laddering/), spec'd + conformance-tested | <span class="partial">◑</span> via scripting | <span class="partial">◑</span> via macros | <span class="partial">◑</span> weave/logic in-script | <span class="partial">◑</span> via commands |
 | Branch-based review workflow | <span class="yes">✓</span> narrative diffs, comments, suggestions, verdicts — plain git | <span class="no">✗</span> (server products exist) | <span class="no">✗</span> | <span class="partial">◑</span> text diffs review fine in PRs | <span class="partial">◑</span> text diffs review fine in PRs |
 | AI / MCP integration | <span class="yes">✓</span> MCP server, validated writes | <span class="no">✗</span> | <span class="no">✗</span> | <span class="no">✗</span> | <span class="no">✗</span> |
 | Graph **and** text authoring, same document | <span class="yes">✓</span> canvas ↔ script view, both fully editable, lossless byte-level round-trip | <span class="partial">◑</span> flow editor is primary; no text form of a scene | <span class="partial">◑</span> Twee import/export round-trips, including layout — not a live second view | <span class="no">✗</span> text only | <span class="partial">◑</span> graph view adds and moves nodes; branching is authored in text |
-| Structured entities beyond dialogue (quests, factions, items, endings) | <span class="yes">✓</span> 12 first-class types | <span class="yes">✓</span> templates & objects | <span class="no">✗</span> | <span class="no">✗</span> variables only | <span class="no">✗</span> variables only |
+| Structured entities beyond dialogue (quests, factions, items, endings) | <span class="yes">✓</span> 12 first-class types, plus custom types you declare, edited in a grid | <span class="yes">✓</span> templates & objects | <span class="no">✗</span> | <span class="no">✗</span> variables only | <span class="no">✗</span> variables only |
 | Engine integration model | <span class="yes">✓</span> no export step — your engine reads the files the editor writes; published contract + conformance vectors | <span class="partial">◑</span> exporter + official Unity/Unreal plugins | <span class="partial">◑</span> web-native; engine use is DIY | <span class="yes">✓</span> excellent Unity runtime; C/C#/others | <span class="yes">✓</span> first-class Unity |
 | Source format | <span class="yes">✓</span> plain JSON, per-entity files, clean diffs | <span class="no">✗</span> proprietary project (X exports XML/JSON) | <span class="partial">◑</span> HTML/Twee archive | <span class="yes">✓</span> plain-text `.ink` | <span class="yes">✓</span> plain-text `.yarn` |
 | Visual node editing | <span class="yes">✓</span> dialogue, quest, location canvases | <span class="yes">✓</span> mature flow editor | <span class="yes">✓</span> passage map | <span class="no">✗</span> text-first | <span class="partial">◑</span> graph view, text-first |
-| In-tool playtesting | <span class="yes">✓</span> seeded, rewindable, forced outcomes, live state | <span class="yes">✓</span> presentation/simulation | <span class="yes">✓</span> play in browser | <span class="yes">✓</span> inky player | <span class="yes">✓</span> preview |
+| In-tool playtesting | <span class="yes">✓</span> seeded, rewindable, forced outcomes, live state; an explorer that walks every choice and check outcome | <span class="yes">✓</span> presentation/simulation | <span class="yes">✓</span> play in browser | <span class="yes">✓</span> inky player | <span class="yes">✓</span> preview |
 | Shareable playable build of a scene | <span class="yes">✓</span> single-file HTML export | <span class="no">✗</span> | <span class="yes">✓</span> whole story is HTML | <span class="partial">◑</span> export for web via tooling | <span class="no">✗</span> |
 | Localization & VO tooling | <span class="yes">✓</span> stable keys, coverage, stale detection | <span class="yes">✓</span> mature | <span class="no">✗</span> | <span class="partial">◑</span> community tooling | <span class="partial">◑</span> line-tag based |
 | Open spec | <span class="yes">✓</span> MIT schemas + conformance vectors, [published separately](https://github.com/Orbitope/parlance-spec) ([details](/docs/spec/)) | <span class="no">✗</span> | <span class="partial">◑</span> formats documented | <span class="yes">✓</span> open source | <span class="yes">✓</span> open source |
@@ -47,9 +47,10 @@ Choose Parlance if:
   branches, [reviewable diffs](/docs/concepts/git-native/), CI gates.
 - Your story is **structured data as much as prose** — quests, factions,
   reputation, items, endings, codex — and you want one validated model for all
-  of it, not a dialogue tool plus a spreadsheet.
+  of it, not a dialogue tool plus a spreadsheet. Data the built-in types don't
+  cover can be declared as your own types, validated and edited in a grid.
 - You want **[validation](/docs/concepts/validation/) as a guarantee**, not a
-  vibe: eighteen check families on every save and in CI, so a dangling
+  vibe: thirty check families on every save and in CI, so a dangling
   reference or an unwinnable quest fails the build instead of shipping.
 - You want the engine to read the **same files the editor writes** — a
   [published contract with conformance vectors](/docs/concepts/engine-contract/)
@@ -94,15 +95,18 @@ endings, and the validation over them are yours to build and maintain.
 
 ## If you've already written it
 
-Two of the tools on this page are ones Parlance can **import from**: ink and Yarn Spinner.
+Three of the tools on this page are ones Parlance can **import from**: ink, Yarn Spinner,
+and Twine (Harlowe and SugarCube stories). There are importers for ChoiceScript, Arcweave
+and Ren'Py too.
 The importers are **AI agent skills** (for Claude Code or Antigravity) that you can [download from the open spec repository](https://github.com/Orbitope/parlance-spec/tree/main/importers).
 
 Once installed, you instruct the agent to run the import. It will check every emitted string against your source byte for byte and name anything it can't carry, so the question "do I have to retype my script" has a concrete answer. [How migration works](/docs/integrations/).
 
 Worth knowing before you weigh it: conditional text — `{ cond: line }` in ink,
 `<<if>>` in Yarn — had no equivalent in Parlance until v0.11.0. It does now
-([conditional narration](/docs/concepts/conditional-narration/)), which is what turned
-moving a real manuscript into a conversion rather than a rewrite.
+([conditional narration](/docs/concepts/conditional-narration/)), and the importers map
+guarded lines onto it. That is what turned moving a real manuscript into a conversion
+rather than a rewrite.
 
 The fastest way to judge: [play the demo](/demo/), then
 [open it in the editor](/docs/get-started/first-project/).

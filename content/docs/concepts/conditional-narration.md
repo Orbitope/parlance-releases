@@ -21,7 +21,19 @@ is not a decision, and now the transcript says they made one.
 
 A **display gate** is the answer. Any node can carry a `showIf` condition — the
 same condition type choices already used. When it holds, the line shows. When it
-doesn't, the node is skipped and the dialogue continues at its `next`.
+doesn't, what happens depends on the node:
+
+- **A narration node** — no choices, not an end node — is **skipped**, and the
+  dialogue continues at its `next`.
+- **A node with choices, or an end node**, keeps everything but its line (since
+  **v0.15.0**). Its `onEnter` effects still fire, its choices are still offered,
+  and an end node still ends the dialogue. A runtime's `stepDialogue` reports this
+  as `textHidden: true` with the node's `text` returned as `""`.
+
+Either way the gate is judged **once, when the player arrives at the node, before
+its `onEnter` runs**. A node whose own `onEnter` would make its own condition false —
+a greeting shown only to a stranger, which records the meeting — still shows its
+line.
 
 ## The rule that surprises people
 
@@ -32,20 +44,28 @@ The reasoning is that a skipped node *did not happen* — it isn't a line that
 played silently, it's a beat the player never reached.
 
 So if a flag must be set whether or not the line shows, put it on the node the
-gate falls through *to*. The validator warns (`COND`) when a gated node carries
-effects, because the alternative is discovering it in a playthrough where a quest
-silently never advanced.
+gate falls through *to*. The validator warns (`COND`) when a gated narration node
+carries effects, because the alternative is discovering it in a playthrough where
+a quest silently never advanced.
+
+This applies only to skipped nodes. A gated node with choices, or an end node, is
+never skipped: when its gate fails, only the line is hidden. Hiding is
+presentation, and effects are state, so its `onEnter` fires either way.
 
 ## Where a gate is legal
 
-A gated node needs somewhere to fall through to, so it must have a `next`, and it
-must not carry choices or be an end node. A `next` chain can't end at a gated node
-either — there would be nowhere to go when the gate fails — and gated nodes can't
-form a ring.
+A gated narration node needs somewhere to fall through to, so it must have a
+`next`. A `next` chain can't end at a gated narration node either — there would be
+nowhere to go when the gate fails — and gated narration nodes can't form a ring.
 
-The node inspector simply doesn't offer the control where a gate would be illegal,
-and says why. You should mostly meet these rules as an absent field rather than as
-an error.
+A gated node with choices, or an end node, needs none of that, because it is never
+skipped. On every shape, the gate needs a line to hide: a `showIf` on a node with
+empty text is an error.
+
+The node inspector doesn't offer the control where a gate would be illegal, and
+says why, so you should mostly meet these rules as an absent field rather than as
+an error. Where the gate is legal, the inspector's hint says which behaviour you
+are getting: a skipped node, or a hidden line.
 
 ## Migrating from ink or Yarn Spinner
 
@@ -65,18 +85,20 @@ Every guarded line had to become an invented choice, a duplicated branch, or a
 deletion. Now each one has a direct equivalent, which is what makes moving a real
 manuscript across a conversion rather than a rewrite.
 
-**The [importers](/docs/integrations/) do not map guards automatically yet, and
-they say so.** A guarded line is reported as a *declared loss* — named, with its
-source line — for you to place by hand. That is deliberate rather than unfinished.
-The blocker is the `else` branch: an `else` written without restating its
-condition, mapped to the same guard as its `if`, shows **both** lines whenever the
-guard holds. Nothing is lost and nothing is invented, so no automated content check
-can see it — the failure would be silently wrong output, which is the one outcome
-worth refusing to risk.
+**The [importers](/docs/integrations/) map guards onto it.** Yarn's
+`<<if>>`/`<<elseif>>`/`<<else>>` around a line and ink's `{cond: text}` and
+`{ cond: … - else: … }` blocks become node gates, and choice guards become choice
+gates. The hard part is the `else` branch. Both formats write it without restating
+the condition, so it needs the *negation* of its `if`'s guard. Mapped to the same
+guard, it would show **both** lines whenever the guard holds. Nothing would be lost
+and nothing invented, so a check that only compares strings can't see it. The
+importers' gate compares the conditions too, and refuses to finish on a mismatch.
 
-So the honest position today: the *format* can express your conditional lines, and
-the importer will hand you a list of exactly which ones it couldn't carry. That is
-a shorter list than the manuscript, and it is a list you can trust.
+A guard that Parlance's condition vocabulary can't express exactly — a read count,
+an ink `LIST`, a comparison between two variables — is not approximated. It comes
+back as a *declared loss*, named with its source line, for you to place by hand.
+Since v0.15.0 a guarded line that hosts a choice list, or ends the story, is carried
+too: the gate hides the line and keeps the choices.
 
 ## See also
 

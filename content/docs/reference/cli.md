@@ -1,6 +1,6 @@
 ---
 title: CLI
-description: The parlance command reference — init, ci-check, route — plus the independent Python reference validator and when to use which.
+description: The parlance command reference — init, ci-check, route, explore, witness, rename, export — plus the independent Python reference validator and when to use which.
 ---
 
 # CLI reference
@@ -62,6 +62,66 @@ Replays route fixtures — scripted playthroughs with assertions from
 `tests/routes/rt_*.json` — and exits non-zero when a walk diverges or an
 assertion fails. Deterministic play is what makes the replay exact; see the
 [fixture format and workflow](/docs/get-started/validate-in-ci/).
+
+`--coverage` adds route coverage: per dialogue, how many of its nodes some passing
+route stands on, and which dialogues no route touches at all.
+
+## parlance explore
+
+```bash
+parlance explore [--runs N] [--seed S] [--no-exhaustive] [--max-states N]
+                 [--max-depth N] [--from-snapshots] [--json]
+```
+
+Plays the project instead of reading it: seeded random runs, then an exhaustive
+pass that takes every visible choice and both outcomes of every active check. It
+reports dead ends, unreached nodes and choices, and dialogues that never end, and
+says whether the search was complete or bounded — a bounded search never calls a
+node unreachable. The same engine as **Reports → Explore** in the editor
+([details](/docs/editor-guide/#explore--playthrough-explorer--route-coverage)).
+
+| Exit | Meaning |
+|---|---|
+| `0` | no dead ends |
+| `1` | dead ends found |
+| `2` | not a Parlance project |
+
+## parlance witness
+
+```bash
+parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N]
+                 [--save-snapshot <id>] [--save-route <id>] [--json]
+```
+
+Finds a shortest path from the project's start to one node and prints the moves,
+optionally saving it as a snapshot or a route. The headless form of
+[**Find a path here**](/docs/editor-guide/#find-a-path-here--the-witness-solver).
+Exits `0` when a path is found, `1` when none is, `2` on a usage error.
+
+## parlance rename
+
+```bash
+parlance rename <type> <from> <to> [--dry-run]
+```
+
+Changes an entity's id and rewrites every reference to it — other entities,
+localization and VO keys, bindings, test routes and snapshots, `parlance:` links in
+lore, review threads and canvas layout. `--dry-run` prints the plan without writing.
+Nested ids (dialogue nodes, choices, quest stages) and custom rows can't be renamed
+this way ([details](/docs/editor-guide/#renaming-an-id)).
+
+## parlance export
+
+```bash
+parlance export --format docx|xlsx --out <path> [--dialogue <id>]
+parlance export --format csv|json --out <path> --type <typeId>
+```
+
+The first form writes a Word screenplay or an Excel line sheet, for one dialogue or
+the whole project
+([details](/docs/editor-guide/#export--word-screenplay--excel-line-sheet)). The
+second writes one custom type's rows. Office export is one-way: nothing reads a
+`.docx` or `.xlsx` back into the project.
 
 ## parlance save import
 

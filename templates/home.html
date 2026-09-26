@@ -30,14 +30,14 @@ description: Parlance is a git-native narrative design tool for story-driven gam
   narrative gets branches, diffs, reviews, and CI, just like code.</p>
   <div class="split">
     <div class="code-panel"><pre style="margin:0">{
-  <span class="k">"id"</span>: <span class="s">"npc_wren"</span>,
-  <span class="k">"name"</span>: <span class="s">"Aldous Wren"</span>,
-  <span class="k">"archetype"</span>: <span class="s">"apothecary"</span>,
-  <span class="k">"dialogues"</span>: [
-    { <span class="k">"dialogue"</span>: <span class="s">"dlg_wren_cornered"</span>,
-      <span class="k">"showIf"</span>: { <span class="k">"type"</span>: <span class="s">"flag"</span>, <span class="k">"flag"</span>: <span class="s">"knows_wren_dismissed"</span> } },
-    { <span class="k">"dialogue"</span>: <span class="s">"dlg_wren_first"</span> }
-  ]
+  <span class="k">"id"</span>: <span class="s">"dlg_wren_cornered"</span>,
+  <span class="k">"title"</span>: <span class="s">"Wren — The Yard"</span>,
+  <span class="k">"speakerId"</span>: <span class="s">"npc_wren"</span>,
+  <span class="k">"offer"</span>: {
+    <span class="k">"when"</span>: { <span class="k">"type"</span>: <span class="s">"flag"</span>, <span class="k">"flag"</span>: <span class="s">"knows_wren_dismissed"</span>, <span class="k">"value"</span>: true }
+  },
+  <span class="k">"entry"</span>: <span class="s">"node_corner"</span>,
+  <span class="k">"nodes"</span>: [ <span class="comment">…</span> ]
 }</pre></div>
     <div class="code-panel"><pre style="margin:0"><span class="comment">$ git diff data/dialogues/dlg_wren_first.json</span>
 
@@ -69,7 +69,7 @@ Review it in a pull request like everything else.</span></pre></div>
       <p>Each dialogue declares an offer — when it should play, and at what priority.
       Talk to a suspect before you find the evidence and you get one scene; talk to them
       after, and a more specific offer wins — no ordering to maintain, no scripting.</p>
-      <p>Within a scene, <strong><a href="{{root}}docs/concepts/conditional-narration/">conditional narration</a></strong> lets you gate individual lines on state. A node carrying a display condition is skipped entirely when it doesn't hold—so a beat belongs only to a player who earned it, without fabricating fake choices.</p>
+      <p>Within a scene, <strong><a href="{{root}}docs/concepts/conditional-narration/">conditional narration</a></strong> lets you gate individual lines on state. A narration line whose condition fails is skipped; on a node with choices, only the line is hidden and the choices stay. A beat belongs only to a player who earned it, without fabricating fake choices. Choices can be gated too: shown greyed out with a reason when locked, or held back as a fallback for when nothing else is available.</p>
       <p><a href="{{root}}docs/concepts/dialogue-laddering/">How dialogue offers work →</a></p>
     </div>
     <div>
@@ -102,10 +102,10 @@ Review it in a pull request like everything else.</span></pre></div>
   <div class="split feature-row">
     <div class="copy">
       <h3>Validation everywhere — on save, in CI, in your pipeline</h3>
-      <p>Twenty-eight families of checks run on every save and stream to every open editor
+      <p>Thirty families of checks run on every save and stream to every open editor
       window. The validator catches classic structural bugs like dangling references, unreachable nodes, quests that
       can't complete, and dialogue-offer mistakes. It also includes a <strong><a href="{{root}}docs/concepts/prose-check/">prose check</a></strong> that learns your project's proper nouns to act as a narrative-aware spellchecker inline as you type.</p>
-      <p>The same validator runs headless as <code>parlance ci-check</code>, so a broken story fails the build before it ships.</p>
+      <p>The same validator runs headless as <code>parlance ci-check</code>, so a broken story fails the build before it ships. And <strong>Explore</strong> plays the story for you — every choice, both outcomes of every check — to find the nodes no playthrough reaches and the states where a player gets stuck.</p>
       <p><a href="{{root}}docs/concepts/validation/">The validation model →</a></p>
     </div>
     <div class="code-panel"><pre style="margin:0"><span class="comment">$ parlance ci-check . --strict</span>

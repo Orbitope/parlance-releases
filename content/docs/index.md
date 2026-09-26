@@ -75,6 +75,9 @@ affordances get the same billing as headline features; most rows link into the
 
 **Entities & forms** —
 [12 entity types](/docs/editor-guide/#3-entity-types) ·
+[custom types in a grid](/docs/editor-guide/#custom-types--the-grid) ·
+[rename an id everywhere](/docs/editor-guide/#renaming-an-id) ·
+[lore as linked documents](/docs/editor-guide/#lore--linked-markdown-documents) ·
 [search & group-by](/docs/editor-guide/#4-entity-list--search) ·
 [schema-driven forms](/docs/concepts/schema-first/) ·
 [JSON/Edit toggle](/docs/editor-guide/#5-entity-detail--view--edit) ·
@@ -97,6 +100,8 @@ affordances get the same billing as headline features; most rows link into the
 [effects reference](/docs/editor-guide/#effects-reference) ·
 [pacing analysis](/docs/editor-guide/#pacing-inspector-with-no-node-selected) ·
 [dialogue offers](/docs/concepts/dialogue-laddering/) ·
+[fallback & locked choices](/docs/editor-guide/#fallback-and-locked-choices-text-less-and-gated-choice-nodes) ·
+[line tags & engine commands](/docs/editor-guide/#line-tags-and-engine-commands) ·
 [share builds](/docs/editor-guide/#share-build)
 
 **Quests, locations, world** —
@@ -114,13 +119,18 @@ endings · codex · items · portraits · [cutscene manifests](/docs/editor-guid
 [forced check outcomes](/docs/editor-guide/#check-affordances) ·
 [edit-while-playing](/docs/editor-guide/#editing-while-playing-auto-reload) ·
 [cross-scene continuation](/docs/editor-guide/#continuing-into-the-next-scene) ·
-[state inspector](/docs/editor-guide/#state-inspector)
+[state inspector](/docs/editor-guide/#state-inspector) ·
+[route replay](/docs/editor-guide/#replaying-a-saved-route) ·
+[find a path here](/docs/editor-guide/#find-a-path-here--the-witness-solver) ·
+[placeholder voice (TTS)](/docs/editor-guide/#placeholder-voice-tts)
 
 **Validation & reports** —
 [live validation bar](/docs/editor-guide/#10-validation-panel) ·
-[18 check families](/docs/reference/validation-checks/) ·
+[30 check families](/docs/reference/validation-checks/) ·
 [Reports & coverage](/docs/editor-guide/#11-reports--coverage--reference-index) ·
 [reference index (find usages)](/docs/editor-guide/#11-reports--coverage--reference-index) ·
+[Explore & route coverage](/docs/editor-guide/#explore--playthrough-explorer--route-coverage) ·
+[script export (Word, Excel)](/docs/editor-guide/#export--word-screenplay--excel-line-sheet) ·
 [CI gating](/docs/get-started/validate-in-ci/) ·
 [independent Python validator](/docs/reference/cli/#the-python-reference-validator)
 
@@ -132,7 +142,7 @@ endings · codex · items · portraits · [cutscene manifests](/docs/editor-guid
 [localization & VO pipeline](/docs/editor-guide/#15-localization--vo)
 
 **Automation & AI** —
-[`parlance init` / `ci-check` / `route`](/docs/reference/cli/) ·
+[`parlance init` / `ci-check` / `route` / `explore` / `witness` / `rename` / `export`](/docs/reference/cli/) ·
 [MCP server for LLM agents](/docs/reference/mcp/) ·
 [AI drafting](/docs/integrations/#ai-drafting)
 
