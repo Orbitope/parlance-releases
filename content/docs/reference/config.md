@@ -61,11 +61,14 @@ The standard tree ([why it's shaped this way](/docs/concepts/git-native/)):
 <project root>/
   parlance.config.json     optional
   data/                    narrative content ONLY — what the game reads
-    skills/  variables/  factions/  characters/
+    skills.json  variables.json  items.json  portraits.json
+                           flat registries, one file each
+    progression.json  rules.json  types.json     optional project settings
+    factions/  characters/  locations/  endings/  codex/  cutscenes/
     dialogues/             dlg_*.json  (+ dlg_*.layout.json, gitignored)
     quests/                qst_*.json  (+ _graph.layout.json, gitignored)
-    locations/  endings/  codex/  cutscenes/
-    items.json  portraits.json  progression.json     flat registries
+    bindings/              <profile>.json — optional engine asset bindings
+    <plural>.json | <plural>/   rows of a custom type declared in types.json
   tests/
     routes/                rt_*.json — scripted playthroughs with assertions
     snapshots/             snap_*.json — saved states to resume from
