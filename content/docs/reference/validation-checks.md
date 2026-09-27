@@ -7,7 +7,9 @@ description: Every Parlance validation family — SCHEMA through SPELL — what 
 
 The complete catalog of check families. Each issue in the
 [validation bar](/docs/editor-guide/#10-validation-panel) carries its family
-code; every row navigates to the offending entity. Errors are broken wiring;
+code; a row navigates to the exact place it is about — the node or choice,
+the quest stage or objective, the form field — or, for `FLAG`/`REP`/`REL`, to
+the entity's Flow panel. Errors are broken wiring;
 warnings are story smells — and the editor
 [never blocks a save](/docs/concepts/validation/) on either. CI draws the line
 with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
@@ -25,7 +27,7 @@ with [`ci-check`](/docs/reference/cli/) (`--strict` to fail warnings too).
 
 | Code | Severity | Fires when | Fix by |
 |---|---|---|---|
-| `FLOW` | error/warning | Errors: a dead-end choice (no `goto`, no check, not an end), a node with no choices, no `next` and not an end (the player is stuck), a node with **no text and no choices**, `next` together with choices or an end, a `next` cycle, a node named `end`. Warnings: every choice on a node is gated and none is a fallback (the player may be stuck), **more than one fallback** on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), and `whenLocked` / `lockedText` on a choice with no `showIf` (it can never be locked) | Wiring the missing destination, marking an intended terminal **Is End**, or adding a fallback choice |
+| `FLOW` | error/warning | Errors: a dead-end choice (no `goto`, no check, not an end), a node with no choices, no `next` and not an end (the player is stuck), a node with **no text and no choices**, `next` together with choices or an end, a `next` cycle, a node named `end`. Warnings: every choice on a node is gated and none is a fallback (the player may be stuck), **more than one fallback** on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), `whenLocked` / `lockedText` on a choice with no `showIf` (it can never be locked), and a node (not an end, no `next`) whose **every non-fallback choice is a passive check** — the runtime counts passive choices as visible even when unrevealed, so a game that hides them can show nothing clickable there, and the node's fallback is suppressed. That one fires whatever the difficulty, since no reveal is guaranteed | Wiring the missing destination, marking an intended terminal **Is End**, or adding a fallback choice. For the passive-check warning, give the node one choice without a passive check — a greyed `whenLocked: "show"` choice doesn't count, because it can't be clicked |
 | `REACH` | warning | A node can't be reached from the dialogue's `entry` | Connecting it or deleting it — the Pacing panel spots these too |
 | `GATE` | error | An active check is missing its `onSuccess` / `onFailure` destination | Dragging both the green and red handles somewhere |
 | `COND` | error/warning | A node's **display gate** breaks a [conditional-narration](/docs/concepts/conditional-narration/) rule — a gated narration node (no choices, not an end) needs `next`, a `next` chain must not end at a gated narration node, gated narration nodes must not form a ring, and a gate on any node needs a line to hide. Warns when a gated narration node carries `onEnter`, since those effects don't fire when it's skipped. Since v0.15.0 a gate on a node with choices, or on an end node, is legal: it hides only the line | Giving the node a `next`, or ungating it. The inspector hides the control where a gate is illegal, so this usually only appears in hand-edited data |

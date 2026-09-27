@@ -46,8 +46,10 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 - **[Dialogue offers](/docs/concepts/dialogue-laddering/)** — each dialogue declares
   when it should play, and the engine picks the most specific eligible one to decide
   which dialogue plays *right now*, with a live resolution preview.
-- **Skill checks** — passive or active (`d20 + skill ≥ difficulty`), with a probability
-  bar previewing success chance, and check badges generated automatically on the canvas.
+- **Skill checks** — active (`d20 + skill ≥ difficulty`, with a probability bar
+  previewing the success chance at any stat) or passive (no roll: a reveal threshold your
+  game applies), optional conditional modifiers, and check badges generated automatically
+  on the canvas.
 - **Conditions & effects builders** — structured editors for flags, counters, items,
   reputation, relationships, quest state, and boolean combinators; no scripting language
   to learn, and everything they produce is validated.
@@ -75,7 +77,8 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 
 - **Quest canvas** — stages and outcomes as a graph, with journal objectives
   (intent, in the protagonist's voice) kept distinct from retrospective descriptions.
-- **Quest dependency graph** — the whole quest structure as a DAG with gate badges.
+- **Quest dependency graph** — the whole quest structure as a DAG: which quest's flags
+  open or close which, with *start*, *gated* and *closes* badges.
 - **Location map** — locations and their exits (including gated ones) as a graph.
 - **Endings, codex, cutscene manifests** — all first-class, all validated, all
   reachable from the same reference index.
@@ -115,13 +118,15 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 - **[Thirty validation families](/docs/reference/validation-checks/)** covering
   references, reachability, flag flow, quest logic, offer resolution, coverage, conditional
   narration, localization targets, progression math, and more.
-- **Runs on every save**, streamed live to every open editor window.
+- **Runs on every save**, incrementally (only what the change can affect is re-checked)
+  and off the editor's main thread, streamed live to every open editor window.
 - **Runs headless in CI** via [`parlance ci-check`](/docs/reference/cli/), plus an
   independent Python reference validator kept in enforced parity.
 - **Reports panel** — coverage issues grouped and clickable, plus a searchable
   **reference index**: for any id, see where it's defined, read, and written
   ("find usages" for your story). A Speakers tab counts lines, words and voiceable lines
-  per character, for casting and VO budgets.
+  (every spoken node line; choice text is never voiceable) per character, for casting
+  and VO budgets.
 - **[A prose check that knows your names](/docs/concepts/prose-check/)** — spelling, plus
   your own proper nouns derived from your data and matched case-sensitively. `Kestral`
   reports as a near-miss of `Kestrel`; `kestrel` reports as a name written lowercase.
@@ -134,8 +139,9 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
   comment on story anchors rather than line numbers, propose replacement text the author
   applies in one click, and record verdicts. Works with nothing but git — no server.
 - **Localization & VO pipeline** — extract every player-facing string with stable keys,
-  hand off locale templates, track coverage per language, and flag stale keys when
-  content changes. VO maps voiceable lines to engine audio keys the same way.
+  hand off locale templates, track coverage per language, and flag stale keys when the
+  entity or line they belong to is renamed or removed. VO maps voiceable lines to engine
+  audio keys the same way.
 - **[Script export](/docs/editor-guide/#export--word-screenplay--excel-line-sheet)** — a
   Word screenplay or an Excel line sheet (speaker, localization and VO keys, condition,
   check and effects per line) for one dialogue or the whole project, for the people who
@@ -155,8 +161,11 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 - **[MCP server](/docs/reference/mcp/)** — LLM agents read and write project data,
   custom rows included, through the same validated path as the editor, with dry-run
   support and automatic re-validation after every write.
-- **AI drafting** — optional in-editor drafting against Anthropic or OpenAI-compatible
-  providers; drafts are visually marked until accepted.
+- **[AI drafting](/docs/editor-guide/#node-inspector-right-panel)** — optional, against Anthropic
+  or OpenAI-compatible providers with your own key: proposes candidate *player choices*
+  at a node (never NPC lines), each checked against your project before you see it.
+  Candidates are marked in the draft panel until you add one; once added it is an
+  ordinary, unwired choice with no AI marker in the data.
 
 ## Migrating in, and reviewing what's there
 

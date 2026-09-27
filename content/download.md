@@ -62,5 +62,8 @@ the tool.
   runtime contract, conformance vectors, MIT
 - **[Godot runtime](https://github.com/Orbitope/parlance-gdscript)** — a
   conformance-verified GDScript port
+- **[TypeScript runtime](/docs/integrations/#typescript--the-reference-runtime)** —
+  `npm install @orbitope/parlance-runtime` (from v0.16.0), the engine the editor
+  plays with, MIT
 
 Package-manager installs and an itch.io listing are on the way.

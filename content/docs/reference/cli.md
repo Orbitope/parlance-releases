@@ -5,29 +5,71 @@ description: The parlance command reference — init, ci-check, route, explore, 
 
 # CLI reference
 
-The `parlance` command ships with the host package. Every subcommand resolves
-the project root the same way: explicit path argument → `PARLANCE_ROOT` env
-var → current directory ([details](/docs/reference/config/)).
+The `parlance` command is published as a standalone npm package,
+**`@orbitope/parlance-cli`**, for CI and other headless use. It needs no editor
+and no install: run any subcommand with `npx @orbitope/parlance-cli <command>`.
+Examples below use the short `parlance` form, which assumes the package is
+installed and on your `PATH`.
 
-For CI and other headless use without the editor, the same commands are published
-as a standalone npm package, **`@orbitope/parlance-cli`** — run any subcommand with
-`npx @orbitope/parlance-cli <command>` (no install, no editor). Examples below use
-the short `parlance` form, which assumes it's on your `PATH`.
+**Which project it acts on.** `ci-check` and `migrate` take an optional project
+directory as their first argument. Every other subcommand (`route`, `explore`,
+`witness`, `rename`, `export`, `save import`) acts on the **current directory**
+and has no project argument, so `cd` into the project first (or set
+`working-directory` on the CI step). `init` takes the directory to create.
 
-Running `parlance` with no subcommand starts the editor host itself; if the
-target directory isn't a Parlance project, it says so and suggests
-`parlance init` rather than scaffolding on its own.
+The CLI doesn't start the editor. Running `parlance` with no subcommand prints
+the usage and exits `2` (a bare `parlance` in a CI step is almost always a
+forgotten verb). `parlance --help` prints the same usage and exits `0`, and
+`parlance --version` prints the package version. Editing happens in the
+[desktop app](/docs/install/).
 
 ## parlance init
 
 ```bash
-parlance init [dir]
+parlance init [dir] [--template blank|first-conversation] [--force]
 ```
 
-Scaffolds a new project: the [standard directory tree](/docs/reference/config/#project-layout),
-ready for the editor. Guarded by the project marker — it won't scaffold over a
-directory that already is a project, and the editor won't silently seed a
-random folder.
+Scaffolds a new project in `dir` (default: the current directory): the
+[standard directory tree](/docs/reference/config/#project-layout), ready for the
+editor. `dir` may be a new folder (it is created) or an existing empty one.
+`--template` picks the starting content:
+
+| Template | What you get |
+|---|---|
+| `blank` (default) | Empty folders and registries, a `parlance.config.json`, a lore placeholder |
+| `first-conversation` | A tiny working project: one character and a branching dialogue that remembers a choice |
+
+These are the same two templates as **File ▸ New Project…** in the desktop app.
+
+On success it prints the next steps: open the folder in the desktop app
+(**File ▸ Open Project…**), or check it from the command line:
+
+```bash
+cd my-game && parlance ci-check
+```
+
+`init` never writes over existing work. It refuses, changes nothing, and exits
+`1` when:
+
+- `dir` already holds a Parlance project (a `parlance.config.json`, `data/` or
+  `schema/`). This applies even with `--force`.
+- `dir` holds other files. The message names them. A folder holding only
+  `.git` (so `git init && parlance init` works) or `.DS_Store`, `Thumbs.db` or
+  `desktop.ini` counts as empty.
+
+A usage mistake exits `2` instead: a `--template` that doesn't exist (the
+message lists the valid ones), an unknown flag, or two directories.
+
+| Exit | Meaning |
+|---|---|
+| `0` | project created |
+| `1` | refused: the folder already holds a project or other files |
+| `2` | usage error |
+
+`--force` lets `init` add a project to a folder that already holds other files.
+It still never overwrites or deletes anything. If the folder already has a file
+that `init` would write, such as `.gitignore` or `lore/placeholder.md`, that
+file is kept as it is, and the success message lists it.
 
 ## parlance ci-check
 
@@ -47,16 +89,48 @@ grouped by [check family](/docs/reference/validation-checks/).
 | `1` | validation failed |
 | `2` | not a Parlance project |
 
+**GitHub Actions annotations.** Under GitHub Actions (`GITHUB_ACTIONS=true`),
+`ci-check` also prints each issue as a workflow command after the normal
+report, so a failing pull-request check points at the data file and line:
+
+```text
+::error file=data/dialogues/dlg_intro.json,line=19,title=REF::dialogue 'dlg_intro' node 'n1' choice 'c2': goto 'n_missing' is not a node
+```
+
+The path is relative to the repository root (`GITHUB_WORKSPACE`), so a project
+in a subfolder still resolves. The line is the entity's `"id"` line, or the
+node, choice, stage, registry entry or custom-type row the issue names; a file
+that is not valid JSON points at its syntax error. When no line can be found,
+the annotation names the file only.
+
+| Flag | Effect |
+|---|---|
+| `--annotations auto` | Default. Annotate only when `GITHUB_ACTIONS=true`. |
+| `--annotations github` | Always annotate (for example, to preview locally). |
+| `--annotations none` | Never annotate. |
+
+GitHub shows at most 10 error and 10 warning annotations per step; the rest
+are in the log. `ci-check` emits up to 50 of each, then one notice saying how
+many it left out. The full list is always in the normal report above them.
+Exit codes do not change. `parlance route` takes the same flag and annotates a
+failing route at the step that broke, and the Python validator takes it too
+(`python tooling/validate.py --annotations github`).
+
 The [CI tutorial](/docs/get-started/validate-in-ci/) shows the GitHub Actions
 wiring.
 
 ## parlance route
 
 ```bash
-parlance route [project-dir] [route-id]    # one fixture
-parlance route [project-dir] --all         # every fixture
-parlance route ... --strict
+parlance route <route-id>        # one fixture
+parlance route --all             # every fixture
+parlance route --all --strict
+parlance route --all --coverage
 ```
+
+`route` runs against the project in the current directory. Its first
+positional argument is always the route id, so `parlance route . rt_x` looks
+for a route named `.`.
 
 Replays route fixtures — scripted playthroughs with assertions from
 `tests/routes/rt_*.json` — and exits non-zero when a walk diverges or an
@@ -65,6 +139,17 @@ assertion fails. Deterministic play is what makes the replay exact; see the
 
 `--coverage` adds route coverage: per dialogue, how many of its nodes some passing
 route stands on, and which dialogues no route touches at all.
+
+## parlance migrate
+
+```bash
+parlance migrate [project-dir]           # rewrite character ladders as dialogue offers
+parlance migrate [project-dir] --check   # report only; exit 1 if anything needs migrating
+```
+
+The one-time 0.13 → 0.14 migration from character dialogue ladders to
+[dialogue offers](/docs/concepts/dialogue-laddering/). Without `--check` it
+rewrites the files and exits `0`.
 
 ## parlance explore
 
@@ -77,8 +162,19 @@ Plays the project instead of reading it: seeded random runs, then an exhaustive
 pass that takes every visible choice and both outcomes of every active check. It
 reports dead ends, unreached nodes and choices, and dialogues that never end, and
 says whether the search was complete or bounded — a bounded search never calls a
-node unreachable. The same engine as **Reports → Explore** in the editor
+node unreachable. `--max-states` (default 5,000) and `--max-depth` are the budget.
+When a scene ends, the search also models the player walking the location map and
+opening a placed scene **again**, with whatever the story has changed since — so a
+"look again" line gated on the first look counts as reached, and the demo completes
+at the default budget. The same engine as **Reports → Explore** in the editor
 ([details](/docs/editor-guide/#explore--playthrough-explorer--route-coverage)).
+
+With `--json`, stdout is the report and nothing else, so it pipes straight into
+`jq`; the one-line verdict ("OK — no dead ends." or "FAIL — …") goes to stderr.
+
+```bash
+parlance explore --json | jq '.unreached | length'
+```
 
 | Exit | Meaning |
 |---|---|
@@ -90,25 +186,39 @@ node unreachable. The same engine as **Reports → Explore** in the editor
 
 ```bash
 parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N]
-                 [--save-snapshot <id>] [--save-route <id>] [--json]
+                 [--max-depth N] [--save-snapshot <id>] [--save-route <id>] [--json]
 ```
 
 Finds a shortest path from the project's start to one node and prints the moves,
-optionally saving it as a snapshot or a route. The headless form of
+optionally saving it as a snapshot or a route. It searches the same state graph as
+`explore`, return visits to placed scenes included, and `--max-states` /
+`--max-depth` are `explore`'s budget flags with the same meaning; a bounded result
+names the flag to raise. The headless form of
 [**Find a path here**](/docs/editor-guide/#find-a-path-here--the-witness-solver).
-Exits `0` when a path is found, `1` when none is, `2` on a usage error.
+Exits `0` when a path is found, `1` when none is, `2` on a usage error. With
+`--json`, stdout is the result alone; status lines such as "wrote tests/…" from
+`--save-snapshot` / `--save-route` go to stderr.
 
 ## parlance rename
 
 ```bash
 parlance rename <type> <from> <to> [--dry-run]
+parlance rename questStages <quest>/<stage> <to> [--dry-run]
+parlance rename questOutcomes <quest>/<outcome> <to> [--dry-run]
 ```
 
 Changes an entity's id and rewrites every reference to it — other entities,
 localization and VO keys, bindings, test routes and snapshots, `parlance:` links in
 lore, review threads and canvas layout. `--dry-run` prints the plan without writing.
-Nested ids (dialogue nodes, choices, quest stages) and custom rows can't be renamed
-this way ([details](/docs/editor-guide/#renaming-an-id)).
+
+A quest stage or outcome is named by its quest — `parlance rename questStages
+qst_inquest/stg_name stg_accuse` — and `<to>` is the bare new id. Only that quest's
+stage is renamed: every quest condition, `advance_quest` effect and route or
+snapshot entry that names it follows, and a same-named stage in another quest keeps
+its id. The MCP server's `rename_entity` tool accepts the same two types.
+
+Dialogue nodes and choices, and custom rows, can't be renamed this way
+([details](/docs/editor-guide/#renaming-an-id)).
 
 ## parlance export
 
@@ -126,7 +236,7 @@ second writes one custom type's rows. Office export is one-way: nothing reads a
 ## parlance save import
 
 ```bash
-parlance save import <file> [--id <id>]
+parlance save import <file> [--id <id>] [--name "..."] [--force]
 ```
 
 Imports an **engine save file** as a playtest snapshot — so a save the game itself
@@ -134,6 +244,12 @@ wrote (the file proving a bug a tester hit) can be opened and replayed in the
 editor instead of reproduced by hand. It shares one implementation with the
 editor's `POST /api/saves/import`, so the CLI and the editor can't disagree about
 what a save means.
+
+The snapshot id defaults to `snap_` plus the file name, snake_cased
+(`slot1.json` becomes `snap_slot1`); `--id` sets it instead. `--name` sets the
+snapshot's display name. An import that would replace an existing snapshot is
+refused unless you pass `--force`. A save that names content the project doesn't
+have is refused.
 
 ## The Python reference validator
 
@@ -155,7 +271,8 @@ validator, so the two can't drift silently.
 
 ## Environment
 
-| Variable | Effect |
-|---|---|
-| `PARLANCE_ROOT` | Project root when no path argument is given |
-| `PORT` | Host port (the config file's `port` wins) |
+The npm CLI reads no environment variable for the project root. It sets
+`PARLANCE_ROOT` itself, from the project argument or the current directory,
+before every subcommand, so a `PARLANCE_ROOT` you export has no effect on it.
+To point it at another project, pass the path (`ci-check`, `migrate`) or `cd`
+there first.

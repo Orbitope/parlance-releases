@@ -36,9 +36,10 @@ your data's meaning never depends on our goodwill.
 
 ## Ports prove themselves
 
-The TypeScript runtime in `@parlance/core` powers the editor's own playtest —
-which means every scene you play in-editor is exercising the same contract
-your engine implements. The public
+The TypeScript runtime — published on npm as
+[`@orbitope/parlance-runtime`](/docs/integrations/) from v0.16.0, MIT —
+powers the editor's own playtest, which means every scene you play in-editor
+is exercising the same contract your engine implements. The public
 [Godot/GDScript runtime](https://github.com/Orbitope/parlance-gdscript) ships
 its conformance scoreboard in the README:
 

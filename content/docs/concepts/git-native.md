@@ -67,14 +67,21 @@ the one-time studio setup, and exactly what the security model gives you.
 - **Verdicts record what was actually read.** Approve / request-changes is
   stamped against a commit; push more work and the review says "the branch has
   moved since this verdict" rather than showing a stale tick.
-- **Merging** happens only from a clean base checkout, cleanly or not at all —
+- **Publishing** an approved draft (**Approve & publish…** or **Publish…**)
+  merges it into the base branch on the remote from whatever branch you are on,
+  without touching your working copy. It merges cleanly or not at all —
   conflicts are resolved in git, not inside a narrative editor.
+- **Drafts give writers branches without git.** **Drafts** → **New draft**
+  creates a branch for the piece of work, **Send for review** commits and pushes
+  it with a review request, and **Clean up** deletes the branch once it is
+  published — only after git confirms it is merged.
 
 ## What Parlance deliberately isn't
 
-It is not a git client. No branch creation, no conflict resolution, no history
-editing, no PR sync. Branches and merges stay in the tools built for them;
-Parlance adds the narrative-shaped layer those tools can't see.
+It is not a git client. The only branches it creates are writers' drafts, and
+beyond that there is no conflict resolution, no history editing, no PR sync.
+Conflicts and history stay in the tools built for them; Parlance adds the
+narrative-shaped layer those tools can't see.
 
 ## And because it's all just files in CI's reach…
 

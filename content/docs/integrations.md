@@ -1,6 +1,6 @@
 ---
 title: Engine integrations
-description: Driving Parlance data from your engine — the Godot runtime, porting to any engine via the conformance suite, the MCP server, and in-editor AI drafting.
+description: Driving Parlance data from your engine — the Godot, Unity and TypeScript runtimes, porting to any engine via the conformance suite, the MCP server, and in-editor AI drafting.
 ---
 
 # Engine integrations
@@ -30,8 +30,8 @@ The [parlance-unity](https://github.com/Orbitope/parlance-unity) package provide
 pure C# `.NET` runtime for Unity projects:
 
 - **Install**: Add the git repository URL via the Unity Package Manager (UPM). It is a framework-agnostic C# library without `MonoBehaviour` singletons.
-- **Strongly-typed State**: Uses `Dictionary` and `HashSet` for seamless parsing from JSON while maintaining deep-copy immutability during progression.
-- **Conformance-verified**: an NUnit suite runs the v0.15.0 vectors headless — all 207 passing, every family ported, including quest resolution, progression and `nextContinuations`.
+- **Plain-dictionary API**: the project, dialogues and every result are `Dictionary<string, object>`; state is a `State` class of `Dictionary` and `HashSet` fields, deep-copied on every change. The package ships no loader or JSON parser: read `data/` with your own (for example Unity's Newtonsoft package) into plain dictionaries and lists.
+- **Conformance-verified**: an NUnit suite runs the v0.15.0 vectors headless with `dotnet test`, outside Unity — all 207 passing, every family ported, including quest resolution, progression and `nextContinuations`.
 
 ## Unreal Engine (C++) — parked at v0.9.0
 
@@ -46,11 +46,42 @@ natively into Unreal Engine using Core C++ types:
 
 ## TypeScript — the reference runtime
 
-`@parlance/core` is the reference implementation: pure and deterministic (no
-filesystem, no DOM), the same code that powers the editor's
-[playtest](/docs/concepts/playtest-determinism/) and
-[share builds](/docs/editor-guide/#share-build). A web-based or Electron game
-can consume it directly.
+[`@orbitope/parlance-runtime`](https://www.npmjs.com/package/@orbitope/parlance-runtime)
+is the reference implementation, published on npm from v0.16.0: the same code
+that powers the editor's [playtest](/docs/concepts/playtest-determinism/) and
+[share builds](/docs/editor-guide/#share-build), extracted into its own
+package. It is **MIT-licensed**, so it can ship inside any game, commercial
+ones included. Zero dependencies and pure functions — no filesystem, no DOM,
+no clock — so it runs in browsers, Node, Deno, Bun, Electron and embedded JS
+engines.
+
+```bash
+npm install @orbitope/parlance-runtime
+```
+
+The loader reads no files itself: hand it every `.json` under `data/`, keyed
+by its data-relative path (from `fs`, `fetch`, an asset bundle — whatever your
+platform has), then step a dialogue:
+
+```ts
+import { readFileSync, readdirSync } from "node:fs";
+import { loadProjectFromFileMap, createDefaultState, stepDialogue, chooseChoice, applyEffects } from "@orbitope/parlance-runtime";
+
+const paths = readdirSync("data", { recursive: true, encoding: "utf-8" }).filter((p) => p.endsWith(".json"));
+const project = loadProjectFromFileMap(new Map(paths.map((p) => [p.replaceAll("\\", "/"), readFileSync(`data/${p}`, "utf-8")])));
+
+const dlg = project.dialogues["dlg_gatekeeper_intro"]!;
+let state = createDefaultState(project);
+const step = stepDialogue(dlg, dlg.entry, state, project);   // may skip a gated node
+state = applyEffects(step.onEnterEffects, state, project);
+console.log(step.node.text, step.visibleChoices.map((c) => c.text));
+const out = chooseChoice(dlg, step.node.id, step.visibleChoices[0]!.id, state, project, Math.random);
+```
+
+`out.newState` and `out.nextNodeId` carry the loop on. The
+[integration guide](https://github.com/Orbitope/parlance-spec/blob/main/docs/INTEGRATION.md)
+in the spec repo has the full loop — locked choices, cutscenes, which dialogue
+a character offers next, quest resolution and saves.
 
 ## Porting to any other engine
 
@@ -64,8 +95,9 @@ The path every port follows:
    contract defines each function —
    `evaluate`, `applyEffect`, `resolveCheck`, `stepDialogue`,
    [`resolveCharacterDialogue`](/docs/concepts/dialogue-laddering/),
-   `resolveQuests` — including RNG (`mulberry32`), clamping rules, and the
-   edge cases where ports usually drift.
+   `resolveQuests` — including how dice consume the injected `rng()` (one call
+   per die, in order), clamping rules, and the edge cases where ports usually
+   drift. The contract doesn't fix an RNG algorithm; you inject your own.
 3. **Run the conformance vectors.** Machine-readable given-state/expect-output
    cases per function. Green vectors = correct port; the scoreboard is your
    integration test forever after.
@@ -76,14 +108,29 @@ The path every port follows:
 Contract, vectors, and schemas are all [MIT-licensed](/docs/spec/), so a port
 of any license — including closed-source commercial — is fine.
 
+## Asset bindings
+
+An optional `data/bindings/<profile>.json` per engine or build target maps
+portrait ids, VO keys and cutscene ids to asset paths (the format is
+`schema/binding.schema.json` in the [spec](/docs/spec/)). No runtime function
+reads bindings: your own game code or build pipeline looks the ids up.
+
+Only the Python [reference validator](/docs/reference/cli/#the-python-reference-validator)
+checks them, as `BIND` warnings for an asset that's used but unbound or bound but
+missing. The editor and `parlance ci-check` don't read `data/bindings/`, so run
+`validate.py` in CI if you rely on bindings. Whether an engine port loads a
+binding profile for you is up to that port; check its own README. Neither the Godot
+nor the Unity port does today.
+
 ## Coming from another tool
 
-Importers ship as MIT [AI skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers)
-(for Claude Code or Antigravity), separate from the editor. There are seven: Yarn
+Importers ship as MIT [skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers),
+separate from the editor: each is a Claude Code skill that drives a plain Python
+parser and a Python check script, which you can also run yourself. There are seven: Yarn
 Spinner, ink, Twine (Harlowe), Twine (SugarCube), ChoiceScript, Arcweave and Ren'Py.
 
 To run a migration:
-1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory.
+1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory, together with the shared `importers/lib/` folder its commands run (`lib/parse_<format>.py`, `lib/check.py`).
 2. Instruct your agent to run the import against your source files.
 3. The agent reads your script, emits Parlance JSON, and then **checks every string in the output against the source, byte for byte**.
 
@@ -129,11 +176,14 @@ judge without inventing the intent stops and asks you for it.
 
 ## MCP server — for LLM agents
 
-The [MCP server](/docs/reference/mcp/) exposes a project to AI agents through
-the same validated write path as the editor: twelve tools, including id rename and
-custom game data, `dry_run` support,
-automatic re-validation after every write. Agent output lands as canonical
-JSON in git — one reviewable diff.
+The [MCP server](/docs/reference/mcp/) exposes a project to AI agents: twelve
+tools, including id rename and custom game data, with `dry_run` support. Every
+write is validated before it lands, a write that would give an entity a schema
+error is refused, and every result carries the project's validation issues.
+Agent output lands as canonical JSON in git — one reviewable diff. The server
+ships inside the desktop app and runs on the app's own runtime: **Help ▸
+Connect an AI Agent…** shows the ready-to-paste config for your install and
+project ([how](/docs/reference/mcp/#get-the-server)).
 
 ## AI drafting
 

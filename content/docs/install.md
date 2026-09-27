@@ -48,14 +48,24 @@ containing your narrative files — most often the `data/` directory inside your
 **game's own repository**, so your story is versioned alongside the game that
 reads it.
 
-- **New to it?** Start from the demo project, *The Mistfall Inn* — a complete,
-  tiny mystery with every feature in play. [Your first project](/docs/get-started/first-project/)
-  walks through it.
-- **Starting fresh?** `parlance init my-story` scaffolds the standard layout
-  ([CLI reference](/docs/reference/cli/)), or point the app at an empty folder
-  and let it scaffold on first save.
-- **Existing project?** Just open the folder. If it has a `data/` directory or
-  a `parlance.config.json`, Parlance recognizes it.
+- **New to it?** Use **File ▸ New Project…** and pick the **First
+  conversation** template: a tiny working project with one character and a
+  branching dialogue. **Blank** gives you the empty layout instead.
+  (`parlance init my-story --template first-conversation` does the same from
+  the [command line](/docs/reference/cli/#parlance-init).)
+- **Want to see a finished project?** The demo mystery, *The Mistfall Inn*,
+  ships with the app. Choose **File ▸ Open the Demo** (or **Open the demo** on
+  the welcome screen): the first time, Parlance copies it to
+  `Documents/Parlance/The Mistfall Inn` and opens the copy, which is yours to
+  edit. Later, the same command reopens that copy with your changes — it never
+  overwrites it. To start fresh, delete or rename the folder and choose it
+  again. (On Linux, the copy goes to your XDG Documents folder, or your home
+  folder if none is set.) You can also [play it in your browser](/demo/).
+- **Existing project?** Use **File ▸ Open Project…** and pick the project root.
+  If it has a `data/` directory, a `parlance.config.json` or a `schema/`
+  directory, Parlance recognizes it. Any other folder is refused with *"Not a
+  Parlance project"*: Parlance never scaffolds a folder you open. Create a
+  project with **New Project…** or `parlance init` instead.
 
 ## Where your files live
 
@@ -78,8 +88,9 @@ which live in the app's local storage and never in your repo.
 
 ## Command line
 
-The same validator the app runs on every save is available headless for CI —
-`parlance ci-check` and `parlance route` — see the
+The same validator the app runs is available headless for CI, in the separate
+npm package `@orbitope/parlance-cli` (`parlance ci-check`, `parlance route` and
+more). The desktop app doesn't install a `parlance` command. See the
 [CLI reference](/docs/reference/cli/) and the
 [CI tutorial](/docs/get-started/validate-in-ci/).
 
@@ -91,7 +102,8 @@ The same validator the app runs on every save is available headless for CI —
 | Linux AppImage exits at once: *"The SUID sandbox helper binary was found, but is not configured correctly"* | Ubuntu 23.10+ blocks an AppImage's sandbox. Start it with `--no-sandbox`, or install the `.deb`, which carries the AppArmor profile — see [Linux](#linux) |
 | Linux AppImage: *"dlopen(): error loading libfuse.so.2"* | Install FUSE 2: `sudo apt install libfuse2` (`libfuse2t64` on Ubuntu 24.04) |
 | *"File changed on disk — reload to see latest version"* | Another editor window, a script, or a `git checkout` changed the file since you loaded it. Reload to pull the latest, then re-save — your edit isn't lost, it's just not applied to a stale base |
-| The project opens empty | The folder isn't a Parlance project (no `data/`, no `parlance.config.json`), or `data` is pointed elsewhere in the config. See [configuration](/docs/reference/config/) |
+| *"Not a Parlance project"* when opening a folder | The folder has no `data/`, `parlance.config.json` or `schema/` at its root. Open the project root itself, not a folder inside it, or create a project with **File ▸ New Project…** |
+| The project opens empty | `data` in `parlance.config.json` points somewhere other than your data. See [configuration](/docs/reference/config/) |
 | Validation shows errors you don't understand | Every code is explained in the [validation checks reference](/docs/reference/validation-checks/) |
 | A canvas looks tangled or a node is hidden behind the minimap | **Auto layout** re-flows the graph; **Map** toggles the minimap; the density toggle shrinks nodes. See [shortcuts](/docs/reference/shortcuts/) |
 

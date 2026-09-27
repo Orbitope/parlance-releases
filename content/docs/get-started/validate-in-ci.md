@@ -42,7 +42,7 @@ about where you end up:
   "id": "rt_talk_past",
   "description": "Talking past the gatekeeper marks you as known at the gate.",
   "dialogueId": "dlg_gate_first",
-  "steps": [{ "choiceId": "c_talk", "forced": "pass" }],
+  "steps": [{ "choiceId": "ch_1", "forced": "pass" }],
   "assertEnd": { "flags": { "talked_past_gate": true } }
 }
 ```
@@ -55,9 +55,11 @@ parlance route --all --strict
 
 Because play is [deterministic](/docs/concepts/playtest-determinism/), the
 replay is exact every run. When next month's edit
-accidentally gates your only route to `node_pass`, this fixture fails with the
-step where the walk diverged. The demo ships four of these, including one
-asserting the *failure* branch still works.
+accidentally gates your only route to the success node, this fixture fails
+with the step where the walk diverged. (`ch_1` is the choice id from the
+[branching tutorial](/docs/get-started/branching-dialogue/); use your own if
+you renamed it.) The demo ships five of these, including one asserting the
+*failure* branch still works.
 
 Routes live in `tests/`, not `data/`, deliberately: a shipping game never
 loads them ([layout reference](/docs/reference/config/#project-layout)).
@@ -102,6 +104,18 @@ No Node in your pipeline? The independent Python validator
 same issues, enforced by a parity test.
 
 ## 4. Read failures fast
+
+On GitHub Actions you usually don't need the log. `ci-check` (and the
+reusable action) marks each issue on the file and line that caused it, so the
+pull request's **Files changed** tab shows the error on the choice, node or
+registry entry itself, titled with the check code (`REF`, `SCHEMA`, ...) and
+carrying the same message as the log.
+
+This turns on by itself when `GITHUB_ACTIONS=true`, so no setup is needed.
+GitHub shows at most 10 errors and 10 warnings per step; the complete list is
+in the step's log. To turn it off, pass `--annotations none`, or set
+`annotations: "false"` on the action
+([details](/docs/reference/cli/#parlance-ci-check)).
 
 When CI goes red, the [validation checks reference](/docs/reference/validation-checks/)
 is the decoder ring — every family, what it scans, and how to fix it. In the

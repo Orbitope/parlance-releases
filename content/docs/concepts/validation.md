@@ -15,17 +15,40 @@ before a playtester ever trips over them.
 
 The same rule set runs in three places, and they are kept in agreement:
 
-1. **On every save.** Each write triggers a full project validation, and the
-   results are pushed over a WebSocket to every open editor window. The
+1. **On every save.** Each write triggers a re-validation, and the results are
+   pushed over a WebSocket to every open editor window. The pass is
+   **incremental**: it re-checks the entities that changed and the entities that
+   refer to them, and reuses everything else, so its result is the same one a
+   full pass would give (a change to project-wide configuration such as
+   `rules.json` still runs everything). The
    [validation bar](/docs/editor-guide/#10-validation-panel) shows live
-   error/warning counts with per-code filters; each issue row navigates to the
-   offending entity. You never refresh, and you never validate "later."
+   error/warning counts with per-code filters, and appears only while there is
+   something to report. Clicking an issue row takes you to **the place the
+   issue is about**, not just the entity (hover a row to see where it will
+   land):
 
-   The pass is *scheduled* rather than run inside the save itself: a save
-   returns as soon as the bytes are on disk, and rapid saves coalesce into one
-   validation instead of one each. On a small project the difference is
-   invisible; on a large one it is the difference between a save that answers
-   instantly and one that waits on a whole-project pass. See
+   - a **dialogue node or choice** — the canvas selects the node and scrolls
+     it into view, and a choice-level issue opens that choice in the
+     inspector;
+   - a **quest stage, outcome or objective** — the quest canvas selects the
+     stage or outcome and scrolls the objective into view;
+   - **a field on any other entity** — its form opens with that field outlined
+     and focused, expanding **Metadata** first if it is collapsed;
+   - **`FLAG`, `REP`, `REL`** — the variable, faction or character opens with
+     its [Flow panel](/docs/editor-guide/#flow-flags-counters-items), listing
+     every place that checks it and every place that changes it; each row
+     jumps to the node, which is where a read-but-never-set flag gets fixed.
+
+   Issues are listed entity by entity, errors before warnings; only an issue
+   from a file the editor could not read at all sits above them. You never
+   refresh, and you never validate "later."
+
+   The pass is also *scheduled* rather than run inside the save itself: a save
+   returns as soon as the bytes are on disk, rapid saves coalesce into one
+   validation instead of one each, and the pass runs on a worker thread off the
+   editor's serving thread. On a small project the difference is invisible; on
+   a large one it is the difference between a save that answers instantly and
+   one that waits on a whole-project pass. See
    [Performance](/docs/concepts/performance/).
 2. **In CI.** [`parlance ci-check`](/docs/reference/cli/) runs the identical
    code path headless: exit `1` on errors, `--strict` to fail on warnings too.
@@ -64,11 +87,12 @@ is validation's exploratory twin:
   each entity: characters with no dialogue, unreachable nodes, orphaned flags,
   endings with no path in.
 - **The reference index** — for *any* id in the project: where it's defined,
-  every place it's **read**, every place it's **written**, each entry one click
-  from the spot. This is "find usages" for your story, and it's what makes
-  renaming or retiring a variable safe. (Variables and items also get an inline
+  every place it's **read**, every place it's **written**, each with its entity
+  and JSON path. This is "find usages" for your story, and it's what makes
+  renaming or retiring a variable safe. (Variables, items, factions and
+  characters also get an inline
   [Flow panel](/docs/editor-guide/#flow-flags-counters-items) on their own
-  detail page.)
+  detail page, whose rows click through to each use.)
 
 ## Validation as a feature of the *format*
 
