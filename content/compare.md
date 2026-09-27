@@ -98,7 +98,7 @@ endings, and the validation over them are yours to build and maintain.
 Three of the tools on this page are ones Parlance can **import from**: ink, Yarn Spinner,
 and Twine (Harlowe and SugarCube stories). There are importers for ChoiceScript, Arcweave
 and Ren'Py too.
-The importers are **AI agent skills** (for Claude Code or Antigravity) that you can [download from the open spec repository](https://github.com/Orbitope/parlance-spec/tree/main/importers).
+The importers are **agent skills** in the open `SKILL.md` format — coding agents that support it load them natively, and any other agent can follow a skill's `SKILL.md` as instructions. You can [download them from the open spec repository](https://github.com/Orbitope/parlance-spec/tree/main/importers).
 
 Once installed, you instruct the agent to run the import. It will check every emitted string against your source byte for byte and name anything it can't carry, so the question "do I have to retype my script" has a concrete answer. [How migration works](/docs/integrations/).
 

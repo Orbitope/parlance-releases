@@ -169,7 +169,7 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
 
 ## Migrating in, and reviewing what's there
 
-Two optional [AI agent skill bundles](https://github.com/Orbitope/parlance-spec) (for Claude Code or Antigravity) ship separately from the editor. They are both MIT-licensed and meant to be forked. See [integrations](/docs/integrations/).
+Two optional [agent skill bundles](https://github.com/Orbitope/parlance-spec) in the open `SKILL.md` format, for any coding agent that loads skills, ship separately from the editor. They are both MIT-licensed and meant to be forked. See [integrations](/docs/integrations/).
 
 - **[Importers for seven formats](/docs/integrations/#coming-from-another-tool)** — Yarn
   Spinner, ink, Twine (Harlowe and SugarCube), ChoiceScript, Arcweave and Ren'Py. Move a

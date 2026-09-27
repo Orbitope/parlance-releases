@@ -125,12 +125,12 @@ nor the Unity port does today.
 ## Coming from another tool
 
 Importers ship as MIT [skill bundles](https://github.com/Orbitope/parlance-spec/tree/main/importers),
-separate from the editor: each is a Claude Code skill that drives a plain Python
+separate from the editor: each is an agent skill in the open `SKILL.md` format that drives a plain Python
 parser and a Python check script, which you can also run yourself. There are seven: Yarn
 Spinner, ink, Twine (Harlowe), Twine (SugarCube), ChoiceScript, Arcweave and Ren'Py.
 
 To run a migration:
-1. Copy the importer skill from the `parlance-spec` repository into your project's `.claude/skills/` directory, together with the shared `importers/lib/` folder its commands run (`lib/parse_<format>.py`, `lib/check.py`).
+1. Copy the importer skill from the `parlance-spec` repository into your agent's skills directory — for example `.claude/skills/` for Claude Code or `.agents/skills/` — together with the shared `importers/lib/` folder its commands run (`lib/parse_<format>.py`, `lib/check.py`). Coding agents that support `SKILL.md` load it natively; with any other agent, point it at the skill's `SKILL.md` as its instructions.
 2. Instruct your agent to run the import against your source files.
 3. The agent reads your script, emits Parlance JSON, and then **checks every string in the output against the source, byte for byte**.
 
@@ -174,6 +174,11 @@ project's use of the pattern cookbook's recipes falls into each recipe's documen
 They never draft. Every command is a read; none writes to `data/`. An audit that can't
 judge without inventing the intent stops and asks you for it.
 
+Like the importers, the audits are agent skills in the open `SKILL.md` format. Install
+one in your agent's skills directory — for example `.claude/skills/` for Claude Code or
+`.agents/skills/` — or point any other agent at its `SKILL.md` as instructions, then ask
+your agent to run it.
+
 ## MCP server — for LLM agents
 
 The [MCP server](/docs/reference/mcp/) exposes a project to AI agents: twelve
@@ -187,8 +192,9 @@ project ([how](/docs/reference/mcp/#get-the-server)).
 
 ## AI drafting
 
-In-editor drafting talks to **Anthropic or any OpenAI-compatible provider**,
-configured with your endpoint and API key. Drafted content is visually marked
+In-editor drafting is optional and talks to **Anthropic (Claude) or any
+OpenAI-compatible provider** — whichever you choose, configured with your
+endpoint and API key. Drafted content is visually marked
 (the purple "AI" accent in the app's own palette) until a human accepts it —
 drafts propose, writers decide. Local-first still applies: nothing leaves your
 machine except the drafting request you explicitly make.
