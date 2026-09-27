@@ -53,9 +53,20 @@ one night, one body, three suspects, three endings — with no art and no engine
 required. It exists so your first session is spent on something real instead of
 an empty directory.
 
-Open it and start with **The Common Room** under Locations, or go straight to
+In the desktop app, choose **File ▸ Open the Demo**, or **Open the demo** on the
+welcome screen. The first time, Parlance copies the demo to
+`Documents/Parlance/The Mistfall Inn` and opens that copy — the copy is yours to
+edit, break and play with, and the app's bundled original is never touched.
+Every later **Open the Demo** reopens the same copy, edits and all; it is never
+overwritten. To start over, delete or rename that folder and choose it again.
+(On Linux, "Documents" is your XDG Documents directory, or your home folder if
+none is set.) The copy is an ordinary folder, not a git repository — the same as
+a **New Project…**.
+
+Start with **The Common Room** under Locations, or go straight to
 `dlg_examine_body` and press **▶ Play**. Each of its parts is demonstrating
-something specific; `examples/mistfall-inn/README.md` maps features to the
+something specific; the `README.md` in the demo's folder
+(`examples/mistfall-inn/README.md` in a source checkout) maps features to the
 scenes that show them off.
 
 ### Where your files live
@@ -103,7 +114,7 @@ same validator, the same files on disk.
 │ Lore … in  │              │ Location map / custom-type grid /    │
 │ the footer)│              │ Reports / Lore / other surfaces      │
 ├────────────┴──────────────┴──────────────────────────────────────┤
-│ Validation bar (collapsed to a status row by default; click to expand) │
+│ Validation bar (appears only when there are issues; click to expand)   │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -119,7 +130,7 @@ The sidebar's footer holds the surfaces that are not entity types:
 **Reports** (§11), showing the total error/warning count once the project has
 any; **Localization** (§15); **Lore**, the project's Markdown canon under
 `lore/`, which you read and edit there (§5, *Lore — linked Markdown
-documents*); **Drafts**, your own draft branches; and **Review** (§16), with
+documents*); **Drafts**, your own draft branches (§16); and **Review** (§16), with
 a badge counting reviews waiting for you. The **«** button collapses the whole panel — sidebar and list —
 to a thin 32px rail to maximise canvas width; **»** expands it again. The
 collapsed/expanded choice is remembered across sessions.
@@ -378,17 +389,26 @@ detail pane shows every place that variable is used, split by direction:
 
 Each row names the owning entity and the exact path (e.g.
 `nodes/node_cleared/onEnter[0]`) and is clickable — it jumps you straight to
-that entity. If a variable is only ever written or only ever read, the panel
-says so: a flag nothing checks, or a condition that gates on a flag nothing
-sets, is usually a wiring mistake worth catching early.
+that place: the dialogue node (and choice) selected on the canvas, the quest
+stage selected on the quest canvas, or the entity's form. If a variable is only
+ever written or only ever read, the panel says so: a flag nothing checks, or a
+condition that gates on a flag nothing sets, is usually a wiring mistake worth
+catching early.
+
+A **faction** and a **character** carry the same panel for their reputation and
+relationship state — **Reputation / Relationship checked by** (`reputation` and
+`relationship` conditions) and **adjusted by** (`adjust_reputation`,
+`adjust_relationship` effects) — whenever anything checks or adjusts it. That is
+where a `REP` or `REL` warning in the Validation panel (§10) takes you.
 
 ### Creating a flag inline
 
 You don't have to define a flag before you can reference it. In any condition
 or effect picker (a flag / counter / item field), type a name that doesn't
-exist yet and choose the **＋ New flag "…"** row that appears. The name is
-slugified to a valid id, the variable is created immediately, and the field is
-set to it — no trip to the Variables list. Fill in its description later.
+exist yet and choose the **＋ New flag “…”** row that appears (**New counter**
+or **New item** in those fields). The row already shows the name slugified to a
+valid id — type `Talked past gate` and it reads `New flag “talked_past_gate”`.
+The variable is created immediately, and the field is set to it — no trip to the Variables list. Fill in its description later.
 
 ### Exclusive flag groups
 
@@ -503,14 +523,31 @@ the entity to match its file name is how to tidy it up: `quests/old_name.json`
 holding `task_new`, renamed to `old_name`, is rewritten in place — the preview
 lists it as one update, and the file keeps its name.
 
-**Not renamed:** ids *inside* an entity — dialogue node and choice ids, quest
-stage, outcome and objective ids, exit and spawn ids — and custom entities
-themselves (a custom entity that *refers* to a renamed one is rewritten). VO
-asset file names stay as they are: they are paths on disk, not keys.
+**Quest stages and outcomes** are the one id *inside* an entity that can be
+renamed, because other entities name them: quest conditions
+(`{type:"quest", stage}`, `{type:"questOutcome", outcome}`), `advance_quest`'s
+`toStage`, and the `questStages` / `questFired` entries of routes and
+snapshots. Select the stage or outcome on the quest canvas and use **Rename
+id…** in its inspector (see *Renaming a stage or outcome id* in §7). The rename
+is scoped to its quest — a stage called `stage_1` in another quest, and every
+reference to *that* one, is left alone — and it rewrites, in the same
+operation, every reference above, the localization and VO keys under the stage
+(`quest/<quest>/stages/<id>/…`, objectives included), review threads anchored to
+it, and its position on the canvas. The new id must be valid and unique among
+that quest's stages (or outcomes); a stage and an outcome may share an id,
+because every reference says which one it means.
+
+**Not renamed:** other ids *inside* an entity — dialogue node and choice ids,
+objective ids, exit and spawn ids — and custom entities themselves (a custom
+entity that *refers* to a renamed one is rewritten). VO asset file names stay
+as they are: they are paths on disk, not keys.
 
 The same rename runs from a terminal — `parlance rename characters mara
 mara_vell --dry-run` prints the plan, lore lines included; drop `--dry-run` to
-apply — and from an agent through the MCP server's `rename_entity` tool.
+apply — and from an agent through the MCP server's `rename_entity` tool. A
+stage or outcome is addressed as `<quest>/<id>` with the type `questStages` or
+`questOutcomes`: `parlance rename questStages task_pick_side/stg_commit
+stg_chose_side`.
 
 ---
 
@@ -545,8 +582,9 @@ the left and the conversation reads forward across the canvas.
 
 The **Graph · Text** toggle (toolbar, top-left) switches between the visual
 canvas and an editable **script view** — the whole scene as text, for authors
-who'd rather type than click. Node headers are `== node_id [entry] [end] ==`,
-an optional author note is a `> …` line under the header, prose follows, choices
+who'd rather type than click. Node headers are `== node_id [entry] [end] ==`
+(the brackets mark optional words: write `== node_open entry ==`, not
+`[entry]`), an optional author note is a `> …` line under the header, prose follows, choices
 are `- choice_id: "text" -> target`, node/choice effects are `+ set_flag x = true`,
 and checks are `check wit >= 12 -> pass / fail` — with a conditional modifier written on an
 indented `bonus <±n> ["label"] ? <condition>` line under the check:
@@ -561,6 +599,9 @@ indented `bonus <±n> ["label"] ? <condition>` line under the check:
 The script is a **lossless** representation: saving reproduces the dialogue
 exactly, changing only what you edited (a byte-level round-trip is enforced by
 tests over every dialogue).
+
+A running [playtest](#12-playtest-mode) survives the switch: the Play panel
+stays beside the script, and a save re-reads the scene into the session.
 
 The text is syntax-highlighted as you type: `~` directives, `==` node fences and
 the `-` / `+` markers in one colour, node ids and `-> targets` in another, ids that
@@ -655,7 +696,7 @@ to Ink, Yarn Spinner, Twine, and Ren'Py for authors arriving from another tool.
 | Pan | Click and drag on empty canvas |
 | Zoom | Scroll wheel, or use the Controls cluster (bottom-left) |
 | Fit all | Fit-view button in Controls, or "Auto layout" in the toolbar |
-| Select node | Click a node |
+| Select node | Click a node (with Play open, this also opens the node in the Play column's **✎ Edit** tab — §12) |
 | Deselect | Click empty canvas |
 | Drag node | Drag the node header to reposition (saved automatically) |
 | Delete node | Select it → "Delete node" button in the toolbar |
@@ -699,6 +740,13 @@ feedback on a scene without walking them through running the editor.
 
 Click **+ Node** in the toolbar. A new blank node appears to the right of the
 graph. Click it to open the inspector, then fill in the text.
+
+New nodes get generated ids (`node_1`, `node_2`, …), and the inspector shows
+the id read-only in its title (**Node: node_3**) — there is no id field in the
+graph view. To give a node a meaningful id, edit its header line in the
+**Text** view, along with any `->` lines that point at it (see *Graph vs.
+Text*). The same goes for choices: **+ Add
+choice** names them `ch_1`, `ch_2`, … per node.
 
 ### Connecting nodes
 
@@ -781,25 +829,62 @@ Click a node to open its inspector.
   type-specific fields (see Effects reference below).
 
 **Choice section:**
-Select a choice to expand it.
+Below the node fields, **+ Add choice** appends a choice (and selects it), and
+**✨ Draft** opens AI drafting for this node (see *AI drafting — suggested
+player choices* below). The node's choices are listed under **Choices**, in
+the order the player sees them; click one to open its fields. The **↑** / **↓**
+buttons beside each choice move it one place up or down (disabled at the
+ends), and with a choice focused, **Alt+↑** / **Alt+↓** does the same from the
+keyboard. Each move is one save and one undo step. Edges, routes and
+localization keys all follow a choice by its id, so a move rewires nothing. It
+changes only the order the choices are offered in, in Play and in the game.
 
 - **Text** — what the player sees.
+- **Tags** — opaque labels on this choice, passed through to the engine (see
+  *Line tags and engine commands*).
 - **Show If** — an optional condition that gates visibility. If the condition
   is false at runtime, the choice is hidden. Supports `flag`, `skill`,
   `reputation`, `relationship`, `counter`, `item`, `quest`, and boolean
   `all`/`any`/`not` combinators.
-- **Effects** — effects applied when this choice is selected.
-- **Check** — optional skill check on this choice:
-  - `passive` — always shown; displays a skill hint but doesn't roll.
-  - `active` — rolls `d20 + skill_value ≥ difficulty`. Routes to `onSuccess`
-    or `onFailure` node.
-  - A **probability bar** previews P(success) at any given stat value.
+- **Fallback** / **When locked** / **Locked text** — see *Fallback and locked
+  choices* below.
+- **Skill Check** — **+ Add skill check** attaches one; a mode (`active` /
+  `passive`), a skill, a difficulty, and an optional per-check dice override
+  (blank uses the project default). **Remove check** takes it off.
+  - `active` — rolls `d20 + skill_value ≥ difficulty` (or the dice in effect).
+    Routes to the `onSuccess` or `onFailure` node, which you wire with the
+    choice's green and red handles.
+  - `passive` — never rolls. The choice leads to its ordinary destination, like
+    a plain choice. The check is a **reveal threshold** your game applies: the
+    runtime's `passiveCheckPasses` is true when `skill + Σbonus ≥ difficulty`,
+    and a game that shows passive-check options only to qualified players uses
+    that rule to decide. The runtime itself still lists the choice whenever its
+    **Show If** passes, and so does Play in the editor, which offers the choice
+    whatever the skill and logs it as *(passive reveal)*. See the runtime
+    contract (`tooling/RUNTIME_CONTRACT.md`, `passiveCheckPasses`).
+    Because the runtime counts a passive choice as visible even when it is
+    unrevealed, a node whose **every** non-fallback choice is a passive check
+    gets a `FLOW` warning: a game that hides unrevealed passive choices can show
+    the player nothing to click there, and any **Fallback** on that node stays
+    suppressed. Give the node at least one choice without a passive check.
+    Showing the passive choice greyed (**When locked**) does not help, because a
+    greyed choice is never selectable.
+  - A **probability bar** (active checks only) shows P(success) for a stat
+    value you type into **Preview stat**, computed from the check's dice,
+    difficulty and the project's critical-roll rule. The bar is the base chance,
+    with no modifier applying. When the check has modifiers, a line under it
+    gives the range they can reach, e.g. *"with modifiers 30–75% (−3 to +6)"*:
+    every penalty applying at the low end, every bonus at the high end.
   - **Modifiers** *(new in 0.14.0)* — conditional bonuses on the roll (or, for a
     passive check, the reveal threshold). See **Conditional check modifiers**
     below.
-- **Goto** — for non-check choices, the destination node id (set by dragging
-  an edge on the canvas, or typed directly).
-- Reorder choices with the ↑/↓ buttons; delete with ×.
+- **Effects** — effects applied when this choice is selected.
+- **Delete choice** removes it.
+
+The inspector has no destination field. A plain choice's `goto` is set only by
+dragging its handle to a node on the canvas (see *Connecting nodes*), or by
+editing the `-> target` in the Text view. In the Text view you can also reorder
+choices by moving their `- choice` lines.
 
 > **Skill checks and conditions are shown automatically.** On the canvas, a
 > choice with an active check shows a `skill / difficulty` badge (e.g.
@@ -808,12 +893,64 @@ Select a choice to expand it.
 > to type a `[Wit]`-style prefix into the choice text — the badge is generated
 > for you, and the text stays clean prose that serializes verbatim to JSON.
 
+### AI drafting — suggested player choices
+
+Optional, and off until you configure a provider. **AI drafting proposes player
+choices for one node** — the options the player picks from at that line. It
+never writes an NPC's reply, a node's text, or new nodes; the NPC's side of the
+scene stays yours to write.
+
+**Set up.** Click **⚙ AI** in the header to open **AI Provider Settings**:
+**Provider** (*Anthropic (Claude)* or *OpenAI-compatible (Ollama, OpenRouter,
+etc.)*, which also takes a **Base URL**), **Model** and your API key. Settings
+are stored on your machine in `parlance-settings.json` (the desktop app's
+user-data folder, or `~/.config/parlance/`), readable only by you; the key is
+never sent back to the page in full.
+
+**Draft.** Select a node and click **✨ Draft** under its fields. The **✨ AI
+Draft** panel opens with a **Count** (1–5, default 3); press **Draft**, and
+**Regenerate** for a fresh set. Each candidate card shows the choice text, its
+id (`ch_…`, generated by the model), and any check, **Show If** or effects the
+model proposed. **Add ↓** appends it to the node's choices and selects it.
+
+**What it checks, and what it leaves to you.** The model may only use skill,
+flag, faction and character ids that already exist. Every candidate is
+validated against your project before you see it: one that would add a
+validation error (an unknown id, a malformed condition, a duplicate choice id)
+is shown as **Invalid candidate**, with the reason one click away, after one
+automatic retry. Wiring is not the model's job: a candidate never carries a
+destination, and a check comes without its success and failure targets. Those
+`FLOW` and `GATE` problems are ignored when judging a candidate, so an added
+choice is a dead end — a `FLOW` error in the validation bar — until you drag its
+handle to a node on the canvas.
+
+Once added, a drafted choice is an ordinary choice. The purple marking lives on
+the candidate cards only; nothing in the saved data records that a choice was
+drafted by AI.
+
+**What leaves your machine**, and only when you press **Draft** or
+**Regenerate**, sent to the provider you configured with your key:
+
+- the node's speaker (id, name and archetype — or the skill, for a
+  skill-voiced line), the node's text, and the choices already at that node
+  (id, text, and check skill);
+- lists of up to 50 ids each of your project's skills, flags, factions and
+  characters (the ones this dialogue already uses first), so the model can only
+  reference ids that exist;
+- the instructions for the task.
+
+Nothing else from the project is sent — not other nodes or dialogues, not
+`lore/`, and not the character's description or `dialogueStyle`.
+
 ### Fallback and locked choices, text-less and gated choice nodes
 
 - **Fallback.** Tick **Fallback** on a choice to offer it only when no other choice
   on the node is visible — a "Walk away" under two gated options. A node whose every
   other choice is gated stops getting the *player may be stuck* warning once it has an
-  ungated fallback. The canvas marks it with a dashed `fallback` tag.
+  ungated fallback. The canvas marks it with a dashed `fallback` tag. A passive-check
+  choice counts as visible here even when the game hides it, so a fallback beside
+  nothing but passive-check choices is never offered; the validator warns about
+  that node (see the `passive` bullet above).
 - **When locked.** A gated choice is hidden when its **Show If** fails. Set **When
   locked** to *show greyed out* (or set the project default, `rules.choices.
   whenLockedDefault`) to present it disabled instead, with optional **Locked text**
@@ -844,8 +981,13 @@ Every modifier whose condition holds contributes its bonus, and they sum.
   there is no equipment layer applying a bonus everywhere. If an item should help
   every rhetoric check, it goes on each of them; the editor invents no global
   bonus.
-- **The probability bar accounts for them**, so the previewed P(success) already
-  reflects any modifier whose condition holds in the current preview state.
+- **The probability bar shows their range, not their conditions.** The inspector
+  has no game state, so it cannot know which modifiers hold. The bar is the base
+  chance for the stat you type, and the line under it gives the range across
+  every combination: all penalties at the low end, all bonuses at the high end.
+  To see a bonus actually applied, use **▶ Play**: the check line
+  reads `1d20=… + skill + N (mods) = total`, and the choice's check tag in Play
+  includes the bonus that holds in the current state.
 - **In the Text view**, a modifier is an indented `bonus <±n> ["label"] ?
   <condition>` line under the check (see **Graph vs. Text**).
 
@@ -854,18 +996,23 @@ full example and lists the mistakes to avoid.
 
 ### Effects reference
 
-| Type | What it does |
-|------|-------------|
-| `set_flag` | Sets a boolean flag to true/false |
-| `adjust_reputation` | Adds a delta to a faction's reputation, clamped to its declared range |
-| `adjust_counter` | Adds a delta to a named counter (unbounded) |
-| `give_item` | Adds an item id to the player's inventory |
-| `take_item` | Removes an item id from inventory (no-op if not held) |
-| `advance_quest` | Marks a quest stage complete (engine handles progression; no-op in playtest) |
-| `set_active_dialogue` | Queues a specific dialogue for a character (push-based scene switch) |
-| `play_cutscene` | Queues a cutscene manifest (`pendingCutscene`); the host plays its `asset`, applies `effectsOnComplete`, then enters `entersDialogue` if set |
-| `set_text` | Sets a text variable to a literal string, substituted wherever `{variable}` appears in player-facing text. Pick the variable from the dropdown (or create one inline) and type the value. |
-| `engine` | **Engine command.** A command for the game engine (camera shake, a sound cue), handed over in order among the other effects. It changes no state in Parlance. Type the command name (suggested from `rules.engine.commands` when the project declares them) and the args on one line: `0.5 camera_main true "two words"`. See *Line tags and engine commands* below. |
+The effect picker offers twelve types. The dropdown shows the label in the
+second column; the data stores the `type` in the first.
+
+| Type | Label | What it does |
+|------|-------|-------------|
+| `set_flag` | set flag | Sets a boolean flag to true/false |
+| `adjust_reputation` | adjust reputation | Adds a delta to a faction's reputation, clamped to its declared range |
+| `adjust_relationship` | adjust relationship | Adds a delta to one character's relationship with the player. Unclamped — a character declares no range |
+| `adjust_counter` | adjust counter | Adds a delta to a named counter (unbounded) |
+| `give_item` | give item | Adds an item id to the player's inventory |
+| `take_item` | take item | Removes an item id from inventory (no-op if not held) |
+| `advance_quest` | advance quest | Records the stage id you type as the quest's current stage (what a `quest` condition reads). It does not itself fire the stage's **On Complete Effects** — those fire when the stage's **Complete When** holds |
+| `grant_xp` | grant XP | Adds to the player's total earned XP (levels and skill points derive from it; see `progression.json`). By convention it goes on quest outcomes — the `XP` check notes one anywhere else |
+| `set_active_dialogue` | set active dialogue | Queues a specific dialogue for a character (push-based scene switch): it sets the flag `active_dialogue__<character>`, which the target dialogue's forced offer reads (see *Offers*) |
+| `play_cutscene` | play cutscene | Queues a cutscene manifest (`pendingCutscene`); the host plays its `asset`, applies `effectsOnComplete`, then enters `entersDialogue` if set |
+| `set_text` | set text | Sets a text variable to a literal string, substituted wherever `{variable}` appears in player-facing text. Pick the variable from the dropdown (or create one inline) and type the value. |
+| `engine` | engine command | **Engine command.** A command for the game engine (camera shake, a sound cue), handed over in order among the other effects. It changes no state in Parlance. Type the command name (suggested from `rules.engine.commands` when the project declares them) and the args on one line: `0.5 camera_main true "two words"`. See *Line tags and engine commands* below. |
 
 ### Dialogue metadata (inspector, top section)
 
@@ -881,8 +1028,14 @@ full example and lists the mistakes to avoid.
   "offered when" gate. An offer with no gate is the **fallback** — the NPC's
   default when no more specific or higher-tier offer applies. A dialogue with
   no offer at all is reached only by `goto`/route/cutscene/world placement.
-- **Replayable** — the dialogue can be started again after it has been
-  completed once.
+- **Replayable** — off by default. A dialogue that is **not** replayable drops
+  out of offer resolution once the player has played it, so after one visit its
+  character falls through to the next offer — or to nothing, if it was their
+  only one. Tick it for anything the player should be able to hear again: a
+  fallback greeting, a shopkeeper, or a gatekeeper who turns the player away
+  until they come back with the right papers. The validator cannot see this
+  case: a character whose only unconditional offer is a one-shot passes the
+  `OFFER` no-fallback check and still says nothing on the second visit.
 - **Lore** button (toolbar, far right) — appears if the dialogue has a
   `loreRef`; opens the linked Markdown doc inline.
 - **Delete dialogue** (toolbar, far right) — deletes the whole dialogue
@@ -902,8 +1055,8 @@ from a 0.13 project" at the end of this section to migrate.*
 
 1. **A dialogue opts in by carrying an offer.** No offer means it is never
    presented on its own; it is reached only by a `goto`, a route, a cutscene,
-   or a place in the world (an interactable). Click **Offer this dialogue** in
-   the inspector to opt in.
+   or a place in the world (an interactable). Click **+ Offer this dialogue**
+   in the inspector to opt in.
 2. **An offer with no gate is the fallback.** It is what the character says
    when nothing more specific applies. Every character with offers should have
    exactly one; the validator warns (`OFFER`) when there is none (a character
@@ -946,8 +1099,13 @@ line: a bare `~ offer` opts in as a fallback; `~ offer by: npc_wren`,
 (the condition uses the same syntax as `~ showIf:`). Deleting the lines removes
 the offer.
 
-**How to see what will happen.** Open **▶ Play** on any dialogue and expand
-**Dialogue Offers** above the transcript. Pick a character (it opens on the
+**How to see what will happen.** There are two previews. The quick one is in
+the inspector itself: under **Offer**, a line ranks this dialogue among its
+character's offers (*"Ranks #2 of 3 for Wren — …"*), and an open **Resolution
+preview** lists that character's offers in rank order with the winner marked,
+resolved against the project's default starting state, with toggles for the
+flags the gates read. The fuller one is in Play: open **▶ Play** on any dialogue
+and expand **Dialogue Offers** above the transcript. Pick a character (it opens on the
 first with offers); it lists every offer of that character in rank order, marks the one that wins against the current state,
 and shows each offer's tier and condition count — the two numbers that decide.
 Flip the flags the gates read, right there, and watch the winner change. On the
@@ -982,37 +1140,76 @@ so you can tell a two-beat exchange from a sprawling branch without counting:
 
 ## 7. Quest canvas
 
-Selecting a quest from the entity list opens a **stage graph**. Stages flow
-left-to-right; edges represent `after` dependencies between them. The quest
-canvas shares the same dark controls and **Map** minimap toggle as the
-dialogue canvas.
+Selecting a quest from the entity list opens a **stage graph**. Stages are
+chained in play order (`order`); outcomes stand beside them. The quest canvas
+shares the same dark controls and **Map** minimap toggle as the dialogue canvas.
 
 ### Quest structure
 
 A quest has:
-- **Stages** — ordered steps, each with a `name`, optional `description`, and
-  optional `requiredFlags`/`setsFlags` arrays.
+- **Stages** — steps in play order (`order`), each with a retrospective
+  `description`, an optional **Complete When** condition, **On Complete**
+  effects and journal **objectives**.
 - **Outcomes** — terminal results (success / failure / neutral), each with a
-  `label` and optional `setsFlags`.
+  `description`, an optional **Reached When** condition and effects.
 
 ### Quest inspector
 
-Click a stage or outcome node to open the inspector:
+With nothing selected the inspector shows the quest itself:
 
-- Edit the name and description inline.
-- Add / remove `requiredFlags` (conditions that must be true to unlock the
-  stage) and `setsFlags` (flags this stage sets on completion).
-- Stages show their `order` value (automatically managed).
-- The **Add Stage** / **Add Outcome** buttons append new nodes.
+| Field | What it is |
+|---|---|
+| **Name** | the authoring-facing label |
+| **Journal Name** | the player-facing title in the journal; leave it empty and the journal shows **Name**. `{variable}` placeholders are filled at runtime. Emptying it removes the field. |
+| **Summary** | one or two lines for the journal |
+| **Tags** | free labels the journal groups and prioritises by — main vs. side is a tag, never a checkbox. Type and press Enter; × removes one. Linted against `rules.quest.tagVocabulary` when the project declares one (an unrecognised tag is a warning). |
+| **Starts available**, **Available When**, **Closed When** | when the quest enters and leaves the journal |
+
+Click a stage or outcome node to add its own section below: description,
+conditions and effects, and — for a stage — its journal objectives and its
+place in play order. **+ Stage** / **+ Outcome** append new nodes with
+placeholder ids (`stage_N`, `outcome_N`); rename them with **Rename id…**.
+With a node selected, **Delete stage** / **Delete outcome** removes it after a
+confirm. Every change is written to disk as you make it (*"Saved automatically ·
+⌘Z to undo"*).
+
+### Renaming a stage or outcome id
+
+**Rename id…** in a stage's (or outcome's) inspector heading opens the same
+preview-then-confirm dialog as an entity rename (§5, *Renaming an id*). Type the
+new id — it is checked as you type: valid, and unique among this quest's stages
+(or outcomes) — then **Preview** lists every file the rename touches: the quest
+itself, every entity whose quest condition or `advance_quest` names the stage,
+`tests/` routes and snapshots, localization keys, review threads. **Rename**
+applies exactly that list; the node keeps its place on the canvas and stays
+selected under its new id. Only this quest's stage is renamed — a same-named
+stage in another quest keeps its id and its references.
+
+### Stage order
+
+A stage's inspector shows its position (*2 of 4*) with **▲ Earlier** and
+**▼ Later**. A move swaps the stage with its neighbour in play order and
+renumbers every stage's `order` 1, 2, 3… (the array is kept in the same order,
+so the validator's *stages not in ascending order* warning never appears).
+
+Quest conditions compare stages by **order**, not by id — `>= stg_commit` means
+"at or past stg_commit" — so moving a stage can change game logic without
+touching a single reference. Before such a move is written, a one-line warning
+names how many existing quest conditions would change meaning and where they
+are (*Moving stg_commit earlier changes what 2 quest conditions mean — they
+compare stage order (dialogues/dlg_x, codex/cx_y).*). **Move anyway** writes
+it; **Cancel** writes nothing. A move that changes no condition's meaning (and
+`==` comparisons never do) is saved immediately. Like every canvas edit, a move
+is one step on the undo stack.
 
 ### Journal objectives (stage inspector)
 
 A stage's inspector has two prose fields, and the difference between them is the
 whole point of the journal:
 
-- **Description (retrospective)** — what the protagonist *did*, in her voice.
+- **Description (retrospective)** — what the protagonist *did*, in their own voice.
   Shown once the stage is complete.
-- **Objectives (journal)** — what she *intends* to do. Shown while the stage is
+- **Objectives (journal)** — what they *intend* to do. Shown while the stage is
   the current one.
 
 Under **Objectives (journal)** each row carries:
@@ -1040,9 +1237,10 @@ Two warnings you may see in the validation panel:
 - *"every objective is gated by showIf"* — there are states where the stage lists nothing.
 
 Quest-level **Journal Name** (the player-facing title, falling back to `name`)
-and **Tags** are edited on the quest's own entity form, not on the canvas. Tags
-drive the journal's grouping — main vs. side is a tag, never a checkbox — and
-are linted against a controlled vocabulary; an unrecognised tag is a warning.
+and **Tags** are edited in the quest inspector with nothing selected (see
+*Quest inspector* above). Tags drive the journal's grouping — main vs. side is a
+tag, never a checkbox — and are linted against a controlled vocabulary; an
+unrecognised tag is a warning.
 
 ---
 
@@ -1054,8 +1252,16 @@ quests are prerequisites for others.
 
 Each node shows:
 - Quest id and name
-- A badge if the quest has `availableWhen` conditions
-- `GATE` / `CLOSED` markers for quests with prerequisites
+- **start** — the quest has **Starts available** ticked
+- **gated** — the quest has an **Available When** condition
+- **closes** — the quest has a **Closed When** condition
+
+Edges are drawn from flags. An **opens** edge (grey, labelled `opens: <flags>`)
+runs from a quest whose stage or outcome effects set a flag to a quest whose
+**Available When** reads it. A **closes** edge (orange, dashed, labelled
+`closes: <flags>`) does the same for **Closed When**. A flag read only under a
+`not` draws no edge. Quests caught in a circular dependency (a `QUEST` error)
+have their edges drawn red. **Auto layout** re-arranges the graph.
 
 Click a quest node to jump to that quest's detail canvas.
 
@@ -1088,19 +1294,58 @@ configuration like `rules.json` changes) — and the pass runs off the editor's
 serving thread, so even very large projects stay responsive while you type.
 Results are pushed to all open editor windows via WebSocket.
 
+**On a clean project there is no bar at all.** It appears as soon as there is
+at least one error or warning, and disappears again when the last one is fixed
+— so a missing bar means "no issues", not "not checking". (The one exception:
+if the live connection to the host drops, the bar stays up and says *"live
+validation disconnected — counts may be stale"*, with a **Retry** button.)
+
 By default the bar is **collapsed** to a single status row — it still shows
 the live error / warning counts and per-code filter chips, so project health
 stays glanceable, but the issue list stays out of the way. **Click "Validation
-▸"** (or any status chip) to expand it and see all issues; the expanded /
-collapsed choice is remembered across sessions. Issues are grouped by the
-entity they belong to, errors before warnings within each entity. Each row
-shows:
+▸"** to expand it and see all issues; the expanded / collapsed choice is
+remembered across sessions. The error and warning chips filter the list by
+severity, and each code chip (`FLAG 3`) filters it to that code; **clear**
+removes the filters. Issues are listed entity by entity, errors before
+warnings within each entity; the rare issue that belongs to no entity (a file
+the editor could not read at all) comes first. Each row shows:
 
-- Severity badge (red = error, yellow = warning)
+- Severity colour (red = error, yellow = warning)
 - Issue code (e.g., `[REF]`, `[COVERAGE]`, `[GATE]`)
-- Human-readable message
-- Click the row to **navigate** to the offending entity (selects it in the
-  entity list and opens its detail)
+- Human-readable message, and the entity id when there is one
+- Click the row to go **to the place the issue is about**, not just the entity
+  (hover a row to see where it will land):
+  - **A dialogue node or choice** — the dialogue opens on the canvas with that
+    node selected and scrolled into view; for a choice-level issue (a dead-end
+    choice, a `goto` to a missing node, a check problem) the choice is opened
+    in the inspector too. This covers `SCHEMA` problems inside a node, which
+    the validator reports by position (the third node, its second choice).
+  - **A quest stage, outcome or objective** — the quest canvas opens with that
+    stage or outcome selected, and the objective scrolled into view in the
+    inspector.
+  - **Any other entity** — the entity opens in its form with the field the
+    issue is about outlined and focused (a location's **Exits** for an exit
+    issue, a character's **Portrait** …), opening the collapsed **Metadata**
+    section first when the field lives there.
+  - **A custom-type row** — its grid opens at the row and column.
+  - **`FLAG`, `REP`, `REL`** — the flag's variable, the faction or the
+    character opens with its **Flow** panel (§5), which lists every place that
+    checks and changes it. A flag read but never set is fixed at one of the
+    *Checked by* sites or by setting it somewhere, so that list is the thing to
+    act on; each of its rows jumps to the node in turn.
+
+  If the node or choice was deleted after validation ran, the dialogue still
+  opens, with nothing selected. Issues about project-wide configuration
+  (`progression.json`, `rules.json`) have no entity to open and stay plain
+  text.
+
+**+ Add condition**, **+ Add effect** and **+ Add modifier** do not save a blank
+entry. The new entry stays in the inspector, marked *Not saved yet — choose a
+flag* (or item, quest…), and is saved when its reference is picked. Removing it
+before then writes nothing. An edit that blanks a saved entry is held back the
+same way. Switching a condition's type, for example, keeps the saved condition
+in force until the new one is complete. The one effect with no reference,
+**grant XP**, saves as soon as you choose it.
 
 Common codes:
 
@@ -1110,7 +1355,7 @@ Common codes:
 | `REF` | References an id that doesn't exist |
 | `DUP` | Duplicate id detected (entity ids, dialogue nodes/choices, or a location's spawns/exits/interactables) |
 | `COND` | A node's `showIf` breaks a conditional-narration rule — a gated narration node (no choices, not an end) must have `next`, a gate needs a line to hide, a `next` chain must not end at a gated node, and gated nodes must not form a ring. Also warns when a skippable gated node carries `onEnter`, since those effects do not fire when it is skipped |
-| `FLOW` | A dialogue's flow is broken or suspicious. Errors: a dead-end choice (no `goto`, no check, not `isEnd`), a node with no choices, no `next` and not `isEnd` (the player is stuck), a node with **no text and no choices**, `next` together with `choices` or `isEnd`, a `next` cycle, and a node named `end` (reserved). Warnings: every choice on a node has `showIf` and none is a fallback (the player may be stuck), **more than one fallback** choice on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), and **`whenLocked`/`lockedText` on a choice with no `showIf`** (it can never be locked) |
+| `FLOW` | A dialogue's flow is broken or suspicious. Errors: a dead-end choice (no `goto`, no check, not `isEnd`), a node with no choices, no `next` and not `isEnd` (the player is stuck), a node with **no text and no choices**, `next` together with `choices` or `isEnd`, a `next` cycle, and a node named `end` (reserved). Warnings: every choice on a node has `showIf` and none is a fallback (the player may be stuck), **more than one fallback** choice on a node, a **fallback with no gated sibling** (it is always offered, so the flag does nothing), **`whenLocked`/`lockedText` on a choice with no `showIf`** (it can never be locked), and a node whose **every non-fallback choice is a passive check** (the runtime counts them as visible even when unrevealed, so a game that hides unrevealed passive choices can show nothing clickable there and the node's fallback, if any, is suppressed; the warning fires whatever the difficulty, because no skill has a floor and every modifier is gated, so no reveal is guaranteed) |
 | `GATE` | Active check missing onSuccess / onFailure destination |
 | `QUEST` | Quest stage issue — including stage/outcome effects with no `completeWhen`/`reachedWhen` (they can never fire; quest resolution only fires condition-gated items) |
 | `FLAG` | Flag written but never read, read but never written, or declared but never used (warnings). An error when one effect list sets two flags of the same `rules.flag.exclusiveGroups` group to `true` — see [Exclusive flag groups](#exclusive-flag-groups) |
@@ -1176,15 +1421,22 @@ the affected entity (same as the validation panel). Use this view to:
 
 ### Right — Reference index
 
-A searchable index of every id in the project. Type a flag id, character id,
-skill id, etc. to see:
+A searchable index of every id in the project, shown beside every tab of the
+panel (the **Find usages** tab itself only points you at it). Type part of a
+flag id, character id, skill id, etc. — it matches ids, and lists the first 30
+— to see:
 
-- Where it is **defined** (entity type, entity id, JSON path)
+- Where it is **defined** (entity type and id)
+- Every place it is **written** (effects)
 - Every place it is **read** (conditions, showIf, offer.when, quest availableWhen)
-- Every place it is **written** (effects, setsFlags)
+- Any other reference, and links to it from `lore/`
 
-Each entry is clickable and navigates to the exact entity. This is the
-"find usages" feature — useful for safely renaming or removing a variable.
+Each row names the entity (`dialogues/dlg_arrival`) and the JSON path. The rows
+are a read-out, not links: only a **lore** row (`lore/x.md:L12`) is a button,
+which opens the file on the Lore surface at that line. To jump from a
+variable's usages to the entities themselves, use the **Flow** panel on the
+variable's own detail page (§5), whose rows are clickable. This is the "find
+usages" feature — useful for safely renaming or removing a variable.
 
 ### Flag flow
 
@@ -1301,7 +1553,7 @@ npm run prose -- --write-dictionary  # seed lore/dictionary.md from the unknown 
 The first run on a large project surfaces a lot of unknown words, most of them
 names. **Sort these with AI** groups them into names, jargon, dialect and real
 typos so the names can be accepted in one click. It uses the API key configured in
-**AI settings** and is entirely optional — everything above works offline and free.
+**⚙ AI** (header) and is entirely optional — everything above works offline and free.
 
 The model only *classifies* words that were already found; it never edits your
 prose, and typos are never added to the dictionary. Nothing is written until you
@@ -1362,11 +1614,35 @@ chain, with a cache of visited states so loops terminate. It starts from every
 dialogue's entry, from the project defaults — and, with **from snapshots too**, from
 each snapshot in `tests/snapshots`.
 
+When a scene ends, the player is not limited to the continuations the feed offers:
+they can walk the location map and open a scene placed there, **again**, with whatever
+the story has changed since. Explore follows the runtime's rules for that — an object
+or environment interactable plays its dialogue whenever its `showIf` passes (placed
+scenes have no one-shot filter; that belongs to offers), an npc interactable resolves
+the character's offer with the seen set, so a played non-`replayable` offer does not
+come back, and an exit whose gate fails plays its `denialDialogue`. Where the player
+may stand starts at the locations tagged `start` (every location, if none is) and
+grows through every exit whose gate passes and every cutscene's `arrivesAt`. So a
+"look again" line gated on what the first look found, or an arrival scene gated on
+evidence gathered elsewhere, is reached — before this was modelled, the demo reported
+six such nodes unreached even after a complete search.
+
 The banner above the results is the part to read first. **Complete** means every
 reachable state was visited, so "unreached" below means no path exists from any
 start. **Bounded** names what stopped the search (states, depth, random-run steps)
 and means an unreached node may still be reachable — raise **max states** and run
-again. The report never calls a node unreachable when it only ran out of budget.
+again. The report never calls a node unreachable when it only ran out of budget. A
+random run that hits its step limit does not make a complete search bounded: with
+return visits a run never ends by itself, and the exhaustive phase has seen
+everything the run could have gone on to see.
+
+A state is counted once however it was reached, and "the same state" means the same
+for everything that can decide a move — a flag only an XP-granting quest outcome
+reads, the XP itself, or a text variable never changes what a player may do next, so
+states differing only there are one. A scene is played once per distinct situation
+it can see and re-used for every other state that looks the same to it. That is why
+**max states** stays at 5,000 by default: the demo completes in about 3,500, and this
+repository's own `data/` in about 1,800.
 
 | List | What it means |
 |------|---------------|
@@ -1375,10 +1651,13 @@ again. The report never calls a node unreachable when it only ran out of budget.
 | **Never ends** | Dialogues entered on some path but never seen ending — meaningful only when the search was complete. |
 
 Two things the explorer does not model, on purpose. Rolls: every check is taken both
-ways, so a node behind a check is reachable regardless of luck. Re-entry by the host:
-scenes are entered the way the feed model enters them (offers, `set_active_dialogue`,
-cutscene chains) and once as a start; a node that needs a *second* visit to an object
-dialogue opened from a location interactable reads as unreached.
+ways, so a node behind a check is reachable regardless of luck. Where exactly the
+player stands: the map is walked as a set of places the player *may* be in, and a
+place once reachable stays so — a door that locked behind the player may leave them
+on the far side — so where the map is uncertain Explore assumes the player could be
+there, and never calls a node unreachable because it assumed a door was shut. An
+`on_enter` scene is treated like any other placed scene: something the player can
+open, not something that must play first.
 
 **Route coverage**, below the explorer, replays every route in `tests/routes` and
 lists, per dialogue, how many of its nodes some passing route stands on and which
@@ -1407,7 +1686,7 @@ proofreader, a producer — dialogues export to two Office formats:
 | Format | What you get |
 |--------|--------------|
 | **.docx** screenplay | A heading per dialogue, then each line as a speaker cue and the text beneath it, with gates, notes and on-enter effects as italic parentheticals and each choice listed as `→ text {if gate} [check] → target`. Paragraph styles (*Character*, *Dialogue*, *Parenthetical*, *Choice*) are named, so the whole script restyles from Word's styles pane. |
-| **.xlsx** line sheet | One row per line and per choice: dialogue, node, choice, speaker, text, condition, check, effects, next, notes, entry/end, **loc key** and **VO key**. Header frozen, filters on. |
+| **.xlsx** line sheet | One row per line and per choice. Columns, in order: Dialogue, Title, Node, Choice, Kind (line or choice), Speaker, Text, Condition, Check, Effects, Tags, Next, Notes, Entry, End, **Loc key** and **VO key**. Header frozen, filters on. |
 
 Speakers are resolved to names the way the Play transcript shows them — the
 character or skill name, **Narration** for a line with no speaker, **Player**
@@ -1419,6 +1698,8 @@ with a VO manifest row for row.
 Two places to export from:
 
 - **Canvas toolbar → ⇩ Export .docx / .xlsx** — the dialogue you have open.
+  The buttons are there in the **Graph** view only; switch back from **Text**
+  to see them.
 - **Reports header → ⇩ Export script .docx / .xlsx** — every dialogue in the
   project.
 
@@ -1465,9 +1746,10 @@ simulated `GameState`, right inside the canvas view.
 1. Open any dialogue in the canvas.
 2. Click the **▶ Play** button in the canvas toolbar (top-left).
 
-The node inspector closes and a **Play panel** appears on the right side.
-The active node is highlighted with a green glow on the canvas; visited nodes
-are dimmed.
+A **Play panel** takes the node inspector's place on the right side, under two
+tabs: **▶ Play** (the panel) and **✎ Edit** (the node inspector — see [Editing
+while playing](#editing-while-playing-auto-reload)). The active node is
+highlighted with a green glow on the canvas; visited nodes are dimmed.
 
 ### Starting state editor
 
@@ -1478,11 +1760,27 @@ Before starting, the panel shows the **Starting State** editor:
   scenario (e.g., `wit = 8`).
 - **Flags** — all flag ids referenced in this dialogue appear as checkboxes.
   Defaults come from the project's variable declarations.
+- **Reputation** — every faction whose reputation a condition in this scene
+  reads gets a number input, starting at the faction's default (the middle of
+  its `reputationRange`) and kept inside that range, as the runtime clamps it.
+- **Relationships** — every character whose relationship a condition reads gets
+  a number input, starting at 0. Relationships have no declared range.
+- **Quest stages** — every quest whose stage a condition reads gets a picker
+  listing its stages in their `order`, plus **— not started —**. A
+  `questOutcome` gate is answered by the outcome's own `reachedWhen`, so
+  whatever that condition reads gets an input too.
 - **Text variables** — every text variable this dialogue writes with `set_text`
   or mentions as a `{placeholder}` gets a text box, pre-filled from its declared
   default. Type a value to exercise a placeholder without authoring an effect
   first. **Leave a box blank to mean "unset"** — the transcript then renders the
   raw `{placeholder}`, exactly as an unset variable would in-game.
+Every group above is scoped to what the scene reads, **and what it can be
+routed into**: a dialogue a `set_active_dialogue` effect queues, or one a
+played cutscene enters, is followed (transitively), so a gate one scene on can
+be set before you press Start. Scenes that are only *discovered* by their offer
+are not followed, because nearly any scene could be one. Loading a snapshot
+fills these inputs from it; changing one afterwards overrides just that value.
+
 - **Seed** — a numeric seed for the random number generator. The same seed
   always produces the same dice rolls, so a session is reproducible. Click
   **🎲** to randomize.
@@ -1504,6 +1802,31 @@ standing on is deleted, the session snaps back to the entry node with state
 intact rather than dead-ending. This makes the tight loop — tweak a line, see
 it in context, tweak again — instant, without restarting from the top each time.
 
+You make those edits without leaving Play:
+
+- **Click a node on the canvas** while Play is open and the right-hand column
+  switches to its **✎ Edit** tab, showing that node in the full node inspector —
+  text, notes, tags, speaker, effects, choices. The node's section comes first,
+  above the dialogue-level settings, so the line you came to change is at the top.
+- **✎ Edit with nothing selected** opens the line the session is standing on.
+  With another node selected, **Edit current line** at the top of the tab jumps
+  back to it.
+- **Save as usual** — a field saves when you leave it — then click **▶ Play**.
+  It is the same session: same step, same history, same state, with the new
+  text in place. Switching tabs never ends or restarts it.
+- **Delete node** works mid-session too; deleting the node you are standing on
+  snaps the session back to the entry with its state intact, as above.
+
+The session also survives a switch to the **Text** view: the Play panel stays
+open beside the script, and saving the script re-reads the scene into the
+session the same way. (There is no Edit tab in the Text view — the script is
+the editor.) Only closing Play (**▶ Play** in the toolbar) or opening another
+dialogue ends the session.
+
+While a session has continued into *another* dialogue, the canvas shows that
+dialogue's graph and the Edit tab is not offered — the inspector edits the
+dialogue you opened. Open the other dialogue to edit its lines.
+
 ### Transcript
 
 Once a session is running, the transcript shows each step top to bottom:
@@ -1514,14 +1837,20 @@ Once a session is running, the transcript shows each step top to bottom:
   have seen at the time. Authored JSON always keeps the placeholder;
   substitution is render-only and never written back.
 - **Visible choices** — only choices whose `showIf` condition is satisfied by
-  the current state. Click a choice button to advance.
+  the current state, and — for a passive check — whose reveal holds (see
+  *Passive checks* below). Click a choice button to advance. A choice whose
+  `showIf` fails and whose `whenLocked` is `show` is listed greyed with its
+  `lockedText`, and cannot be clicked.
 - **Continue →** — shown instead of choices on a node whose `next` field
   points to another node (a choiceless advance, §6). Click it to take the one
   discrete step; a chain of these plays out as a sequence of individual
   clicks, never automatically — every beat stays reachable, rewindable, and
   savable like any other step.
 - **Check result** — for active-check choices, the result shows
-  `d20=N + skill=N = total vs PASS/FAIL` in green or red.
+  `d20=N + skill=N = total vs PASS/FAIL` in green or red. When check modifiers
+  applied, each one is its own term, named by its label — or by its condition
+  when it has no label: `d20=9 + 3 + 2 (Bribed the guard) − 1 (rep fac_watch < 0)
+  = 13 vs ✓ PASS`.
 - **Applied effects** — effects that fired on this transition (choice effects
   + onEnter effects of the arrived node), shown in purple if they changed
   state, grey if they were no-ops.
@@ -1562,6 +1891,33 @@ button:
 These let you test both branches of a check without needing to set skills to
 extreme values.
 
+### Passive checks
+
+A passive check never rolls. The game shows its choice only when the player's
+skill plus every modifier that applies reaches the difficulty
+(`passiveCheckPasses` in the runtime contract), and Play does the same:
+
+- **Revealed** — the choice is offered like any other, tagged
+  `[skill / DC · revealed]`.
+- **Not revealed** — the choice is hidden, as in the game. If its `whenLocked`
+  is `show` (or the project's default is), it is listed greyed instead, with its
+  `lockedText`, and cannot be clicked.
+
+Spending a skill point mid-scene (the progression row) re-checks the reveal at
+once. To see what a higher skill would reveal without changing it, tick
+**Show what a higher skill would reveal** under the choices. It lists the
+hidden passive choices greyed, with how much more skill each needs. It is
+Play-only and off by default, and those choices can never be clicked.
+
+If the reveal leaves a node with nothing to click, Play says so. When the node
+has a fallback choice it is still not offered: the runtime counts the hidden
+passive choice as visible, and a fallback is only offered when nothing else is.
+The notice names the fallback so you can see why.
+
+In the **Log**, a passive choice reads `(passive reveal)`. A replayed route can
+still walk a passive choice its state would not reveal, and the log marks that
+one `(passive — not revealed at this skill)`.
+
 ### Toolbar controls (while session is running)
 
 | Button | Action |
@@ -1574,8 +1930,10 @@ extreme values.
 ### State inspector
 
 At the bottom of the play panel, a live **State** table shows the current
-values of all flags, reputation, and skills referenced in the dialogue.
-Values that changed on the most recent transition are highlighted in purple.
+values of all flags, reputation, relationships and skills referenced in the
+dialogue, then every **counter**, the **inventory** (held items by name, or
+*(empty)*) and quest stages. Values that changed on the most recent transition
+are highlighted in purple.
 
 ### Determinism guarantee
 
@@ -1591,9 +1949,18 @@ A play session is throwaway by default. Three buttons make one permanent:
 
 | Button | What it writes |
 |--------|----------------|
-| **💾 Snapshot** | `tests/snapshots/snap_*.json` — the current game state as a named, reusable starting point |
-| **⦿ Save route** | `tests/routes/rt_*.json` — the steps you just walked, plus the assertions you tick, as a regression test |
-| **⤓ Import save file…** | `tests/snapshots/snap_*.json` — a save file written by the *game*, turned into a snapshot |
+| **💾 Snapshot** | `tests/snapshots/<id>.json` — the current game state as a named, reusable starting point |
+| **⦿ Save route** | `tests/routes/<id>.json` — the steps you just walked, plus the assertions you tick, as a regression test |
+| **⤓ Import save file…** | `tests/snapshots/snap_<file name>.json` — a save file written by the *game*, turned into a snapshot |
+
+The id for a snapshot or route is the name you type, lowercased with spaces
+and punctuation turned into `_`: "Bragg two scenes" is saved as
+`tests/routes/bragg_two_scenes.json`. No `rt_` or `snap_` prefix is added —
+only a name that doesn't start with a letter gets one (`2nd visit` →
+`rt_2nd_visit`), and a name already taken gets `_2`, `_3`. If you want the
+prefixes as a convention, type them into the name. (Find a path here and
+Explore's **Load into Play** do prefix their files: `snap_witness_…`,
+`rt_witness_…`, `snap_deadend_…`.)
 
 **Load saved state (snapshot)** at the top of the Starting State editor picks a
 snapshot to start from; the state inputs below hydrate from it, so you can load a
@@ -1679,25 +2046,29 @@ map's toolbar removes the trail.
 ### Find a path here — the witness solver
 
 Select a node and the inspector offers **Find a path here**. The editor searches the
-same state graph the Explore report walks — breadth-first, so the first path found is a
-shortest one — for a way from the project's start to that node, and shows the moves:
-choices (with the check outcome they force), continuations into other scenes, cutscenes,
-Continue runs. Tick **from this dialogue's entry only** to search from the current scene
-rather than from every dialogue.
+same state graph the Explore report walks — return visits included — breadth-first, so
+the first path found is a shortest one, for a way from the project's start to that
+node, and shows the moves: choices (with the check outcome they force), continuations
+into other scenes, cutscenes, Continue runs. Tick **from this dialogue's entry only** to
+search from the current scene rather than from every dialogue. **max states** is the
+search budget, the same one Explore uses and with the same default; when the budget is
+what stopped a search, the result offers **Search again with** a larger one (up to the
+editor's ceiling of 20,000; the command line takes more).
 
 A found path can be kept three ways:
 
 | Button | What it writes |
 |--------|----------------|
 | **Save as snapshot** | `tests/snapshots/snap_witness_<node>.json` — the state *on arrival* at the node, after its `onEnter` effects, with the seen set |
-| **Save as route** | `tests/routes/rt_witness_<node>.json` — a route that replays from the project defaults (recorded as its `startState`) to the node; only offered when the walker has verified it ends there |
+| **Save as route** | `tests/routes/rt_witness_<node>.json` — a route that replays from the project defaults (recorded as its `startState`) to the node; only offered when the walker has verified it ends there. If the path walks back to a scene a place opens — something no route step can say — the route starts *in* that scene instead, from `tests/snapshots/snap_witness_<node>_start.json`, the exact state the player opened it with; the panel says so, and saving the route saves that snapshot too |
 | **Load into Play** | saves the snapshot and opens the Play panel loaded on it, so playing a late branch no longer means playing to it by hand |
 
 "No path found" with *the search was complete* means no start reaches the node under
 the engine's rules; with *bounded* it means the budget ran out first. From the command
-line, `parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N] [--save-snapshot <id>] [--save-route <id>] [--json]`
+line, `parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N] [--max-depth N] [--save-snapshot <id>] [--save-route <id>] [--json]`
 does the same and exits 1 when nothing is found; `--from` searches from one
-dialogue's entry, like the checkbox.
+dialogue's entry, like the checkbox, and `--max-states` / `--max-depth` are Explore's
+budget flags with Explore's meaning. A bounded result names the flag to raise.
 
 ### What playtest does NOT change
 
@@ -1759,8 +2130,8 @@ data/
   portraits.json
   cutscenes/       one JSON file per cutscene
 tests/
-  routes/          rt_*.json — scripted playthroughs with assertions
-  snapshots/       snap_*.json — saved states to resume from
+  routes/          *.json — scripted playthroughs with assertions
+  snapshots/       *.json — saved states to resume from
 schema/            JSON Schemas; editor loads these for validation + forms
 lore/              Markdown canon docs (the Lore surface, §5; never shipped)
 review/            review requests + comment threads (§16)
@@ -1822,10 +2193,14 @@ strings live in catalog files alongside your data.
 ### What it shows
 
 - **Header** — the total count of player-facing strings and how many are
-  **voiceable** (spoken dialogue lines and choices).
+  **voiceable**: every dialogue node line, narration included. Choice text
+  (and a choice's locked text) is selection UI and is never voiceable — the
+  same rule as the **Speakers** report (§11).
 - **Locales** — one coverage bar per `data/locales/<lang>.json`, showing how
-  many keys are translated (`done / total`), with any **stale** keys (entries
-  whose content was renamed or removed) called out.
+  many keys are translated and current (`done / total`), with any **outdated**
+  keys (translated from English that has since been edited), **stale** keys
+  (entries whose content was renamed or removed) and **unverified** translations
+  called out — see [Outdated translations](#outdated-translations) below.
 - **Voice-over** — the same, per `data/vo/<lang>.json`, measured only over
   voiceable strings.
 - **Strings** — every extracted string with its stable key and source text;
@@ -1837,8 +2212,11 @@ strings live in catalog files alongside your data.
 1. **Download source catalog** — a flat `key → source text` JSON of everything
    translatable, for translator reference.
 2. Enter a language code and **Locale template** — a `key → ""` file (with any
-   existing translations for that locale already filled in) to hand off.
-3. Translators fill in the blanks and return the file; drop it at
+   existing translations for that locale already filled in) to hand off. It
+   also records which English each line is to be translated from, and lists the
+   lines whose English changed since they were translated under `@outdated`.
+3. Translators fill in the blanks, revise the `@outdated` lines (deleting each
+   from the list once it's done), and return the file; drop it at
    `data/locales/<lang>.json`. Reload — the coverage bar fills in.
 4. **VO template** works the same way for `data/vo/<lang>.json`, mapping
    voiceable keys to opaque audio asset keys (the engine resolves them, exactly like
@@ -1855,6 +2233,56 @@ Renaming an entity with **Rename id…** (§5) rewrites its keys in every catalo
 so translations follow; changing a node or choice id by hand orphans its
 translation, which shows up as a **stale** key on the coverage bar so you know
 to remap it.
+
+Translations only arrive as files: the panel reads and exports, and has no
+field for typing a translation in. Fill `data/locales/<lang>.json` outside the
+editor (or have your translators return it) and drop it in place.
+
+### Outdated translations
+
+Editing an English line after it was translated makes that translation
+**outdated**: the key still exists, but the text it was translated from does not.
+Each locale file records a short fingerprint of the English each translation was
+made from, under an `@sourceHashes` entry at the top of the file:
+
+```json
+{
+  "@outdated": ["dialogue/dlg_arrival/nodes/node_open/text"],
+  "@sourceHashes": {
+    "dialogue/dlg_arrival/nodes/node_open/text": "3f0a91c2",
+    "dialogue/dlg_arrival/nodes/node_close/text": "c81e7d04"
+  },
+  "dialogue/dlg_arrival/nodes/node_close/text": "Adieu.",
+  "dialogue/dlg_arrival/nodes/node_open/text": "Bonjour, voyageur."
+}
+```
+
+A line is outdated when its recorded fingerprint no longer matches the current
+English, or while it is listed in `@outdated`. The coverage bar counts it apart
+from `done` and lists it under **N outdated**; click a row to jump to the line.
+
+- **You don't write the fingerprints.** The locale template records them for
+  every line it hands off, so a returned file already says what it was
+  translated from.
+- **`@outdated` is the translator's to-do list.** The template lists the lines
+  whose English changed, keeping the old translation for reference. A line stays
+  outdated until it is deleted from the list — returning the file untouched does
+  not clear it.
+- **Catalogs from before fingerprints are unverified, not outdated.** A
+  translation with no recorded fingerprint is counted as translated and shown as
+  **N unverified**; nothing is flagged on upgrade.
+- **Mark current** (on the coverage bar) records the English as it stands for
+  every translation in that language and clears `@outdated`. Use it once to
+  adopt an older catalog, or after an English edit that needs no re-translation,
+  such as a typo fix. It asks first; it is the one place the editor writes a
+  locale file.
+- **Rename id…** moves fingerprints with their keys, and renaming a variable,
+  which rewrites `{placeholders}` in both languages, keeps a current translation
+  current.
+
+Keys starting with `@` are metadata. No string key starts with `@`, so a game
+loading the catalog should skip them. VO manifests (`data/vo/`) have no
+fingerprints; a recorded take is not flagged when its line changes.
 
 ### Placeholder voice (TTS)
 
@@ -1879,8 +2307,8 @@ variant.
 Anything else — a `res://` path, an engine asset key, an absolute path, a URL —
 is the engine's to resolve, and the row shows no recorded take for it.
 
-**Choosing a provider.** Open **AI settings** (the same dialog as AI drafting)
-and fill in the **Voice (placeholder TTS)** section:
+**Choosing a provider.** Click **⚙ AI** in the header to open **AI Provider
+Settings** (the same dialog as AI drafting) and fill in the **Voice (placeholder TTS)** section:
 
 - **OpenAI-compatible speech API** — anything that serves `POST /audio/speech`:
   OpenAI itself (leave the Base URL blank for `https://api.openai.com/v1`, model
@@ -1891,6 +2319,11 @@ and fill in the **Voice (placeholder TTS)** section:
   the audio is read from standard output (`espeak-ng --stdout`), or from the file
   named by the token `{out}` if you use it (`say -o {out} --data-format=LEI16@22050`).
   `{voice}` is replaced by the Voice field.
+
+There is **one voice for the whole project**: the Voice field applies to every
+line, whoever speaks it. There is no per-character or per-speaker voice
+mapping, so to hear two characters differently, change the voice between
+takes (each voice caches its own placeholders).
 
 The key is stored with the AI key — locally, owner-only, never sent to the
 client in full. **Clear voice provider** removes it.
@@ -1913,48 +2346,95 @@ configured — a local command never leaves the machine at all.
 ## 16. Review — reading someone else's branch
 
 The **Review** entry in the sidebar footer is where narrative work gets read,
-questioned, and signed off. It needs nothing but git: comments live in the
-repository, on the branch they are about, so a two-person team on plain clones
-gets working review with no server anywhere.
+questioned, signed off and published. It needs nothing but git: comments live in
+the repository, on the branch they are about, so a two-person team on plain
+clones gets working review with no server anywhere.
+
+The panel has three columns: **Reviews waiting for you** on the left, the
+branch's **Changes** (or **Play the branch**) in the middle, and **Comments** —
+the verdict, the comment composer and the threads — on the right.
+
+### Drafts — how a writer's work reaches Review
+
+Writers don't need to handle branches themselves. **Drafts** (sidebar footer)
+does it for them: **New draft** asks *"What are you writing?"* and **Start**
+creates a branch for the draft (`writer/<name>/<id>`, cut from the remote's
+default branch) and switches the project to it. If you have unsaved changes,
+**Start the draft with these changes** carries them onto it. Each draft row
+shows its state — *Drafting*, *In review*, *Changes requested*, *Approved —
+waiting to be published*, *In the game* — with the actions that apply:
+
+- **Open** switches to that draft, and brings down any comments and verdicts
+  reviewers have sent on it. Uncommitted work on the draft you are leaving is
+  committed onto that draft's own branch first, never stashed. **Open** is
+  offered only for drafts other than the one you are on.
+- **Get review notes** is the same pull for the draft you are *in*, once it has
+  been sent: it fetches the reviewer's latest comments, suggestions and verdict
+  without switching away. It says *"You're up to date"* when there is nothing
+  new, and reloads the project when notes arrived. If you have changes you
+  haven't sent and the reviewer has added notes since, it refuses and changes
+  nothing — **Send** your changes first, which brings the notes in too.
+- **Send for review** (later **Send changes** or **Send update**) opens a dialog
+  with a **Title** and an optional **Note for the reviewer**, then commits the
+  project, pushes the branch and files the review request. The note is stored
+  with the request, but the Review panel does not display it at present, so put
+  anything the reviewer must read in a comment as well.
+- **Clean up** deletes a draft's branch once its work is in the game. It
+  refuses a branch that is not fully merged.
+- **Discard** deletes a draft that was never sent, after a confirm
+  (*"Everything written in it is lost for good."*).
+
+Drafts needs a git remote; without one the panel says why it isn't available.
 
 ### Author or reviewer is decided for you
 
-There is no mode to switch. For whichever branch you pick as **Head**, you are
-its **author** if it is the branch you currently have checked out, and a
-**reviewer** if it isn't. The badge under the branch pickers says which, and
-what follows from it:
+There is no mode to switch. For the branch you are looking at, you are its
+**author** if it is the branch you currently have checked out, and a
+**reviewer** if it isn't. The badge at the top says which — **AUTHORING** or
+**REVIEWING** — and what follows from it. A review opened from **Reviews
+waiting for you** is always REVIEWING, even when it is your own draft: the inbox
+never checks anything out.
 
 | | AUTHORING (checked out) | REVIEWING (not checked out) |
 |---|---|---|
 | You are looking at | your working files | a read-only snapshot of the branch |
-| Comments | written straight into `review/` | queued locally until you **Sync** |
+| Comments | written straight into `review/` | queued locally, sent by **Sync comments** or a verdict |
 | Story files | yours to edit | read-only |
-| Suggestions | **Apply** in one click | propose only |
-| Verdict | — (you don't sign off your own work) | Approve / Request changes |
+| Suggestions | **Apply suggestion** | propose only |
+| Verdict and publish | — (you don't sign off your own work) | **Approve & publish…**, **Approve only**, **Request changes** |
 
 Reviewers never check the branch out, so their own working copy stays clean and
-on whatever they were doing. **Check out to edit** switches you to the branch
-when you want to become its author; it refuses if you have uncommitted changes
-rather than stashing them behind your back.
+on whatever they were doing. **Check out to edit** (shown in REVIEWING mode on a
+branch picked under *Advanced*) switches you to the branch when you want to
+become its author; it refuses if you have uncommitted changes rather than
+stashing them behind your back.
 
 ### Reading the changes
 
-Pick a **Base** and **Head** and press **Show changes** for a narrative diff —
-not a file diff. It reports what happened to the *story*: "2 nodes added, 1 line
+**Reviews waiting for you** is the front door. It lists open review requests by
+title, author and age, grouped by what needs doing: **Waiting for you** (not yet
+reviewed), **Ready to publish** (approved), **Waiting on the writer** (changes
+requested) and **Published recently**. **Refresh** fetches the latest. Click a
+row and the **Changes** tab loads that draft's narrative diff by itself — not a
+file diff. It reports what happened to the *story*: "2 nodes added, 1 line
 edited, offer changed", each entity's before/after lines, flags introduced or
 retired, and the validation delta.
 
-Both branch pickers are searchable: type any part of a name — several words, in
-any order — rather than scrolling a list that grows with every branch the team
-has ever pushed. Local branches are listed before remote ones, and the branch
-you have checked out is marked, since `main` and `origin/main` are otherwise
-the same word and picking the wrong one silently swaps AUTHORING for REVIEWING.
+To compare any two branches by name instead, open **Advanced: compare any two
+branches**: pick a **Base** and **Head**, press **Show changes**, and **Fetch**
+to pull the latest branch list from the remote. Both pickers are searchable:
+type any part of a name — several words, in any order. Local branches are listed
+before remote ones, and the branch you have checked out is marked, since `main`
+and `origin/main` are otherwise the same word and picking the wrong one silently
+swaps AUTHORING for REVIEWING. Under the pickers, **Reviews on this branch**
+lists the review requests on the Head branch (**Archive** shows merged and
+abandoned ones), and **New** opens a review of it.
 
 Each changed entity carries a button to open it. As the **author** that is
 **Open**, which draws the dialogue on the canvas with this branch's changes
 marked. As a **reviewer** the canvas can't help — it draws your checked-out
 working tree, which is a different branch — so the button is **Play**, and it
-takes you to the scene read-only in the tab below. Entity types with no
+takes you to the scene read-only in the tab beside it. Entity types with no
 read-only viewer yet (characters, quests, …) show the button disabled.
 
 ### Playing the branch
@@ -1965,7 +2445,7 @@ actually plays before saying anything about it. Everything from Playtest mode
 (§12) works here, including the seed, rewind, and forced check outcomes.
 
 The **Scene** picker offers every dialogue on the branch, searchable by title
-or id. Once you have pressed **Show changes**, the ones this branch touched are
+or id. Once the branch's changes are loaded, the ones this branch touched are
 grouped first and annotated with what happened to them ("1 line edited") — the
 annotation is searchable too, so typing *line edited* narrows the list to just
 those scenes.
@@ -1992,17 +2472,40 @@ localization, so renaming a node doesn't silently orphan the discussion: the
 thread is flagged **stale anchor** and listed under *Unanchored*, and Reports
 carries the same warning.
 
-On a text anchor you can attach a **suggested replacement**. That is the
-reviewer's edit: they propose the words, and the author applies them with one
-button. Reviewers cannot change story files directly — the branch isn't on their
-disk, and keeping content edits to one writer is what keeps review data
-conflict-free.
+On a text anchor you can attach a **Suggested replacement**. That is the
+reviewer's edit: they propose the words, and the author applies them. Reviewers
+cannot change story files directly — the branch isn't on their disk, and keeping
+content edits to one writer is what keeps review data conflict-free.
 
-**Approve** or **Request changes** records a verdict against *the commit you
-read*. If the author pushes more work afterwards, the review says so — "the
-branch has moved since this verdict" — rather than showing a stale tick over
-unread lines. Nothing enforces a verdict; with no server there is nothing that
-could. It is a note between colleagues, and a record of who read what.
+**Applying a suggestion** needs AUTHORING mode, which the inbox never gives you.
+As the writer: have the draft open (Drafts → **Open**), then in Review open
+**Advanced: compare any two branches**, set **Head** to that branch (the one
+marked as checked out), and pick the review under **Reviews on this branch**.
+Each thread with a suggestion now shows **Apply suggestion**, which writes the
+suggested text into the story file. This reads the review from your own copy
+of the branch, so it shows only comments that have reached your disk: opening
+the draft from **Drafts** brings them down, but there is no button that does so
+for the draft you already have open — pull the branch with git (or open another
+draft and come back) to see comments sent since.
+
+A verdict records a sign-off against *the commit you read*. The buttons depend
+on where the review stands:
+
+- **Not yet approved** — **Approve & publish…**, **Approve only**, **Request
+  changes**.
+- **Approved** — **Publish…** and **Request changes**.
+- **Approved, but the branch moved since** — the bar says *"The draft changed
+  since it was approved."* and offers **Approve again & publish…**. (The same
+  wording currently appears when the earlier verdict was **Request changes**
+  and the writer has since sent an update.)
+
+A reviewer's verdict is sent right away (it syncs like **Sync comments**); if
+that fails, it stays queued and the panel says so. If the author pushes more
+work afterwards, the review says so — *"The branch has moved since this
+verdict"* — rather than showing a stale tick over unread lines. Nothing
+enforces a verdict beyond the publish rule below; with no server there is
+nothing that could. It is a note between colleagues, and a record of who read
+what.
 
 ### Comments on lore paragraphs
 
@@ -2041,7 +2544,7 @@ two differ, a fresh comment can show as moved or stale straight away — the
 same reason the canvas can't show a branch you haven't checked out.
 
 Lore files named outside the new-file rule (lowercase letters, digits, `-` and
-`_`) cannot take paragraph comments; the preview says so. **Show changes**
+`_`) cannot take paragraph comments; the preview says so. The **Changes** tab
 lists what the branch did to lore, paragraph by paragraph, below the entity
 changes — old words beside new — with **Open** to jump to the file.
 
@@ -2050,22 +2553,32 @@ changes — old words beside new — with **Open** to jump to the file.
 As a reviewer your comments sit in a local queue (inside `.git/`, so they can
 never be committed by accident) and the review shows how many are **unsynced**.
 **Sync comments** fetches, merges your notes into whatever is already on the
-branch, commits, and pushes — your working tree is never touched. Concurrent
-reviewers don't conflict: comment threads are separate files, and same-thread
-replies merge by union.
+branch, commits, and pushes — your working tree is never touched. A verdict
+syncs the same way on its own. Concurrent reviewers don't conflict: comment
+threads are separate files, and same-thread replies merge by union.
 
-Once a review is approved and you are on its **base** branch with a clean tree,
-**Merge** brings the branch in and pushes. It merges cleanly or not at all — on
-any conflict it aborts completely and asks you to resolve it in git, rather than
-leaving a half-finished merge inside a narrative editor. A merged branch carries
-its review files into the base branch; that is the archive, which is why reviews
-are never deleted.
+**Publishing** is how an approved draft goes into the game: **Approve &
+publish…** (approve and publish in one step), or **Publish…** once it is
+approved. Both ask first — *"Publish “…” into the game? The app can’t undo
+this."* — and publishing is refused unless the review is approved.
+
+Publishing works from whatever branch you are on, with uncommitted changes in
+your working copy: it never checks anything out and never touches your files.
+It merges the draft into the base branch **on the remote** and pushes. Your own
+local copy of the base branch is not moved; pull it when you want the published
+work on your disk. It merges cleanly or not at all — on any conflict nothing is
+written anywhere and the panel names the overlapping files, so the two can be
+combined in git by someone who chose to. It needs a git name and email set, and
+git 2.38 or newer. A published branch carries its review files into the base
+branch; that is the archive, which is why reviews are never deleted.
 
 ### What this deliberately isn't
 
-Parlance is not a git client. It has no branch creation, no conflict resolution,
-no history editing, and no GitHub pull-request sync. Branches, conflicts, and
-history stay in the tools built for them.
+Parlance is not a git client. The only branches it creates are writers'
+drafts (above), and it deletes one only after merging, once git confirms the
+work is in. Beyond that it has no conflict resolution, no history editing, and
+no GitHub pull-request sync. Conflicts and history stay in the tools built for
+them.
 
 ---
 

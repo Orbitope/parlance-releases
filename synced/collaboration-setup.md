@@ -36,6 +36,33 @@ A draft that's approved reads **"Approved — waiting to be published"**: there'
 you to do — the owner publishes it. An "unsent changes" tag means you've edited since you
 last sent; press Send again to share them.
 
+The **Send for review** dialog has an optional **Note for the reviewer**. The owner sees it
+with the draft when they open it in Review. Later sends (**Send changes**, **Send update**)
+go into the same review under the same title. Their dialog shows the note field again, but
+only the first send's note is kept, so answer the owner by replying to their comments
+instead.
+
+### When notes come back
+
+The owner's comments are pinned to the line they're about, not to a line number, so they
+still point at the right place after you edit. A comment can carry **Suggested text**: the
+wording the owner would use. It is a proposal; your scene is unchanged until you apply it.
+
+1. **Get the notes.** In the Drafts panel, press **Get review notes** on the draft you are
+   in (opening a different draft with **Open** fetches its notes too). If you have changes
+   you haven't sent and new notes are waiting, the app refuses and changes nothing:
+   **Send changes** first — sending brings the notes in as well.
+2. **Find them.** Open **Review** and expand **Advanced: compare any two branches**. Your
+   draft is already filled in, and your review is listed under **Reviews on this branch**.
+   Pick it; the header reads **AUTHORING**, and the comments appear beside the changes.
+   (Opening the same draft from "Reviews waiting for you" shows it read-only, as a
+   reviewer sees it, and suggestions can't be applied from there.)
+3. **Apply a suggestion.** Press **Apply suggestion** under the suggested text. It replaces
+   that line in your scene, marks the comment resolved, and records "applied by" with your
+   name. If the line has since been deleted, the app says the suggestion can't be applied.
+   You can also reply to a comment, or just edit the scene yourself.
+4. **Send changes** when you're done.
+
 ## For owners: reviewing and publishing
 
 Open **Review**. The **"Reviews waiting for you"** list shows every writer's draft by title

@@ -729,18 +729,34 @@ last), which is the version most worth having.
 
 ```jsonc
 { "id": "node_greet_tick", "onEnter": [ { "type": "adjust_counter", "counter": "doorman_seen", "delta": 1 } ],
-  "text": "", "next": "node_greet_1" },
+  "text": "The doorman looks up from his ledger.", "next": "node_greet_1" },
 { "id": "node_greet_1", "showIf": { "type": "counter", "counter": "doorman_seen", "op": "==", "value": 1 },
-  "text": "'New face. State your business.'", "next": "node_menu" },
+  "text": "'New face. State your business.'", "next": "node_greet_2" },
 { "id": "node_greet_2", "showIf": { "type": "counter", "counter": "doorman_seen", "op": "==", "value": 2 },
-  "text": "'You again.'", "next": "node_menu" },
-{ "id": "node_greet_n", "text": "'Go on through.'", "next": "node_menu" }   // holds for every later visit
+  "text": "'You again.'", "next": "node_greet_n" },
+{ "id": "node_greet_n", "showIf": { "type": "counter", "counter": "doorman_seen", "op": ">=", "value": 3 },
+  "text": "'Go on through.'", "next": "node_menu" }   // holds for every later visit
 ```
 
+Every greeting's `next` is the **next greeting**, not the menu, and only the last one
+continues to `node_menu`. A skipped node continues at its *own* `next`, so the chain is
+what carries a later visit past the greetings it has outgrown. Visit 1 plays greeting 1,
+visit 2 skips greeting 1 and plays greeting 2, and visit 3 onward skips both and plays
+`node_greet_n`. The chain also means every greeting must be gated: an ungated
+`node_greet_n` would play *after* greeting 1 or 2 as well, since both flow into it.
+
 **Pitfalls.**
-- The empty-`text` ticker node is only there to hold the `onEnter` increment before the
-  gated beats — a `showIf` beat can't carry the increment, because a skipped node's
-  `onEnter` never fires (recipe 2). Bump the counter on a node that is never skipped.
+- **Pointing each greeting straight at the menu.** It looks tidier and it is the easy
+  mistake: `node_greet_1.next: "node_menu"` means that on visit 2 the skipped greeting 1
+  jumps straight to the menu, so greeting 2 and everything after it never play. The
+  validator reports those beats as unreachable (`REACH`), and a playtest shows greeting 1
+  on the first visit and no greeting at all after that.
+- The ticker node holds the `onEnter` increment before the gated beats — a `showIf` beat
+  can't carry the increment, because a skipped node's `onEnter` never fires (recipe 2).
+  Bump the counter on a node that is never skipped. Give it a real line (a gesture, a
+  beat of scene); an empty-`text` ticker works too, but Play shows it as an empty step.
+- Mark the dialogue `replayable`. Offer resolution drops a visited dialogue that isn't,
+  so without it there is no second visit to vary.
 - **No cycle, no shuffle.** Ink's `{&a|b|c}` (cycle) and `{~a|b|c}` (random) have no
   data-level equivalent — conditions can't do modulo, and there's no RNG operand. If you
   need true cycling or randomness, it belongs in the runtime, not the narrative data.
