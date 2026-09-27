@@ -1,6 +1,6 @@
 ---
 title: The open spec
-description: What's MIT-licensed and what isn't — the Parlance format spec, schemas, runtime contract, conformance vectors, and reference validator, and why the split protects your data.
+description: What's MIT-licensed and what isn't — the Parlance format spec, schemas, runtime contract, conformance vectors, reference validator and reference runtime, and why the split protects your data.
 ---
 
 # The open spec
@@ -20,6 +20,12 @@ Parlance data without us — is MIT-licensed and published at
 | `docs/` | The runtime contract (conditions, effects, checks, [dialogue offers](/docs/concepts/dialogue-laddering/), quest resolution, RNG, every edge case), plus integration, naming, versioning, and migration guides |
 | `conformance/` | Executable vectors any port must pass — how a runtime [proves itself](/docs/concepts/engine-contract/). Where prose and vectors disagree, the vectors win |
 | `validate/` | The standalone Python [reference validator](/docs/reference/cli/#the-python-reference-validator) |
+
+The **reference runtime** is MIT too. From v0.16.0 the TypeScript engine the
+editor plays with is published on npm as
+[`@orbitope/parlance-runtime`](/docs/integrations/#typescript--the-reference-runtime),
+passing every conformance vector, and a game may ship it — commercial games
+included.
 
 The public [Godot runtime](https://github.com/Orbitope/parlance-gdscript) is
 built on exactly this surface — as any engine port, importer, linter, or

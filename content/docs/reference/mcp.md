@@ -83,7 +83,7 @@ server starts.
 | `validate_project` | Run the full validator, return every issue |
 | `create_entity` | Write a new entity (id generated from `name` if omitted); refused if the entity fails its schema; supports `dry_run` |
 | `update_entity` | Shallow merge patch on an existing entity (each top-level field in the patch replaces that field); refused if the result fails its schema, or if `base_hash` is stale; supports `dry_run` |
-| `rename_entity` | Change an entity's id and rewrite every reference to it, as the editor's **Rename id** does. `dry_run` returns the plan and a `plan_hash`; applying with that hash is refused if the project changed in between |
+| `rename_entity` | Change an entity's id and rewrite every reference to it, as the editor's **Rename id** does. A quest stage or outcome is renamed within its quest with type `questStages` / `questOutcomes` and id `<quest>/<stage>`. `dry_run` returns the plan and a `plan_hash`; applying with that hash is refused if the project changed in between |
 | `list_custom_types` | The project's [custom types](/docs/editor-guide/#custom-types--the-grid): fields, storage and row counts |
 | `get_custom_rows` | A custom type's rows, each with the hash needed to change it; pages through large tables |
 | `save_custom_rows` | Create, replace or delete custom rows in one write — all land or none do. A row changed on disk since it was read, or a row that fails its type's fields, refuses the whole batch; supports `dry_run` |

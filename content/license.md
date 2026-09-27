@@ -20,9 +20,10 @@ Six bullets, then you can get back to work.
   key, git with your own remotes — talk to those services, not to us.
 
 - **[The format is MIT](/docs/spec/).** Schemas, runtime contract, conformance
-  vectors, and the reference validator are open, deliberately more open than the
-  editor itself. Anyone can build a competing editor or an engine runtime without
-  asking.
+  vectors, the reference validator and — from v0.16.0 — the reference runtime
+  are open, deliberately more open than the editor itself. Ship the runtime
+  inside your game, commercial or not. Anyone can build a competing editor or an
+  engine runtime without asking.
 
 - **The terms you got with a version are the terms you keep.** Future versions can
   carry different terms; they can never be applied retroactively to a version you
@@ -65,7 +66,7 @@ questionnaire answered?** That's a conversation we're glad to have — get in to
 
 | Layer | License |
 |---|---|
-| **The format spec** — schemas, runtime contract, conformance vectors, reference validator | **MIT**, published at [parlance-spec](https://github.com/Orbitope/parlance-spec) |
+| **The format** — schemas, runtime contract, conformance vectors, reference validator, and the reference runtime | **MIT**. The spec is published at [parlance-spec](https://github.com/Orbitope/parlance-spec); the runtime is on npm as [`@orbitope/parlance-runtime`](/docs/integrations/#typescript--the-reference-runtime) from v0.16.0 and may ship in any game, commercial ones included |
 | **The editor** — app, CLI, MCP server | Free to use; not open source, and not redistributable |
 | **Your narrative content** | Yours entirely. The tool's license doesn't touch `data/` or `lore/` |
 
@@ -119,6 +120,11 @@ agreement, an invoice, or a self-hosted deployment, get in touch.
 **Can I publish the playable files it exports?** Yes — share builds are yours to
 distribute, publish, and sell, including the runtime code embedded in them. The
 [demo on this site](/demo/) is one.
+
+**Can I ship the TypeScript runtime in my game?** Yes. From v0.16.0 it is published
+on npm as [`@orbitope/parlance-runtime`](/docs/integrations/#typescript--the-reference-runtime)
+under the MIT license — bundle it into a commercial game like any other MIT
+dependency.
 
 **Does anything leave my machine?** Only what you set up yourself. Parlance
 collects no telemetry and never sends your narrative anywhere. Two features do

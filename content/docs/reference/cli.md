@@ -162,7 +162,11 @@ Plays the project instead of reading it: seeded random runs, then an exhaustive
 pass that takes every visible choice and both outcomes of every active check. It
 reports dead ends, unreached nodes and choices, and dialogues that never end, and
 says whether the search was complete or bounded — a bounded search never calls a
-node unreachable. The same engine as **Reports → Explore** in the editor
+node unreachable. `--max-states` (default 5,000) and `--max-depth` are the budget.
+When a scene ends, the search also models the player walking the location map and
+opening a placed scene **again**, with whatever the story has changed since — so a
+"look again" line gated on the first look counts as reached, and the demo completes
+at the default budget. The same engine as **Reports → Explore** in the editor
 ([details](/docs/editor-guide/#explore--playthrough-explorer--route-coverage)).
 
 With `--json`, stdout is the report and nothing else, so it pipes straight into
@@ -182,11 +186,14 @@ parlance explore --json | jq '.unreached | length'
 
 ```bash
 parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N]
-                 [--save-snapshot <id>] [--save-route <id>] [--json]
+                 [--max-depth N] [--save-snapshot <id>] [--save-route <id>] [--json]
 ```
 
 Finds a shortest path from the project's start to one node and prints the moves,
-optionally saving it as a snapshot or a route. The headless form of
+optionally saving it as a snapshot or a route. It searches the same state graph as
+`explore`, return visits to placed scenes included, and `--max-states` /
+`--max-depth` are `explore`'s budget flags with the same meaning; a bounded result
+names the flag to raise. The headless form of
 [**Find a path here**](/docs/editor-guide/#find-a-path-here--the-witness-solver).
 Exits `0` when a path is found, `1` when none is, `2` on a usage error. With
 `--json`, stdout is the result alone; status lines such as "wrote tests/…" from
@@ -196,13 +203,22 @@ Exits `0` when a path is found, `1` when none is, `2` on a usage error. With
 
 ```bash
 parlance rename <type> <from> <to> [--dry-run]
+parlance rename questStages <quest>/<stage> <to> [--dry-run]
+parlance rename questOutcomes <quest>/<outcome> <to> [--dry-run]
 ```
 
 Changes an entity's id and rewrites every reference to it — other entities,
 localization and VO keys, bindings, test routes and snapshots, `parlance:` links in
 lore, review threads and canvas layout. `--dry-run` prints the plan without writing.
-Nested ids (dialogue nodes, choices, quest stages) and custom rows can't be renamed
-this way ([details](/docs/editor-guide/#renaming-an-id)).
+
+A quest stage or outcome is named by its quest — `parlance rename questStages
+qst_inquest/stg_name stg_accuse` — and `<to>` is the bare new id. Only that quest's
+stage is renamed: every quest condition, `advance_quest` effect and route or
+snapshot entry that names it follows, and a same-named stage in another quest keeps
+its id. The MCP server's `rename_entity` tool accepts the same two types.
+
+Dialogue nodes and choices, and custom rows, can't be renamed this way
+([details](/docs/editor-guide/#renaming-an-id)).
 
 ## parlance export
 

@@ -23,8 +23,24 @@ The same rule set runs in three places, and they are kept in agreement:
    `rules.json` still runs everything). The
    [validation bar](/docs/editor-guide/#10-validation-panel) shows live
    error/warning counts with per-code filters, and appears only while there is
-   something to report. An issue row that belongs to an entity opens it — a
-   dialogue opens on its canvas, and the message names the node. You never
+   something to report. Clicking an issue row takes you to **the place the
+   issue is about**, not just the entity (hover a row to see where it will
+   land):
+
+   - a **dialogue node or choice** — the canvas selects the node and scrolls
+     it into view, and a choice-level issue opens that choice in the
+     inspector;
+   - a **quest stage, outcome or objective** — the quest canvas selects the
+     stage or outcome and scrolls the objective into view;
+   - **a field on any other entity** — its form opens with that field outlined
+     and focused, expanding **Metadata** first if it is collapsed;
+   - **`FLAG`, `REP`, `REL`** — the variable, faction or character opens with
+     its [Flow panel](/docs/editor-guide/#flow-flags-counters-items), listing
+     every place that checks it and every place that changes it; each row
+     jumps to the node, which is where a read-but-never-set flag gets fixed.
+
+   Issues are listed entity by entity, errors before warnings; only an issue
+   from a file the editor could not read at all sits above them. You never
    refresh, and you never validate "later."
 
    The pass is also *scheduled* rather than run inside the save itself: a save
@@ -73,7 +89,8 @@ is validation's exploratory twin:
 - **The reference index** — for *any* id in the project: where it's defined,
   every place it's **read**, every place it's **written**, each with its entity
   and JSON path. This is "find usages" for your story, and it's what makes
-  renaming or retiring a variable safe. (Variables and items also get an inline
+  renaming or retiring a variable safe. (Variables, items, factions and
+  characters also get an inline
   [Flow panel](/docs/editor-guide/#flow-flags-counters-items) on their own
   detail page, whose rows click through to each use.)
 

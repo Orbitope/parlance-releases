@@ -1,6 +1,6 @@
 ---
 title: Engine integrations
-description: Driving Parlance data from your engine — the Godot runtime, porting to any engine via the conformance suite, the MCP server, and in-editor AI drafting.
+description: Driving Parlance data from your engine — the Godot, Unity and TypeScript runtimes, porting to any engine via the conformance suite, the MCP server, and in-editor AI drafting.
 ---
 
 # Engine integrations
@@ -46,11 +46,42 @@ natively into Unreal Engine using Core C++ types:
 
 ## TypeScript — the reference runtime
 
-`@parlance/core` is the reference implementation: pure and deterministic (no
-filesystem, no DOM), the same code that powers the editor's
-[playtest](/docs/concepts/playtest-determinism/) and
-[share builds](/docs/editor-guide/#share-build). A web-based or Electron game
-can consume it directly.
+[`@orbitope/parlance-runtime`](https://www.npmjs.com/package/@orbitope/parlance-runtime)
+is the reference implementation, published on npm from v0.16.0: the same code
+that powers the editor's [playtest](/docs/concepts/playtest-determinism/) and
+[share builds](/docs/editor-guide/#share-build), extracted into its own
+package. It is **MIT-licensed**, so it can ship inside any game, commercial
+ones included. Zero dependencies and pure functions — no filesystem, no DOM,
+no clock — so it runs in browsers, Node, Deno, Bun, Electron and embedded JS
+engines.
+
+```bash
+npm install @orbitope/parlance-runtime
+```
+
+The loader reads no files itself: hand it every `.json` under `data/`, keyed
+by its data-relative path (from `fs`, `fetch`, an asset bundle — whatever your
+platform has), then step a dialogue:
+
+```ts
+import { readFileSync, readdirSync } from "node:fs";
+import { loadProjectFromFileMap, createDefaultState, stepDialogue, chooseChoice, applyEffects } from "@orbitope/parlance-runtime";
+
+const paths = readdirSync("data", { recursive: true, encoding: "utf-8" }).filter((p) => p.endsWith(".json"));
+const project = loadProjectFromFileMap(new Map(paths.map((p) => [p.replaceAll("\\", "/"), readFileSync(`data/${p}`, "utf-8")])));
+
+const dlg = project.dialogues["dlg_gatekeeper_intro"]!;
+let state = createDefaultState(project);
+const step = stepDialogue(dlg, dlg.entry, state, project);   // may skip a gated node
+state = applyEffects(step.onEnterEffects, state, project);
+console.log(step.node.text, step.visibleChoices.map((c) => c.text));
+const out = chooseChoice(dlg, step.node.id, step.visibleChoices[0]!.id, state, project, Math.random);
+```
+
+`out.newState` and `out.nextNodeId` carry the loop on. The
+[integration guide](https://github.com/Orbitope/parlance-spec/blob/main/docs/INTEGRATION.md)
+in the spec repo has the full loop — locked choices, cutscenes, which dialogue
+a character offers next, quest resolution and saves.
 
 ## Porting to any other engine
 

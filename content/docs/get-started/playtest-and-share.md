@@ -14,9 +14,12 @@ Prereq: a scene with a check. This page uses the gatekeeper scene that
 
 ## 1. Start a session
 
-Open the dialogue, click **▶ Play**. The inspector gives way to the Play panel
-and its **Starting State** editor — every skill, flag, and text variable *this
-scene references* is offered as an input:
+Open the dialogue, click **▶ Play**. The right-hand column becomes two tabs —
+**▶ Play**, showing the Play panel, and **✎ Edit**, the node inspector you
+already know (you'll use it in step 4). The Play panel opens on its **Starting
+State** editor: every skill, flag, reputation, relationship, quest stage and
+text variable *this scene reads* is offered as an input — plus whatever the
+scenes it routes into read, so a gate one scene on can be set up front:
 
 - Set `rhetoric = 6` (make the check uncertain: `d20 + 6 ≥ 12` passes 75%
   of the time).
@@ -41,8 +44,18 @@ set talked_past_gate = true
 
 — the roll, your skill, the total and the verdict (the difficulty is on the
 choice's badge, not repeated here), the line you arrived at, and every applied
-effect (purple when it changed state, grey when it was a no-op). The **State** table at the bottom tracks everything the
-scene touches, highlighting what just changed.
+effect (purple when it changed state, grey when it was a no-op). If a check
+modifier applied, it gets its own term, named by its label:
+`1d20=9 + 6 + 2 (Bribed the guard) = 17 vs ✓ PASS`. The **State** table at the
+bottom tracks everything the scene touches — plus every counter and the
+inventory — highlighting what just changed.
+
+A **passive** check never rolls, and Play treats it the way the game does: the
+choice appears only when skill plus modifiers reach the difficulty. Otherwise
+it is hidden, or listed greyed with its locked text if its `whenLocked` is
+`show`. To see what more skill would unlock without changing it, tick **Show
+what a higher skill would reveal** under the choices — those rows are greyed
+and never clickable.
 
 ## 3. Bend the outcome, three ways
 
@@ -59,14 +72,24 @@ Determinism is what makes all three trustworthy:
 
 ## 4. Edit while playing
 
-Leave the session running. While Play is open the inspector gives way to the
-panel, but the canvas still takes structural edits — drag a new connection,
-add or delete a node — and the session re-reads the scene as each one saves,
-keeping your accumulated state. It re-reads it when the dialogue file changes
-on disk, too, so a line sharpened in your text editor (or by an agent over
-MCP) shows up in context without a restart. (If you delete the node you're
-standing on, the session snaps safely back to entry with state intact.
-Closing Play or switching to Text ends the session.)
+Leave the session running. Say the gatekeeper's reply reads flat now that you
+hear it in context:
+
+1. **Click that node on the canvas.** The right-hand column switches to
+   **✎ Edit**, with that node's line at the top of the inspector.
+2. Change the text, then click away — a field saves when you leave it.
+3. Click **▶ Play**. It's the same session: same step, same state, with the
+   new line in place.
+
+**✎ Edit** with nothing selected opens the line you're standing on. The canvas
+takes structural edits mid-session too — drag a new connection, add or delete
+a node — and the session re-reads the scene as each one saves, keeping your
+accumulated state. It re-reads it when the dialogue file changes on disk, too,
+so a line sharpened in your text editor (or by an agent over MCP) shows up in
+context without a restart. The session even survives a switch to the **Text**
+view, where saving the script re-reads it the same way. (If you delete the node
+you're standing on, the session snaps safely back to entry with state intact.
+Only closing Play or opening another dialogue ends the session.)
 
 And playtest is strictly read-only on your content: dialogue files are
 byte-identical after any session, however hard you bent it.

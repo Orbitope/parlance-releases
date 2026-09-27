@@ -24,8 +24,21 @@ A new quest already has one stage, `stage_1`. Add a second with **+ Stage**
 (`outcome_1`). Select the outcome and set its **Kind** to **success**.
 
 Stage and outcome ids are generated and there's no name field: the text the
-player reads is the journal writing below, and the order the stages run in is
-the order you added them — each stage follows the one before it.
+player reads is the journal writing below. This page keeps the placeholder ids
+so the steps stay easy to follow, but in your own project give them names that
+mean something: select the stage, click **Rename id…** in its inspector
+heading, type the new id, and **Preview** lists every file that mentions it —
+quest conditions, **advance quest** effects, test routes, translations. Click
+**Rename** and every one of them follows. Only this quest's stage is renamed;
+a `stage_1` in another quest keeps its id and its references.
+
+New stages run in the order you added them — each follows the one before it.
+To change that, select a stage and use **▲ Earlier** / **▼ Later** beside its
+position (*2 of 2*). Take care here: a quest condition compares stages by
+**order**, not by id — `>= stage_1` means "at or past `stage_1`" — so a move
+can change what a gate means without touching a single reference. When it
+would, the inspector says how many conditions change meaning and where they
+are, and nothing is written until you click **Move anyway**.
 
 ## 2. Write the journal — intent vs. retrospect
 
@@ -84,21 +97,18 @@ Two runtime facts save real confusion later (they're spelled out in
 
 ## 4. Name it for the journal, tag it for the grouping
 
-Two quest fields have no control on the quest canvas yet: **journal name**
-(`journalName`) — the player-facing title, falling back to **Name** when
-absent — and **tags**, which drive the journal's grouping. Main vs. side is a
-tag, never a checkbox. Set them in the quest's file,
-`data/quests/qst_past_the_gate.json`:
+Click empty canvas so no stage or outcome is selected: the inspector shows
+the quest itself. Two fields there are for the player's journal:
 
-```json
-"journalName": "Through the Gate",
-"tags": ["main"]
-```
+- **Journal Name** — the player-facing title. Type *Through the Gate*. Leave
+  it empty and the journal shows **Name** instead.
+- **Tags** — drive the journal's grouping. Type `main` and press Enter (×
+  removes a tag). Main vs. side is a tag, never a checkbox.
 
-The editor picks the change up from disk and validates it like any other
-edit. If the project declares a controlled vocabulary
-(`rules.quest.tagVocabulary`), tags are linted against it, so `sidequest` vs
-`side-quest` drift gets flagged instead of splitting your journal.
+Journal Name saves when you leave the field, a tag as soon as you add it. If
+the project declares a controlled vocabulary (`rules.quest.tagVocabulary`),
+tags are linted against it, so `sidequest` vs `side-quest` drift gets flagged
+instead of splitting your journal.
 
 ## 5. Zoom out
 

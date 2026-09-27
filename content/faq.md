@@ -24,8 +24,9 @@ that ports verify against. More: [the engine contract](/docs/concepts/engine-con
 ## Which engines work with it?
 
 Any engine that can read JSON. The [Godot runtime](https://github.com/Orbitope/parlance-gdscript)
-is public and conformance-verified; the TypeScript reference runtime powers the
-editor and playtesting; the [integration docs](/docs/integrations/) cover
+is public and conformance-verified; the TypeScript reference runtime that powers
+the editor's playtest is on npm as `@orbitope/parlance-runtime` from v0.16.0, MIT,
+so a web or JavaScript game can ship it as-is; the [integration docs](/docs/integrations/) cover
 porting to anything else — the conformance suite tells you when your port is
 correct.
 
@@ -35,7 +36,7 @@ Three layers, deliberately different:
 
 | Layer | License |
 |---|---|
-| The **format spec** — schemas, runtime contract, conformance vectors, reference validator | **MIT**, published at [parlance-spec](https://github.com/Orbitope/parlance-spec) — open forever, so your data and third-party runtimes never depend on our goodwill |
+| The **format** — schemas, runtime contract, conformance vectors, reference validator, and the reference runtime | **MIT**. The spec is published at [parlance-spec](https://github.com/Orbitope/parlance-spec) — open forever, so your data and third-party runtimes never depend on our goodwill. The runtime is on npm as [`@orbitope/parlance-runtime`](/docs/integrations/#typescript--the-reference-runtime) from v0.16.0, and games may ship it, commercial ones included |
 | The **Parlance tool** — editor, host, CLI, MCP server | Free to use, including for commercial games; not open source and not redistributable ([details](/license/)) |
 | **Your narrative content** | Yours. Entirely. The tool's license doesn't touch `data/` or `lore/` |
 
