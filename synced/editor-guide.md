@@ -2612,7 +2612,7 @@ real stories (ChoiceScript and Arcweave have test fixtures only) — at
 under `importers/`.
 
 They are not part of the editor. Nothing is installed with Parlance and nothing
-runs unless you run it; they are optional Claude Code skills you copy into a
+runs unless you run it; they are optional agent skills (`SKILL.md`) you copy into a
 project, MIT-licensed and meant to be forked when your story uses a dialect they
 do not.
 

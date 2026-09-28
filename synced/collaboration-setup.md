@@ -167,7 +167,7 @@ its writers. It is a reason to know which repositories you point it at.
 ## Writers who won't create an account
 
 Some writers won't make a git account at all. They don't have to. They can write in a plain
-screenplay-style text format and send it in; a trusted operator (or Claude, via the
+screenplay-style text format and send it in; a trusted operator (or a coding agent, via the
 `ingest-dialogue` skill) converts it to game data and puts it through the same review. See
 `tooling/llm/WRITER_TEMPLATE.md`. Method A is for writers willing to install the app and sign
 in; the template path catches everyone else.
