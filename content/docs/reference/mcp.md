@@ -24,20 +24,21 @@ With a project open, choose **Help ▸ Connect an AI Agent…**. The dialog show
 configuration for *this* install and *this* project, ready to paste, with buttons
 that copy it:
 
-- **Copy .mcp.json** — a project-scoped `.mcp.json` for Claude Code. Save it at
-  the root of the folder you run Claude Code in.
-- **Copy claude mcp add** — the same thing as one `claude mcp add` command.
-- **Copy for Other Clients** — command, arguments and environment, for any MCP
-  client that launches a stdio server. Clients that read an `mcpServers` block
-  (Claude Desktop, Cursor and most others) take the `.mcp.json` entry as-is.
+- **Copy JSON Config** — an `mcpServers` entry, the JSON most MCP clients read.
+  Paste it into your client's MCP configuration.
+- **Copy for Other Clients** — the command, arguments and environment as
+  separate fields, for clients that configure a stdio server field by field.
+- **Copy Claude Code Command** — the same server as one `claude mcp add` command,
+  for registering it from a terminal with Claude Code.
 
 If no project is open, the dialog still works, and says that `PARLANCE_ROOT` is a
 placeholder for you to fill in.
 
 ## Setup
 
-The config the dialog gives you has this shape — the app's own executable run as
-Node (`ELECTRON_RUN_AS_NODE=1`), with the bundled server as its argument:
+Any MCP client that can launch a stdio server can run it. The config the dialog
+gives you has this shape — the app's own executable run as Node
+(`ELECTRON_RUN_AS_NODE=1`), with the bundled server as its argument:
 
 ```json
 {
@@ -54,6 +55,21 @@ Node (`ELECTRON_RUN_AS_NODE=1`), with the bundled server as its argument:
 }
 ```
 
+Clients that read an `mcpServers` block take this entry as-is. For a client you
+configure through a form, use the same three fields: **command** is the
+executable, **args** is the path to `parlance-mcp.mjs`, and **env** sets
+`ELECTRON_RUN_AS_NODE=1` and `PARLANCE_ROOT`. Where your client keeps that
+configuration is up to the client; check its own documentation.
+
+For example, Claude Code registers the same server from a terminal:
+
+```bash
+claude mcp add \
+  --env ELECTRON_RUN_AS_NODE=1 --env PARLANCE_ROOT=/path/to/your/project \
+  parlance -- /Applications/Parlance.app/Contents/MacOS/Parlance \
+  /Applications/Parlance.app/Contents/Resources/mcp/parlance-mcp.mjs
+```
+
 On Windows the command is `Parlance.exe` and the server is under its
 `resources\mcp\` folder; on Linux, `/opt/Parlance/parlance-desktop` and
 `/opt/Parlance/resources/mcp/` for the `.deb`. Copy the paths from the dialog
@@ -63,7 +79,7 @@ Parlance's settings folder, because the AppImage's own files only exist while it
 is running. The paths point into the app, so after moving or reinstalling
 Parlance, copy the config again.
 
-The paths are specific to one machine, so a `.mcp.json` with them is a poor fit
+The paths are specific to one machine, so a config file with them is a poor fit
 for committing to a shared repository; each writer takes theirs from their own
 dialog.
 
