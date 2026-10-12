@@ -2065,10 +2065,13 @@ A found path can be kept three ways:
 
 "No path found" with *the search was complete* means no start reaches the node under
 the engine's rules; with *bounded* it means the budget ran out first. From the command
-line, `parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N] [--max-depth N] [--save-snapshot <id>] [--save-route <id>] [--json]`
+line, `parlance witness <dialogueId> <nodeId> [--from <dialogueId>] [--max-states N] [--max-depth N] [--save-snapshot <id>] [--save-route <id>] [--force] [--json]`
 does the same and exits 1 when nothing is found; `--from` searches from one
 dialogue's entry, like the checkbox, and `--max-states` / `--max-depth` are Explore's
 budget flags with Explore's meaning. A bounded result names the flag to raise.
+A snapshot or route that already exists in `tests/` — including the `<id>_start`
+snapshot a return-visit route saves beside it — is refused with exit 2 and nothing
+written; `--force` replaces them.
 
 ### What playtest does NOT change
 
