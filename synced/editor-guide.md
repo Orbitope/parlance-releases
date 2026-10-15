@@ -1265,6 +1265,80 @@ have their edges drawn red. **Auto layout** re-arranges the graph.
 
 Click a quest node to jump to that quest's detail canvas.
 
+### Time, acts and lines
+
+A project can tell the editor which counter is its clock and where its acts begin, in
+`data/rules.json` under `time` (`clock`, and `acts` with a `startsWhen` condition on every
+act but the first), and name its quest lines under `quest.lines` (a quest joins a line with
+the tag `line:<id>`). Nothing about a quest's act, day or place on a line is typed in: the
+editor derives them from the quest's own **Available When** and the quests it depends on,
+and a tag such as `act2` on the quest overrides the derivation where you disagree with it.
+A quest gated on a flag opens as early as the **earliest** quest that sets it — a flag set by an
+act-1 quest and an act-2 quest places its readers in act 1 — and a gate that is an **Any** of
+flags or quest stages opens with its earliest choice. A gate on another quest's stage moves a
+quest later only when it needs that quest to have got somewhere — **at or past** (`>=`), **past**
+(`>`) or **at** (`==`) a stage. A **before** read (`<`, `<=`) is true before that quest has even
+started, so it moves nothing and draws no dependency. Only quests count as setters here, so a
+flag a dialogue also sets is placed by its quest setters alone. A dialogue can set it at any time,
+though, so a quest pushed later by such a flag — and anything that quest pushes in turn — is
+drawn **uncertain**, and hovering names the flag. The `TIME` act checks skip it. The views count
+the flags dialogues and cutscenes set; the validator also counts the other non-quest writers
+(locations and the rest), so on rare projects the two can differ.
+
+The derivation assumes a quest's effects fire only once the quest is available. The runtime
+does not promise that: a stage completes, and its effects fire, as soon as its condition holds,
+whether or not the quest has opened. So the `TIME` warnings flag a stage or outcome whose
+condition is only flags quests set in an **earlier** act than its own quest's — its effects
+will run before the quest opens.
+The **Board** and the **Lines** map (below), the Reports **Shape** tab and the Speakers
+**Timeline** (§ 11) draw it. The declaration is validated (a dangling flag or stage in a `startsWhen` is a
+`REF` error, a later act with no `startsWhen` a `RULES` error, and the `TIME` warnings in § 10
+say where the declaration and the project disagree) and renamed along with everything else.
+
+### Board mode
+
+The **Graph | Board** switch at the left of the toolbar turns the same quests into a
+**board**: one column per act, one band per quest line (declared lines in order, then a **No
+line** band), and one card per quest. When `rules.time.clock` names a counter, each act
+column splits into day sub-columns by the lowest day a quest's gate allows (**any day** for
+quests with no clock gate). Nothing on the board is placed by hand — the columns, bands and
+order along a line are all derived — so cards cannot be dragged and there is no layout to
+save. The switch remembers your choice.
+
+Each card shows the quest's name, a row per stage with its task type (**talk**, **check**,
+**time**, **wait**, **scripted**) and, for a stage behind a hard check, the check's skill and
+difficulty; a pip per outcome; and badges for **essential** (some ending depends on it), the
+day it opens, its XP, the endings it feeds (`→ ending`) and the locations it opens. A
+**hatched** card is one the board cannot place for certain: no acts are declared, the
+quest's **Available When** has a part the derivation cannot read (an `any`, a `not`, a
+`questOutcome`), or the quest was pushed later only by a flag a dialogue or cutscene also
+sets. Hovering the card says which. The same quests are the ones the `TIME` act checks skip.
+
+Edges join cards: **requires** (grey) from a quest whose flag or stage another quest's
+**Available When** reads, **closes** (orange, dashed) for **Closed When**, and **modifies**
+(dotted) from a quest whose flag eases a check, ending on the stage row that check guards,
+labelled with the bonus. Select an edge and the toolbar lists what carries it — each flag
+opens that variable's Flow panel, each stage or outcome opens the quest on it. Click a card
+to open the quest.
+
+### Lines mode
+
+**Lines**, the third view in the **Graph | Board | Lines** switch, draws one lane per quest
+line — declared lines in the order `rules.quest.lines` gives them, then any other `line:` tag
+— and puts each quest on its lane in the order the data lets it happen: a quest sits as far
+along as the longest chain of quests on its own line that it requires. Quests on no line are
+counted in the toolbar rather than drawn; with none on a line yet, the view says how to put
+one there.
+
+A stop is a **diamond** when one of the quest's stages is behind a hard check and a circle
+otherwise; its colour is its zone (the legend names them), a green ring marks an essential
+quest, and a dashed glyph a quest whose act is not derived for certain. The rail through a
+lane turns **dashed** before a quest that cannot be reached along its own line — nothing on
+the line leads to it from the line's first stop, the same gap the `TIME` line warning names.
+Grey edges run along a lane; coloured **transfers** cross between lanes where a quest needs
+one on another line; dotted edges run from a quest whose flag eases a check into the quest
+that check guards. Select an edge to see what carries it; click a stop to open the quest.
+
 ---
 
 ## 9. Location map
@@ -1381,6 +1455,7 @@ Common codes:
 | `XP` | `grant_xp` issue — non-positive `amount` (warning), or `grant_xp` authored outside a quest outcome (advisory; the convention is XP from quests only — silent in a project with no quests). |
 | `ENGINE` | `engine` effect issue. A command name that is not lowercase snake_case is an error. Once `rules.engine.commands` declares the project's commands, a command outside that set (a typo is otherwise a silent no-op in the game) or a call with the wrong number of args is a warning. |
 | `CHECK` | Priced/oneshot check discipline — a `priced` (default) active check whose failure doesn't proceed (no `onFailure` branch), or a priced-gate failure that sets a flag some `offer.when` reads (advisory). `oneshot` checks are exempt from the proceed requirement. |
+| `TIME` | The time declaration and the quest timeline disagree (only when `rules.time` is declared or a quest carries a `line:` tag). Warnings: a clock counter nothing advances; a stage whose completion flag is set only by quests in a later act; a quest tagged with one act whose gates place it in another; a stage or outcome whose effects fire before its quest opens (its condition is only flags quests set in an earlier act); a quest on a line with no dependency path from the line's first stop. An error: two acts with the same id. |
 
 Spelling is deliberately **not** in this table. Prose findings carry the code
 `SPELL`, they are never produced by validation, and they never appear in this
@@ -1601,6 +1676,41 @@ worth knowing:
   covers only the nodes it narrates.
 
 The words column sums to the project word count in the stats bar above.
+
+### Character timeline
+
+The **Speakers** tab's **Lines & words | Timeline** switch turns the table into a timeline: a
+row per character who offers a dialogue, a column per act (split by day when a clock is
+declared), and each dialogue under the act it first becomes available in. A dialogue's act is
+worked out the same way a quest's is — from its offer's **When** and the quests that gate it —
+and an act tag on the dialogue (`act2`) overrides it. Offers do not close, so a later cell
+counts the dialogues still on offer from earlier acts.
+
+A **?** marks a dialogue the timeline cannot place for certain, and hovering says why: its
+offer gate has a part it cannot read; it reads a flag only a dialogue, a cutscene or the
+engine sets (forced-routing `active_dialogue__…` flags among them). A flag set by quests in
+several acts places the dialogue by the earliest of them, exactly as it places a quest. A row says so when every
+place the character stands is behind a `showIf` or a gated exit — that never moves a
+dialogue, it only warns that the character may not be reachable when the dialogue is.
+
+### Shape — width against depth, and district layers
+
+The **Shape** tab answers "how wide is each act, and how long are its chains?" from the same
+derivation the quest Board draws. Its first table has a row per act and line that holds any
+quests: **Width** (how many quests), **Depth** (the longest chain of quests that require one
+another inside that act and line), **Hard checks** (stages behind a check), how many are
+**Essential**, **Optional** or **Unknown** (no endings to judge by), the **XP** they grant, and
+the quests themselves — click one to open it. **Copy as Mermaid** copies the same collapse as
+a Mermaid flowchart for design docs (an arrow between two rows counts the requires edges
+between them); **Copy as text** copies one line per row.
+
+The second table is **District depth**: each zone's locations by how many gated exits stand
+between them and the start location (tag one `start`). Each layer names the entities that
+open it — whatever writes the flags its exit gates read — with a link to each. A layer marked
+**nothing unlocks this layer** is one whose every way in is gated on flags nothing in the
+project sets; the tab says so only when it is certain, and shows **unknown** instead when a
+gate reads a counter or an item, uses `any` or `not`, or the flag starts true or is written
+by the engine.
 
 ### Explore — playthrough explorer & route coverage
 
