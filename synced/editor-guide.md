@@ -1295,6 +1295,39 @@ The **Board** and the **Lines** map (below), the Reports **Shape** tab and the S
 `REF` error, a later act with no `startsWhen` a `RULES` error, and the `TIME` warnings in § 10
 say where the declaration and the project disagree) and renamed along with everything else.
 
+A minimal declaration, with one clock, two acts and one line:
+
+```json
+{
+  "time": {
+    "clock": [{ "counter": "ct_day", "label": "Day" }],
+    "acts": [
+      { "id": "act1", "label": "Act I" },
+      { "id": "act2", "label": "Act II",
+        "startsWhen": { "type": "quest", "quest": "qst_main", "op": ">=", "stage": "stg_framework" } }
+    ]
+  },
+  "quest": {
+    "lines": [{ "id": "smoke", "label": "The smuggling line" }]
+  }
+}
+```
+
+The clock counters are listed primary first; a quest gated on `ct_day >= 3` is read as day 3.
+Act ids and `line:` tags are ordinary tags, so add them to `quest.tagVocabulary` when the project
+declares one.
+
+#### The `TIME` warnings and their usual fixes
+
+| Warning | What it means | Usual fix |
+|---|---|---|
+| Clock counter is never advanced | No effect anywhere adjusts the clock counter, so every gate on it stays shut | Add an `adjust_counter` where time passes, or drop the counter from `clock` |
+| Stage needs a flag only set in a later act | A stage's completion flag is set only by quests in a later act, so it cannot complete in this one | Move the setter earlier, or move the quest later |
+| Stage or outcome fires before its quest opens | Its condition is only flags quests set in an earlier act, so its effects run before the quest is available | Gate the condition on the quest's own progress too, or move the quest earlier |
+| Quest is tagged one act but its gates place it in another | The act tag and the derivation disagree | Fix the gate, or the tag |
+| Line has a gap | A quest on a line has no dependency path from the line's first stop | Gate it on an earlier stop, or take it off the line |
+| Duplicate act id (an error) | Two acts share an id | Rename one |
+
 ### Board mode
 
 The **Graph | Board** switch at the left of the toolbar turns the same quests into a
