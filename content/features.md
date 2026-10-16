@@ -79,6 +79,13 @@ small stuff, and the [editor guide](/docs/editor-guide/) documents each one in d
   (intent, in the protagonist's voice) kept distinct from retrospective descriptions.
 - **Quest dependency graph** — the whole quest structure as a DAG: which quest's flags
   open or close which, with *start*, *gated* and *closes* badges.
+- **Acts, days and quest lines** — declare where your acts begin and which quest lines
+  you run in `rules.json`, and the editor works out each quest's act, day and place on its
+  line from the gates you already wrote. Nothing is placed by hand.
+- **Board and Lines** — the quests as an act × line board of cards with their stages and
+  hard checks, or as a line map with one lane per quest line. Reports adds a **Shape** tab
+  (how wide each act is, how deep its chains run) and a **Timeline** of when each
+  character's dialogues open.
 - **Location map** — locations and their exits (including gated ones) as a graph.
 - **Endings, codex, cutscene manifests** — all first-class, all validated, all
   reachable from the same reference index.
