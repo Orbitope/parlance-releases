@@ -119,6 +119,12 @@ shows every quest as a DAG — a **start** badge on quests that start available,
 of the game: what gates what, and where the critical path runs. (Locations get
 the [same treatment](/docs/editor-guide/#9-location-map).)
 
+Declare your acts and quest lines in `data/rules.json` (since v0.17.0), and the
+toolbar's **Graph | Board | Lines** switch adds two more views. **Board** puts each
+quest in the act and line its gates place it in. **Lines** draws each quest line
+as a lane in the order it can be played. A `line:main` tag puts a quest on the
+`main` line. See [time, acts and lines](/docs/editor-guide/#time-acts-and-lines).
+
 For the full structure — outcome kinds, stage ordering, objectives — see the
 [quest canvas chapter](/docs/editor-guide/#7-quest-canvas). The demo's
 `qst_inquest` shows the finished pattern: three stages, three outcomes, one per
